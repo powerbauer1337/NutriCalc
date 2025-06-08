@@ -68,20 +68,9 @@ Ein fortschrittlicher Nährstoffrechner für Pflanzen (insbesondere Cannabis), e
     *   Nutze die "Export"-Schaltfläche, um deine aktuellen Einstellungen als JSON-Datei zu sichern.
     *   Lade gespeicherte Rezepte mit "Import" wieder.
 
-## Screenshots
-
-### Misch-Assistent mit Live-Nährstoff-Visualisierung
-[Füge hier den Screenshot des Misch-Assistenten mit dem Balkendiagramm ein]
-
-### Haupt-Setup-Tab
-[Füge hier den Screenshot des Haupt-Setup-Tabs ein]
-
-### Dünger-Tab
-[Füge hier den Screenshot des Dünger-Tabs ein]
-
 ## Hinweise zur Entwicklung
 
-*   Diese Anwendung ist als einzelne HTML-Datei konzipiert und nutzt CDNs für React, Tailwind und Babel. Es ist kein separter Build-Schritt erforderlich.
+*   Diese Anwendung ist als einzelne HTML-Datei konzipiert und nutzt CDNs für React, Tailwind und Babel. Es ist kein separater Build-Schritt erforderlich.
 *   **API Key Management:** Für eine echte Produktionsanwendung MUSS die Interaktion mit der Gemini API über einen Backend-Proxy erfolgen, um den API Key sicher zu halten. Der API Key sollte niemals direkt im clientseitigen Code stehen, wenn die Anwendung öffentlich zugänglich ist.
 *   Die Codebasis wurde zugunsten der Kompaktheit und des schnellen Prototypings in einer Datei gehalten. Für größere Projekte wäre eine Aufteilung in separate Komponenten-Dateien und ein Build-System (z.B. mit Vite oder Create React App) empfehlenswert.
 
