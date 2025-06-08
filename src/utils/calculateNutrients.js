@@ -2,18 +2,14 @@ export function calculateNutrientResults({ waterVolume, growthStage, waterType, 
   if (waterVolume <= 0) {
     return { nutrients: {}, contributions: {}, stage: GROWTH_STAGES[growthStage] };
   }
-  let baseN = { ca: 0, mg: 0, s: 0, na: 0, cl: 0, no3: 0, so4: 0, po4: 0 };
+  let baseN = {};
   let currentEC = 0;
   let basePH = 0;
 
   if (mixedWater) {
-    baseN = {
-      ca: mixedWater.ca || 0,
-      mg: mixedWater.mg || 0,
-      s: 0, // S is not in mixedWater for now
-      na: mixedWater.na || 0,
-      cl: 0, no3: 0, so4: 0, po4: 0 // Assume these are 0 for mixed water unless specified
-    };
+    NUTRIENT_FIELDS.forEach(field => {
+      baseN[field.key] = mixedWater[field.key] || 0;
+    });
     currentEC = mixedWater.ec || 0;
     basePH = mixedWater.ph || 0;
   } else if (waterType === 'custom') {
@@ -37,8 +33,10 @@ export function calculateNutrientResults({ waterVolume, growthStage, waterType, 
   }
 
   let tN = NUTRIENT_FIELDS.reduce((acc, f) => { acc[f.key] = 0; return acc; }, {});
-  tN.ca = baseN.ca; tN.mg = baseN.mg; tN.s = baseN.s;
-  tN.na = baseN.na; tN.cl = baseN.cl; tN.no3 = baseN.no3; tN.so4 = baseN.so4; tN.po4 = baseN.po4;
+  // Initialize tN with baseN values, ensuring all NUTRIENT_FIELDS are covered
+  NUTRIENT_FIELDS.forEach(field => {
+    tN[field.key] = baseN[field.key] || 0;
+  });
   tN.ec = currentEC;
   tN.ph = basePH; // Add pH to the results
 
@@ -70,7 +68,10 @@ export function calculateNutrientResults({ waterVolume, growthStage, waterType, 
   );
   tN.ec = currentEC + Math.max(0, nutrEC);
   
-  Object.keys(tN).forEach(k => { tN[k] = Math.round(tN[k] * 100) / 100; });
+  Object.keys(tN).forEach(k => {
+    tN[k] = Number(Math.round(tN[k] * 100) / 100);
+    if (isNaN(tN[k])) tN[k] = 0; // Ensure NaN is converted to 0
+  });
   
   return { nutrients: tN, contributions: contrib, stage: GROWTH_STAGES[growthStage] };
 } 

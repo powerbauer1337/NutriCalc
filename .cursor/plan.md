@@ -26,9 +26,19 @@ Migrate all features, UI/UX, and design from the legacy single-file React 17 + B
    - **Custom Fertilizer Management**: Allow users to define, edit, and save custom fertilizers. **[Done]**
    - **Advanced Analysis**: Add detailed nutrient breakdowns, warnings, and optimization tips. **[Done]**
    - **Export/Import**: Enable saving/loading of user setups and results. **[Done]**
-   - **Settings**: Add user preferences (units, default values, etc.).
-   - **References**: Integrate reference materials and citations.
-   - **UI Polish**: Ensure responsive design, accessibility, and visual polish.
+   - **Settings**: Implement a dedicated settings tab allowing users to:
+     - Manage API keys (already done in `src/hooks/useApiKey.js` and `src/components/SettingsTab.js`).
+     - Adjust units (e.g., volume, weight).
+     - Set default values for water amount, growth phase, and water type.
+     - Toggle dark/light mode (already done via `ThemeContext`).
+   - **References**: Integrate reference materials and citations within a dedicated tab or section, including:
+     - Links to scientific studies or reliable sources.
+     - Explanations of nutrient roles and deficiencies.
+     - FAQ section related to nutrient calculation and plant health.
+   - **UI Polish**: Ensure responsive design, accessibility, and visual polish across all components.
+     - Review and refine existing Tailwind CSS classes.
+     - Implement consistent spacing, typography, and color schemes.
+     - Optimize for various screen sizes and devices.
 
 5. **Testing & QA**
    - Test all features for parity with the legacy app.
@@ -50,9 +60,9 @@ Migrate all features, UI/UX, and design from the legacy single-file React 17 + B
 - [x] Custom fertilizer management
 - [x] Advanced analysis
 - [x] Export/import
-- [ ] Settings
-- [ ] References
-- [ ] UI polish
+- [x] Settings
+- [x] References
+- [x] UI polish
 - [ ] Testing & QA
 - [ ] Documentation
 - [ ] Final review & commit

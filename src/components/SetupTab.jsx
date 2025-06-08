@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { calculateNutrientResults } from '../utils/calculateNutrients.js';
 import { useToasts } from '../contexts/ToastContext.jsx';
 import FertilizerManager from './FertilizerManager.jsx';
-import { GROWTH_STAGES, WATER_TYPES } from '../constants';
+import WaterInput from './WaterInput.jsx';
+import { GROWTH_STAGES, WATER_TYPES, NUTRIENT_FIELDS } from '../constants';
+import useAppSettings from '../hooks/useAppSettings.js';
 
 const initialCustomWaterProfile = { ca: 0, mg: 0, s: 0, na: 0, cl: 0, no3: 0, so4: 0, po4: 0, baseEC: 0.0 };
 
@@ -10,14 +12,32 @@ const defaultFertilizerSelection = [
   // Example: { id: 'hesi_tnt', amount: 3.0, active: true },
 ];
 
-export const SetupTab = ({ NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, fertilizerDatabase, onAnalysisUpdate, mixedWater }) => {
+const mainNutrients = [
+  { key: 'n', label: 'N (Stickstoff)', unit: 'ppm' },
+  { key: 'p', label: 'P (Phosphor)', unit: 'ppm' },
+  { key: 'k', label: 'K (Kalium)', unit: 'ppm' },
+  { key: 'ec', label: 'EC', unit: 'mS/cm' },
+];
+
+export const SetupTab = ({ NUTRIENT_FIELDS: propNutrientFields, GROWTH_STAGES, WATER_TYPES, fertilizerDatabase, onAnalysisUpdate, mixedWater }) => {
   const addToast = useToasts();
-  const [waterVolume, setWaterVolume] = useState(10);
-  const [growthStage, setGrowthStage] = useState(Object.keys(GROWTH_STAGES)[0]);
-  const [waterType, setWaterType] = useState(Object.keys(WATER_TYPES)[0]);
+  const { settings } = useAppSettings();
+
+  const [waterVolume, setWaterVolume] = useState(() => {
+    const defaultVolume = settings.waterAmount ? Number(settings.waterAmount) : 10;
+    return Math.max(0.1, defaultVolume);
+  });
+  const [growthStage, setGrowthStage] = useState(settings.growthPhase || Object.keys(GROWTH_STAGES)[0]);
+  const [waterType, setWaterType] = useState(settings.waterType || Object.keys(WATER_TYPES)[0]);
   const [customWaterProfile, setCustomWaterProfile] = useState(initialCustomWaterProfile);
   const [selectedFertilizers, setSelectedFertilizers] = useState(defaultFertilizerSelection);
-  const [results, setResults] = useState({ nutrients: {}, contributions: {}, stage: GROWTH_STAGES[growthStage] });
+
+  const initialNutrientResults = {};
+  mainNutrients.forEach(field => {
+    initialNutrientResults[field.key] = 0;
+  });
+
+  const [results, setResults] = useState({ nutrients: initialNutrientResults, contributions: {}, stage: GROWTH_STAGES[growthStage] });
 
   useEffect(() => {
     const newResults = calculateNutrientResults({
@@ -27,15 +47,20 @@ export const SetupTab = ({ NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, fertiliz
       selectedFertilizers,
       fertilizerDatabase: fertilizerDatabase || {},
       customWaterProfile,
-      NUTRIENT_FIELDS,
+      NUTRIENT_FIELDS: propNutrientFields,
       GROWTH_STAGES,
       WATER_TYPES,
       mixedWater,
     });
-    setResults(newResults);
+    const populatedNutrients = {};
+    mainNutrients.forEach(nutrient => {
+      populatedNutrients[nutrient.key] = newResults.nutrients?.[nutrient.key] ?? 0;
+    });
+
+    setResults({ ...newResults, nutrients: populatedNutrients });
     if (onAnalysisUpdate) {
       onAnalysisUpdate({
-        NUTRIENT_FIELDS,
+        NUTRIENT_FIELDS: propNutrientFields,
         GROWTH_STAGES,
         WATER_TYPES,
         fertilizerDatabase,
@@ -48,7 +73,7 @@ export const SetupTab = ({ NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, fertiliz
         mixedWater,
       });
     }
-  }, [waterVolume, growthStage, waterType, customWaterProfile, selectedFertilizers, fertilizerDatabase, NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, mixedWater]);
+  }, [waterVolume, growthStage, waterType, customWaterProfile, selectedFertilizers, fertilizerDatabase, propNutrientFields, GROWTH_STAGES, WATER_TYPES, mixedWater]);
 
   // Refresh selectedFertilizers if fertilizerDatabase changes (e.g., custom fertilizer added/removed)
   useEffect(() => {
@@ -71,14 +96,6 @@ export const SetupTab = ({ NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, fertiliz
   const toggleFertilizer = (id) => {
     setSelectedFertilizers(prev => prev.map(f => f.id === id ? { ...f, active: !f.active } : f));
   };
-
-  // Main nutrients to display
-  const mainNutrients = [
-    { key: 'n', label: 'N (Stickstoff)', unit: 'ppm' },
-    { key: 'p', label: 'P (Phosphor)', unit: 'ppm' },
-    { key: 'k', label: 'K (Kalium)', unit: 'ppm' },
-    { key: 'ec', label: 'EC', unit: 'mS/cm' },
-  ];
 
   // Export/Import logic
   const handleExport = () => {
@@ -140,7 +157,7 @@ export const SetupTab = ({ NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, fertiliz
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="waterVolume">Wassermenge (Liter)</label>
+            <label className="block text-sm font-medium mb-1" htmlFor="waterVolume">Wassermenge ({settings.unit === 'liter' ? 'Liter' : 'Gallonen'})</label>
             <input
               id="waterVolume"
               type="number"
@@ -148,7 +165,7 @@ export const SetupTab = ({ NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, fertiliz
               step="0.1"
               value={waterVolume}
               onChange={(e) => setWaterVolume(Math.max(0.1, Number(e.target.value)))}
-              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100"
+              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900"
               placeholder="z.B. 10"
             />
           </div>
@@ -158,7 +175,7 @@ export const SetupTab = ({ NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, fertiliz
               id="growthStage"
               value={growthStage}
               onChange={(e) => setGrowthStage(e.target.value)}
-              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100"
+              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900"
             >
               {Object.entries(GROWTH_STAGES).map(([key, stage]) => (
                 <option key={key} value={key}>{stage.name}</option>
@@ -171,7 +188,7 @@ export const SetupTab = ({ NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, fertiliz
               id="waterType"
               value={waterType}
               onChange={(e) => setWaterType(e.target.value)}
-              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100"
+              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900"
             >
               {Object.entries(WATER_TYPES).map(([key, type]) => (
                 <option key={key} value={key}>{type.name}</option>
@@ -190,7 +207,7 @@ export const SetupTab = ({ NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, fertiliz
                       name={key}
                       value={customWaterProfile[key]}
                       onChange={e => setCustomWaterProfile(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
-                      className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100 text-xs"
+                      className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900 text-xs"
                       min="0"
                       step="0.01"
                     />
@@ -201,7 +218,19 @@ export const SetupTab = ({ NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, fertiliz
           )}
         </div>
         <div>
-          <h3 className="text-md font-semibold text-slate-800 dark:text-slate-100 mb-2">Dünger & Dosierung</h3>
+          <WaterInput />
+          {mixedWater && (
+            <div className="mt-6 p-4 bg-gray-700 rounded-md text-white">
+              <h3 className="text-lg font-semibold mb-2">Gemischtes Wasser Ergebnis:</h3>
+              <p>pH: {mixedWater.ph?.toFixed(2) ?? 'N/A'}</p>
+              <p>EC: {mixedWater.ec?.toFixed(2) ?? 'N/A'} mS/cm</p>
+              <p>Ca: {mixedWater.ca?.toFixed(1) ?? 'N/A'} mg/L</p>
+              <p>Mg: {mixedWater.mg?.toFixed(1) ?? 'N/A'} mg/L</p>
+              <p>Na: {mixedWater.na?.toFixed(1) ?? 'N/A'} mg/L</p>
+              <p>Gesamtvolumen: {mixedWater.totalVolume?.toFixed(1) ?? 'N/A'} L</p>
+            </div>
+          )}
+          <h3 className="text-md font-semibold text-slate-800 dark:text-slate-100 mb-2 mt-4">Dünger & Dosierung</h3>
           <FertilizerManager
             selectedFertilizers={selectedFertilizers}
             fertilizerDatabase={fertilizerDatabase}
@@ -216,10 +245,17 @@ export const SetupTab = ({ NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, fertiliz
       <div className="mt-6 p-4 bg-slate-100 dark:bg-slate-900 rounded-lg">
         <h3 className="font-semibold mb-2 text-slate-800 dark:text-slate-100">Berechnete Hauptwerte</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {mainNutrients.map(nutrient => (
+          {results && results.nutrients && mainNutrients.map(nutrient => (
             <div key={nutrient.key} className="flex flex-col items-center p-2 bg-white dark:bg-slate-800 rounded shadow text-center">
               <span className="text-xs text-slate-500 dark:text-slate-400">{nutrient.label}</span>
-              <span className="text-lg font-bold text-blue-700 dark:text-blue-300">{results.nutrients?.[nutrient.key] ?? 0} {nutrient.unit}</span>
+              <span className="text-lg font-bold text-blue-700 dark:text-blue-300">
+                {results?.nutrients?.[nutrient.key] !== undefined &&
+                 results.nutrients?.[nutrient.key] !== null &&
+                 !isNaN(results.nutrients?.[nutrient.key])
+                  ? results.nutrients[nutrient.key].toFixed(2)
+                  : '0.00'}
+                {''} {nutrient.unit}
+              </span>
             </div>
           ))}
         </div>

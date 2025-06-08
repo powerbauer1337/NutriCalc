@@ -4,10 +4,12 @@ import { ToastProvider, useToasts } from './contexts/ToastContext.jsx';
 import { WaterProvider, useWater } from './contexts/WaterContext';
 import ChatBar from './components/ChatBar.jsx';
 import SetupTab from './components/SetupTab.jsx';
+import WaterInput from './components/WaterInput.jsx';
 import FertilizerTab from './components/FertilizerTab.jsx';
 import AnalysisTab from './components/AnalysisTab.jsx';
 import SettingsTab from './components/SettingsTab.jsx';
 import DetailsTab from './components/DetailsTab.jsx';
+import ReferencesTab from './components/ReferencesTab.jsx';
 import { NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, BASE_FERTILIZER_DATABASE, LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS, TABS_CONFIG } from './constants';
 import { useApiKey } from './hooks/useApiKey.js';
 
@@ -163,12 +165,12 @@ const AppLayout = () => {
           displayMessage={aiMessage}
           suggestions={["Wie erstelle ich einen Dünger?", "Ist mein N-Wert ok?", "Was ist EC?"]}
         />
-        <WaterInput />
         {activeTab === TABS_CONFIG[0].id && <SetupTab NUTRIENT_FIELDS={NUTRIENT_FIELDS} GROWTH_STAGES={GROWTH_STAGES} WATER_TYPES={WATER_TYPES} fertilizerDatabase={fertilizerDatabase} onAnalysisUpdate={setAnalysisInputs} mixedWater={mixedWater} />}
         {activeTab === TABS_CONFIG[1].id && <DetailsTab results={analysisInputs.results} />}
         {activeTab === TABS_CONFIG[2].id && <AnalysisTab {...analysisInputs} />}
         {activeTab === TABS_CONFIG[3].id && <FertilizerTab refreshFertilizerDatabase={refreshFertilizerDatabase} />}
         {activeTab === TABS_CONFIG[4].id && <SettingsTab />}
+        {activeTab === TABS_CONFIG[5].id && <ReferencesTab />}
       </main>
     </div>
   );

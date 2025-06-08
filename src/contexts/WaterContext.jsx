@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { WATER_DEFAULTS } from '../constants/waterDefaults';
+import { NUTRIENT_FIELDS } from '../constants';
 
 const WaterContext = createContext();
 
@@ -23,16 +24,14 @@ export const WaterProvider = ({ children }) => {
     let sum_H_plus_volume = 0;
     let sum_volume = 0;
     
-    // For other parameters, initialize sums for weighted average
-    const paramSums = {
-        ec: 0,
-        ca: 0,
-        mg: 0,
-        na: 0,
-    };
+    const paramSums = {};
+    NUTRIENT_FIELDS.forEach(field => {
+        paramSums[field.key] = 0;
+    });
+    paramSums.ec = 0; // EC is a separate calculated value
 
     waterSources.forEach(source => {
-      const { ph, ec, ca, mg, na, volume } = source;
+      const { ph, ec, volume } = source;
       if (volume > 0) {
         // pH calculation (logarithmic)
         const H_i = Math.pow(10, -ph);
@@ -40,10 +39,10 @@ export const WaterProvider = ({ children }) => {
         sum_volume += volume;
 
         // Other parameters (linear average)
+        NUTRIENT_FIELDS.forEach(field => {
+            paramSums[field.key] += (source[field.key] || 0) * volume;
+        });
         paramSums.ec += ec * volume;
-        paramSums.ca += ca * volume;
-        paramSums.mg += mg * volume;
-        paramSums.na += na * volume;
       }
     });
 
@@ -57,17 +56,16 @@ export const WaterProvider = ({ children }) => {
     const ph_mix = -Math.log10(H_plus_mix);
 
     // Calculate mixed values for other parameters
+    const mixedNutrients = {};
+    NUTRIENT_FIELDS.forEach(field => {
+        mixedNutrients[field.key] = paramSums[field.key] / sum_volume;
+    });
     const mixedEC = paramSums.ec / sum_volume;
-    const mixedCa = paramSums.ca / sum_volume;
-    const mixedMg = paramSums.mg / sum_volume;
-    const mixedNa = paramSums.na / sum_volume;
 
     setMixedWater({
       ph: ph_mix,
       ec: mixedEC,
-      ca: mixedCa,
-      mg: mixedMg,
-      na: mixedNa,
+      ...mixedNutrients,
       totalVolume: sum_volume,
     });
   };
@@ -82,6 +80,13 @@ export const WaterProvider = ({ children }) => {
         ca: 0,
         mg: 0,
         na: 0,
+        s: 0,
+        fe: 0,
+        mn: 0,
+        zn: 0,
+        cu: 0,
+        b: 0,
+        mo: 0,
       }),
       volume: 0,
     };

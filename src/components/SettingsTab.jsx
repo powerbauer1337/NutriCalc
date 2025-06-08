@@ -1,22 +1,43 @@
 import React from 'react';
 import { useApiKey } from '../hooks/useApiKey.js';
+import useAppSettings from '../hooks/useAppSettings.js';
+import { GROWTH_STAGES, WATER_TYPES } from '../constants/index.js';
 
 const SettingsTab = () => {
   const { apiKey, updateApiKey, removeApiKey } = useApiKey();
   const [inputValue, setInputValue] = React.useState(apiKey || '');
+  const { settings, updateSetting } = useAppSettings();
 
-  const handleSave = () => {
+  const handleSaveApiKey = () => {
     updateApiKey(inputValue.trim());
   };
 
-  const handleRemove = () => {
+  const handleRemoveApiKey = () => {
     removeApiKey();
     setInputValue('');
   };
 
+  const handleUnitChange = (e) => {
+    updateSetting('unit', e.target.value);
+  };
+
+  const handleDefaultWaterAmountChange = (e) => {
+    updateSetting('waterAmount', e.target.value);
+  };
+
+  const handleDefaultGrowthPhaseChange = (e) => {
+    updateSetting('growthPhase', e.target.value);
+  };
+
+  const handleDefaultWaterTypeChange = (e) => {
+    updateSetting('waterType', e.target.value);
+  };
+
   return (
     <div className="max-w-lg mx-auto p-4 bg-white dark:bg-slate-800 rounded-lg shadow space-y-6">
-      <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">Einstellungen</h2>
+      <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4">Einstellungen</h2>
+      
+      {/* Gemini API Key Setting */}
       <div>
         <label className="block text-sm font-medium mb-1" htmlFor="apiKey">Gemini API Key</label>
         <input
@@ -28,12 +49,70 @@ const SettingsTab = () => {
           placeholder="API Key eingeben..."
         />
         <div className="flex gap-2 mt-2">
-          <button onClick={handleSave} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Speichern</button>
-          <button onClick={handleRemove} className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Entfernen</button>
+          <button onClick={handleSaveApiKey} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Speichern</button>
+          <button onClick={handleRemoveApiKey} className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Entfernen</button>
         </div>
         <div className="text-xs text-slate-500 mt-2">Dein API Key wird lokal im Browser gespeichert.</div>
       </div>
-      {/* Add more settings here as needed */}
+
+      {/* Unit Setting */}
+      <div>
+        <label className="block text-sm font-medium mb-1" htmlFor="unit">Einheit für Wassermenge</label>
+        <select
+          id="unit"
+          value={settings.unit}
+          onChange={handleUnitChange}
+          className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100"
+        >
+          <option value="liter">Liter</option>
+          <option value="gallon">Gallonen</option>
+        </select>
+      </div>
+
+      {/* Default Water Amount */}
+      <div>
+        <label className="block text-sm font-medium mb-1" htmlFor="defaultWaterAmount">Standard-Wassermenge (ml/oz)</label>
+        <input
+          id="defaultWaterAmount"
+          type="number"
+          value={settings.waterAmount}
+          onChange={handleDefaultWaterAmountChange}
+          className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100"
+          placeholder="Standard-Wassermenge eingeben..."
+        />
+      </div>
+
+      {/* Default Growth Phase */}
+      <div>
+        <label className="block text-sm font-medium mb-1" htmlFor="defaultGrowthPhase">Standard-Wachstumsphase</label>
+        <select
+          id="defaultGrowthPhase"
+          value={settings.growthPhase}
+          onChange={handleDefaultGrowthPhaseChange}
+          className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100"
+        >
+          <option value="">Auswählen...</option>
+          {GROWTH_STAGES.map(phase => (
+            <option key={phase.value} value={phase.value}>{phase.label}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Default Water Type */}
+      <div>
+        <label className="block text-sm font-medium mb-1" htmlFor="defaultWaterType">Standard-Wassertyp</label>
+        <select
+          id="defaultWaterType"
+          value={settings.waterType}
+          onChange={handleDefaultWaterTypeChange}
+          className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100"
+        >
+          <option value="">Auswählen...</option>
+          {WATER_TYPES.map(type => (
+            <option key={type.value} value={type.value}>{type.label}</option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 };

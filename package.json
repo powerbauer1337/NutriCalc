@@ -1,6 +1,7 @@
 {
   "name": "nutricalc",
   "version": "1.0.0",
+  "type": "module",
   "description": "Advanced nutrient calculator for plants",
   "main": "src/index.js",
   "scripts": {

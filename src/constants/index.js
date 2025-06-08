@@ -9,6 +9,7 @@ export const TAB_ADVANCED = 'advanced';
 export const TAB_ANALYSIS = 'analysis';
 export const TAB_CUSTOM_FERTILIZER = 'customFertilizer';
 export const TAB_SETTINGS = 'settings';
+export const TAB_REFERENCES = 'references';
 
 // Tab configuration
 export const TABS_CONFIG = [
@@ -16,7 +17,8 @@ export const TABS_CONFIG = [
   { id: TAB_ADVANCED, label: 'Details' },
   { id: TAB_ANALYSIS, label: 'Analyse' },
   { id: TAB_CUSTOM_FERTILIZER, label: 'Dünger' },
-  { id: TAB_SETTINGS, label: 'Einstellungen' }
+  { id: TAB_SETTINGS, label: 'Einstellungen' },
+  { id: TAB_REFERENCES, label: 'Referenzen' }
 ];
 
 // Growth stages configuration
@@ -78,7 +80,8 @@ export const NUTRIENT_FIELDS = [
   { key: 'zn', label: 'Zink (Zn)' },
   { key: 'cu', label: 'Kupfer (Cu)' },
   { key: 'b', label: 'Bor (B)' },
-  { key: 'mo', label: 'Molybdän (Mo)' }
+  { key: 'mo', label: 'Molybdän (Mo)' },
+  { key: 'ec', label: 'EC' }
 ];
 
 // Base fertilizer database

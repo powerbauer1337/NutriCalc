@@ -5,10 +5,18 @@ export default defineConfig({
   timeout: 30 * 1000,
   retries: 0,
   use: {
-    baseURL: 'http://localhost:4173/',
+    baseURL: 'http://localhost:3000/',
     headless: true,
     trace: 'on-first-retry',
   },
+
+  webServer: {
+    command: 'npm start',
+    url: 'http://localhost:3002/',
+    timeout: 120 * 1000, // Increased timeout for server to start
+    reuseExistingServer: !process.env.CI,
+  },
+
   projects: [
     {
       name: 'chromium',
