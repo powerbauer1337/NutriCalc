@@ -6,16 +6,24 @@
 # Error details
 
 ```
-Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
-
-Locator: getByTestId('tab-settings')
-Expected: visible
-Received: <element(s) not found>
+Error: page.goto: NS_ERROR_CONNECTION_REFUSED
 Call log:
-  - expect.toBeVisible with timeout 5000ms
-  - waiting for getByTestId('tab-settings')
+  - navigating to "http://localhost:3002/", waiting until "load"
 
-    at D:\coding\NutriCalc\tests\basic.spec.ts:24:50
+    at D:\coding\NutriCalc\tests\basic.spec.ts:20:14
+```
+
+# Page snapshot
+
+```yaml
+- heading "Unable to connect" [level=1]
+- paragraph: Firefox can’t establish a connection to the server at localhost:3002.
+- paragraph
+- list:
+  - listitem: The site could be temporarily unavailable or too busy. Try again in a few moments.
+  - listitem: If you are unable to load any pages, check your computer’s network connection.
+  - listitem: If your computer or network is protected by a firewall or proxy, make sure that Nightly is permitted to access the web.
+- button "Try Again"
 ```
 
 # Test source
@@ -40,12 +48,12 @@ Call log:
   17 | });
   18 |
   19 | test('user can switch tabs', async ({ page }) => {
-  20 |   await page.goto('http://localhost:3002/', { timeout: 60000 });
+> 20 |   await page.goto('http://localhost:3002/', { timeout: 60000 });
+     |              ^ Error: page.goto: NS_ERROR_CONNECTION_REFUSED
   21 |   const tabs = ['basic', 'advanced', 'analysis', 'customfertilizer', 'settings', 'references'];
   22 |   for (const tab of tabs) {
   23 |     await page.getByTestId(`tab-${tab}`).click();
-> 24 |     await expect(page.getByTestId(`tab-${tab}`)).toBeVisible();
-     |                                                  ^ Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
+  24 |     await expect(page.getByTestId(`tab-${tab}`)).toBeVisible();
   25 |   }
   26 | });
   27 |

@@ -5,6 +5,7 @@ import FertilizerManager from './FertilizerManager.jsx';
 import WaterInput from './WaterInput.jsx';
 import { GROWTH_STAGES, WATER_TYPES, NUTRIENT_FIELDS } from '../constants';
 import useAppSettings from '../hooks/useAppSettings.js';
+import Button from './Button.jsx';
 
 const initialCustomWaterProfile = { ca: 0, mg: 0, s: 0, na: 0, cl: 0, no3: 0, so4: 0, po4: 0, baseEC: 0.0 };
 
@@ -300,13 +301,13 @@ export const SetupTab = ({ NUTRIENT_FIELDS: propNutrientFields, GROWTH_STAGES, W
         </div>
       </div>
       <div className="flex gap-2 mb-4">
-        <button onClick={handleExport} className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs" aria-label="Exportieren">Exportieren</button>
-        <label className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 focus-within:ring-2 focus-within:ring-green-500 text-xs cursor-pointer" aria-label="Importieren">
+        <Button onClick={handleExport} className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs" aria-label="Exportieren">Exportieren</Button>
+        <Button onClick={handleImport} className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 focus-within:ring-2 focus-within:ring-green-500 text-xs cursor-pointer" aria-label="Importieren">
           Importieren
           <input type="file" accept="application/json" onChange={handleImport} className="hidden" />
-        </label>
-        <button onClick={autoOptimize} className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-xs" aria-label="Auto-Optimieren">Auto-Optimieren</button>
-        <button onClick={clearAllData} className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 text-xs" aria-label="Alle Daten löschen">Alle Daten löschen</button>
+        </Button>
+        <Button onClick={autoOptimize} className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-xs" aria-label="Auto-Optimieren">Auto-Optimieren</Button>
+        <Button onClick={clearAllData} className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 text-xs" aria-label="Alle Daten löschen">Alle Daten löschen</Button>
       </div>
     </div>
   );

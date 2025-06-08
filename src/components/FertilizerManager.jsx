@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from './Button.jsx';
 
 const FertilizerManager = ({
   selectedFertilizers,
@@ -26,7 +27,15 @@ const FertilizerManager = ({
                 </label>
               </div>
             </div>
-            <button onClick={() => removeFertilizer(fert.id)} className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-0.5 focus:outline-none focus:ring-2 focus:ring-red-500" title="Entfernen" aria-label={`Entfernen ${fertData.name}`}>×</button>
+            <Button
+              onClick={() => removeFertilizer(fert.id)}
+              variant="danger"
+              className="p-0.5 h-7 w-7 flex items-center justify-center text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+              aria-label={`Entfernen ${fertData.name}`}
+              title={`Entfernen ${fertData.name}`}
+            >
+              ×
+            </Button>
           </div>
           <div className="flex items-center gap-1.5">
             <input

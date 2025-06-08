@@ -6,16 +6,11 @@
 # Error details
 
 ```
-Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
-
-Locator: getByTestId('tab-settings')
-Expected: visible
-Received: <element(s) not found>
+Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3002/
 Call log:
-  - expect.toBeVisible with timeout 5000ms
-  - waiting for getByTestId('tab-settings')
+  - navigating to "http://localhost:3002/", waiting until "load"
 
-    at D:\coding\NutriCalc\tests\basic.spec.ts:24:50
+    at D:\coding\NutriCalc\tests\basic.spec.ts:20:14
 ```
 
 # Test source
@@ -40,12 +35,12 @@ Call log:
   17 | });
   18 |
   19 | test('user can switch tabs', async ({ page }) => {
-  20 |   await page.goto('http://localhost:3002/', { timeout: 60000 });
+> 20 |   await page.goto('http://localhost:3002/', { timeout: 60000 });
+     |              ^ Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3002/
   21 |   const tabs = ['basic', 'advanced', 'analysis', 'customfertilizer', 'settings', 'references'];
   22 |   for (const tab of tabs) {
   23 |     await page.getByTestId(`tab-${tab}`).click();
-> 24 |     await expect(page.getByTestId(`tab-${tab}`)).toBeVisible();
-     |                                                  ^ Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
+  24 |     await expect(page.getByTestId(`tab-${tab}`)).toBeVisible();
   25 |   }
   26 | });
   27 |

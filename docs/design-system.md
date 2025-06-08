@@ -47,4 +47,97 @@ A design system ensures visual consistency, accessibility, and development effic
 
 ---
 
+## Reusable UI Components
+
+### Button
+A reusable Button component ensures consistent styling and accessibility across the app.
+
+**Variants:**
+- `primary` (default): Blue background, white text
+- `secondary`: Light/dark background, slate text
+- `danger`: Red background, white text
+
+**Props:**
+- `variant`: 'primary' | 'secondary' | 'danger'
+- `fullWidth`: boolean
+- `disabled`: boolean
+- `loading`: boolean (shows spinner)
+- `className`: string (for custom styles)
+- `type`: 'button' | 'submit' | 'reset'
+
+**Accessibility:**
+- Focus ring visible
+- Disabled and loading states
+- `aria-busy` for loading
+
+**Example:**
+```jsx
+<Button variant="primary">Save</Button>
+<Button variant="secondary" disabled>Cancel</Button>
+<Button variant="danger" loading>Delete</Button>
+```
+
+### Card (Pattern)
+Use a div with `rounded-lg shadow p-4 bg-white dark:bg-slate-800` for card containers.
+
+**Example:**
+```jsx
+<div className="rounded-lg shadow p-4 bg-white dark:bg-slate-800">
+  ...content...
+</div>
+```
+
+### Input (Pattern)
+Use `px-2 py-1 border rounded-md text-base dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500` for inputs.
+
+**Example:**
+```jsx
+<input className="px-2 py-1 border rounded-md text-base dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+```
+
+---
+
+## UI Audit Checklist
+
+- [x] All interactive elements have accessible labels (`aria-label`, `htmlFor`)
+- [x] Focus states are visible for all inputs and buttons
+- [x] Sufficient color contrast for text and backgrounds
+- [x] Consistent use of color palette and typography
+- [x] Consistent spacing and layout utilities
+- [x] Use of reusable Button component
+- [ ] All icons/buttons have descriptive labels for screen readers
+- [ ] Keyboard navigation for all controls
+- [ ] ARIA roles/attributes where appropriate (e.g., `role="alert"` for toasts)
+- [ ] Document any custom variants or exceptions
+
+---
+
+## Navigation Patterns
+
+### Responsive Sidebar & Bottom Navigation
+
+- **Sidebar (md+ screens):**
+  - Fixed on the left, always visible.
+  - Shows icons and labels for each major tab.
+  - Uses ARIA roles: `navigation`, `tablist`, `tab`.
+  - Keyboard navigation: arrow keys, Home/End, focus ring.
+  - Clear active state for current tab.
+- **Bottom nav (mobile):**
+  - Fixed at the bottom, always visible.
+  - Icons and labels for each tab.
+  - Same ARIA roles and keyboard navigation as sidebar.
+  - Ensures navigation is within thumb's reach on mobile.
+
+**Accessibility:**
+- All nav buttons have `aria-label` and clear focus states.
+- Uses `role="tablist"` and `role="tab"` for screen readers.
+- Keyboard navigation: arrow keys, Home/End, focus ring.
+
+**Example Usage:**
+```jsx
+<Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+```
+
+---
+
 *This document will evolve as the design system matures. All contributors should propose changes via pull request for review.* 

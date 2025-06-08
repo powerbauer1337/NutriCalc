@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import Button from './Button.jsx';
 
 const ChatBar = ({ apiKey, onSend, isLoading, displayMessage, suggestions = [] }) => {
   const [inputValue, setInputValue] = useState('');
@@ -46,14 +47,14 @@ const ChatBar = ({ apiKey, onSend, isLoading, displayMessage, suggestions = [] }
           disabled={isLoading || !apiKey}
           aria-label="KI Frage eingeben"
         />
-        <button
+        <Button
           type="submit"
           className="px-3 py-1.5 bg-blue-600 dark:bg-blue-700 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center gap-1 text-sm disabled:bg-slate-400 dark:disabled:bg-slate-500"
           aria-label="Frage senden"
           disabled={isLoading || !inputValue.trim() || !apiKey}
         >
           {isLoading ? <span className="loader !w-4 !h-4"></span> : "Fragen"}
-        </button>
+        </Button>
       </form>
     </div>
   );

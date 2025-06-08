@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS } from '../constants';
 import { useToasts } from '../contexts/ToastContext.jsx';
+import Button from './Button.jsx';
 
 const defaultFertilizer = {
   name: '',
@@ -159,13 +160,13 @@ const FertilizerTab = ({ refreshFertilizerDatabase }) => {
           placeholder="Beschreibung (optional)"
           className="w-full px-2 py-1 border rounded-md dark:bg-slate-700 dark:text-slate-100"
         />
-        <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+        <Button type="submit" variant="primary" aria-label={editingId !== null ? 'Dünger speichern' : 'Dünger hinzufügen'} title={editingId !== null ? 'Dünger speichern' : 'Dünger hinzufügen'}>
           {editingId !== null ? 'Speichern' : 'Hinzufügen'}
-        </button>
+        </Button>
         {editingId !== null && (
-          <button type="button" onClick={() => { setForm(defaultFertilizer); setEditingId(null); }} className="ml-2 px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">
+          <Button type="button" onClick={() => { setForm(defaultFertilizer); setEditingId(null); }} variant="secondary" className="ml-2" aria-label="Bearbeitung abbrechen" title="Bearbeitung abbrechen">
             Abbrechen
-          </button>
+          </Button>
         )}
       </form>
       <div>
@@ -178,8 +179,8 @@ const FertilizerTab = ({ refreshFertilizerDatabase }) => {
                 <div className="font-medium">{fert.name} <span className="text-xs text-slate-500">({fert.type})</span></div>
                 <div className="text-xs">N: {fert.composition.N}% , P: {fert.composition.P}% , K: {fert.composition.K}% | Konzentration: {fert.concentration}</div>
               </div>
-              <button onClick={() => handleEdit(fert.id)} className="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-xs">Bearbeiten</button>
-              <button onClick={() => handleDelete(fert.id)} className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs">Löschen</button>
+              <Button onClick={() => handleEdit(fert.id)} variant="secondary" aria-label={`Dünger ${fert.name} bearbeiten`} title={`Dünger ${fert.name} bearbeiten`} className="text-xs">Bearbeiten</Button>
+              <Button onClick={() => handleDelete(fert.id)} variant="danger" aria-label={`Dünger ${fert.name} löschen`} title={`Dünger ${fert.name} löschen`} className="text-xs">Löschen</Button>
             </li>
           ))}
         </ul>

@@ -2,6 +2,7 @@ import React from 'react';
 import { useApiKey } from '../hooks/useApiKey.js';
 import useAppSettings from '../hooks/useAppSettings.js';
 import { GROWTH_STAGES, WATER_TYPES } from '../constants/index.js';
+import Button from './Button.jsx';
 
 const SettingsTab = () => {
   const { apiKey, updateApiKey, removeApiKey } = useApiKey();
@@ -49,8 +50,8 @@ const SettingsTab = () => {
           placeholder="API Key eingeben..."
         />
         <div className="flex gap-2 mt-2">
-          <button onClick={handleSaveApiKey} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Speichern</button>
-          <button onClick={handleRemoveApiKey} className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Entfernen</button>
+          <Button onClick={handleSaveApiKey} variant="primary" aria-label="API Key speichern" title="API Key speichern">Speichern</Button>
+          <Button onClick={handleRemoveApiKey} variant="danger" aria-label="API Key entfernen" title="API Key entfernen">Entfernen</Button>
         </div>
         <div className="text-xs text-slate-500 mt-2">Dein API Key wird lokal im Browser gespeichert.</div>
       </div>
