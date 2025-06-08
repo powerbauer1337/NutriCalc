@@ -5,6 +5,7 @@ import FertilizerManager from './FertilizerManager.jsx';
 import WaterInput from './WaterInput.jsx';
 import { GROWTH_STAGES, WATER_TYPES, NUTRIENT_FIELDS } from '../constants';
 import useAppSettings from '../hooks/useAppSettings.js';
+import Button from './Button.jsx';
 
 const initialCustomWaterProfile = { ca: 0, mg: 0, s: 0, na: 0, cl: 0, no3: 0, so4: 0, po4: 0, baseEC: 0.0 };
 
@@ -151,6 +152,41 @@ export const SetupTab = ({ NUTRIENT_FIELDS: propNutrientFields, GROWTH_STAGES, W
     reader.readAsText(file);
   };
 
+  // Auto-Optimize logic
+  const autoOptimize = () => {
+    // Example logic: set recommended amounts for common fertilizers based on growthStage
+    let updated = [...selectedFertilizers];
+    let changed = false;
+    if (growthStage.includes('veg')) {
+      updated = updated.map(f =>
+        f.id === 'hesi_tnt' ? { ...f, amount: 5.0, active: true } :
+        f.id === 'ta_calmg' ? { ...f, amount: 2.5, active: true } : f
+      );
+      changed = true;
+    } else if (growthStage.includes('flower')) {
+      updated = updated.map(f =>
+        f.id === 'hesi_bloom' ? { ...f, amount: 6.0, active: true } : f
+      );
+      changed = true;
+    }
+    if (changed) {
+      setSelectedFertilizers(updated);
+      addToast('Empfohlene Dosierung geladen!', 'info');
+    } else {
+      addToast('Keine Empfehlung für diese Phase.', 'warning');
+    }
+  };
+
+  // Clear All Data logic
+  const clearAllData = () => {
+    if (window.confirm('Alle Daten (eigene Dünger, Wasserprofil, Auswahl) wirklich löschen?')) {
+      setSelectedFertilizers([]);
+      setCustomWaterProfile(initialCustomWaterProfile);
+      localStorage.removeItem('nutricalc_custom_fertilizers');
+      addToast('Alle Daten wurden zurückgesetzt.', 'info');
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto p-4 bg-white dark:bg-slate-800 rounded-lg shadow">
       <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">Setup</h2>
@@ -165,8 +201,9 @@ export const SetupTab = ({ NUTRIENT_FIELDS: propNutrientFields, GROWTH_STAGES, W
               step="0.1"
               value={waterVolume}
               onChange={(e) => setWaterVolume(Math.max(0.1, Number(e.target.value)))}
-              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900"
+              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900"
               placeholder="z.B. 10"
+              aria-label="Wassermenge"
             />
           </div>
           <div>
@@ -175,7 +212,8 @@ export const SetupTab = ({ NUTRIENT_FIELDS: propNutrientFields, GROWTH_STAGES, W
               id="growthStage"
               value={growthStage}
               onChange={(e) => setGrowthStage(e.target.value)}
-              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900"
+              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900"
+              aria-label="Wachstumsphase"
             >
               {Object.entries(GROWTH_STAGES).map(([key, stage]) => (
                 <option key={key} value={key}>{stage.name}</option>
@@ -188,7 +226,8 @@ export const SetupTab = ({ NUTRIENT_FIELDS: propNutrientFields, GROWTH_STAGES, W
               id="waterType"
               value={waterType}
               onChange={(e) => setWaterType(e.target.value)}
-              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900"
+              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900"
+              aria-label="Wassertyp"
             >
               {Object.entries(WATER_TYPES).map(([key, type]) => (
                 <option key={key} value={key}>{type.name}</option>
@@ -207,9 +246,10 @@ export const SetupTab = ({ NUTRIENT_FIELDS: propNutrientFields, GROWTH_STAGES, W
                       name={key}
                       value={customWaterProfile[key]}
                       onChange={e => setCustomWaterProfile(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
-                      className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900 text-xs"
+                      className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900 text-xs"
                       min="0"
                       step="0.01"
+                      aria-label={key.toUpperCase()}
                     />
                   </div>
                 ))}
@@ -261,11 +301,13 @@ export const SetupTab = ({ NUTRIENT_FIELDS: propNutrientFields, GROWTH_STAGES, W
         </div>
       </div>
       <div className="flex gap-2 mb-4">
-        <button onClick={handleExport} className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs">Exportieren</button>
-        <label className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-xs cursor-pointer">
+        <Button onClick={handleExport} className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs" aria-label="Exportieren">Exportieren</Button>
+        <Button onClick={handleImport} className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 focus-within:ring-2 focus-within:ring-green-500 text-xs cursor-pointer" aria-label="Importieren">
           Importieren
           <input type="file" accept="application/json" onChange={handleImport} className="hidden" />
-        </label>
+        </Button>
+        <Button onClick={autoOptimize} className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-xs" aria-label="Auto-Optimieren">Auto-Optimieren</Button>
+        <Button onClick={clearAllData} className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 text-xs" aria-label="Alle Daten löschen">Alle Daten löschen</Button>
       </div>
     </div>
   );

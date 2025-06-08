@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from './Button.jsx';
 
 const typeStyles = {
   success: 'bg-green-100 text-green-800 border-green-400 dark:bg-green-800 dark:text-green-100 dark:border-green-600',
@@ -8,11 +9,22 @@ const typeStyles = {
 };
 
 const ToastMessage = ({ message, type = 'info', onClose }) => (
-  <div className={`p-4 rounded-md shadow-lg border w-full flex items-start text-sm ${typeStyles[type] || typeStyles.info}`}> 
+  <div
+    className={`p-4 rounded-md shadow-lg border w-full flex items-start text-sm ${typeStyles[type] || typeStyles.info}`}
+    data-testid="toast-message"
+    role="alert"
+    aria-live="assertive"
+  >
     <div className="flex-1 font-medium">{message}</div>
-    <button onClick={onClose} className="ml-4 text-slate-500 hover:text-slate-800 dark:text-slate-300 dark:hover:text-white p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <Button
+      onClick={onClose}
+      variant="secondary"
+      className="ml-4 p-1 h-7 w-7 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-300 dark:hover:text-white"
+      aria-label="Toast schließen"
+      title="Schließen"
+    >
       ×
-    </button>
+    </Button>
   </div>
 );
 

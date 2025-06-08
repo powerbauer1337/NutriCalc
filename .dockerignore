@@ -1,0 +1,10 @@
+node_modules
+dist
+test
+.git
+.vscode
+.DS_Store
+npm-debug.log
+*.swp
+*.swo
+*.log 

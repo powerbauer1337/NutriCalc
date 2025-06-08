@@ -10,8 +10,11 @@ import AnalysisTab from './components/AnalysisTab.jsx';
 import SettingsTab from './components/SettingsTab.jsx';
 import DetailsTab from './components/DetailsTab.jsx';
 import ReferencesTab from './components/ReferencesTab.jsx';
-import { NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, BASE_FERTILIZER_DATABASE, LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS, TABS_CONFIG } from './constants';
+import Navigation from './components/Navigation.jsx';
+import { NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, BASE_FERTILIZER_DATABASE, LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS, TABS_CONFIG, TAB_MIXING_ASSISTANT, TAB_WATERING_SCHEDULER, TAB_SETTINGS } from './constants';
 import { useApiKey } from './hooks/useApiKey.js';
+import MixingAssistant from './components/MixingAssistant.jsx';
+import WateringScheduler from './components/WateringScheduler.jsx';
 
 const DarkModeToggle = () => {
   const { theme, toggleTheme } = useTheme();
@@ -74,8 +77,13 @@ const AppLayout = () => {
   const { apiKey } = useApiKey();
   const addToast = useToasts();
   const [aiLoading, setAiLoading] = useState(false);
-  const [aiMessage, setAiMessage] = useState("Hallo! Ich bin dein KI-Helfer. Frag mich z.B. 'Wie erstelle ich einen Dünger?' oder 'Ist mein N-Wert ok?'");
+  const [aiMessage, setAiMessage] = useState("Hallo! Ich bin dein KI-Helfer. Frag mich z.B. 'Wie erstelle ich einen Dünger?' oder 'Ist mein N-Wert ok?' oder 'Was ist EC?'");
   const { mixedWater } = useWater();
+  const chatSuggestions = [
+    "Wie erstelle ich einen Dünger?",
+    "Ist mein N-Wert ok?",
+    "Was ist EC?"
+  ];
 
   // Refresh fertilizer database when custom fertilizers change
   const refreshFertilizerDatabase = () => {
@@ -142,35 +150,27 @@ const AppLayout = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-slate-900 transition-colors duration-300">
-      <header className="p-4 bg-blue-600 text-white text-center text-2xl font-bold shadow flex items-center justify-between">
+      <header className="p-4 bg-blue-600 text-white text-center text-2xl font-bold shadow flex items-center justify-between md:ml-48">
         <span>NutriCalc</span>
         <DarkModeToggle />
       </header>
-      <nav className="flex mb-4 border-b border-slate-300 dark:border-slate-700 flex-wrap bg-white dark:bg-slate-800">
-        {TABS_CONFIG.map(tab => (
-          <button
-            key={tab.id}
-            className={`px-3 sm:px-4 py-2.5 font-medium transition-colors text-xs sm:text-sm ${activeTab === tab.id ? 'border-b-2 border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </nav>
-      <main className="p-4 max-w-4xl mx-auto">
+      <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+      <main className="p-4 max-w-4xl mx-auto md:ml-48 pb-16 md:pb-0">
         <ChatBar
           apiKey={!!apiKey}
           onSend={handleSendAI}
           isLoading={aiLoading}
           displayMessage={aiMessage}
-          suggestions={["Wie erstelle ich einen Dünger?", "Ist mein N-Wert ok?", "Was ist EC?"]}
+          suggestions={chatSuggestions}
         />
         {activeTab === TABS_CONFIG[0].id && <SetupTab NUTRIENT_FIELDS={NUTRIENT_FIELDS} GROWTH_STAGES={GROWTH_STAGES} WATER_TYPES={WATER_TYPES} fertilizerDatabase={fertilizerDatabase} onAnalysisUpdate={setAnalysisInputs} mixedWater={mixedWater} />}
         {activeTab === TABS_CONFIG[1].id && <DetailsTab results={analysisInputs.results} />}
         {activeTab === TABS_CONFIG[2].id && <AnalysisTab {...analysisInputs} />}
         {activeTab === TABS_CONFIG[3].id && <FertilizerTab refreshFertilizerDatabase={refreshFertilizerDatabase} />}
-        {activeTab === TABS_CONFIG[4].id && <SettingsTab />}
-        {activeTab === TABS_CONFIG[5].id && <ReferencesTab />}
+        {activeTab === TAB_SETTINGS && <SettingsPage />}
+        {activeTab === TAB_MIXING_ASSISTANT && <MixingAssistant fertilizerDatabase={fertilizerDatabase} GROWTH_STAGES={GROWTH_STAGES} WATER_TYPES={WATER_TYPES} />}
+        {activeTab === TAB_WATERING_SCHEDULER && <WateringScheduler />}
+        {activeTab === TABS_CONFIG[TABS_CONFIG.length - 1].id && <ReferencesTab />}
       </main>
     </div>
   );

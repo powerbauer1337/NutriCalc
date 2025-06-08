@@ -9,6 +9,7 @@ Ein fortschrittlicher Nährstoffrechner für Pflanzen (insbesondere Cannabis), e
 
 *   **Präzise Nährstoffberechnung:**
     *   Berücksichtigt Wassermenge, Wachstumsphase und Wassertyp (RO/Destilliert, Leitungswasser verschiedener Härtegrade oder benutzerdefiniertes Profil).
+    *   **Wasser-Mischung:** Ermöglicht das Hinzufügen und Mischen mehrerer Wasserquellen (Leitungswasser, Osmosewasser, eigene Quellen) mit individuellen pH-, EC- und Mineralwerten, um ein Gesamtprofil zu erstellen.
     *   Berechnet die Endkonzentrationen (ppm) für Makro- (N, P, K, Ca, Mg, S) und Mikronährstoffe (Fe, Mn, Zn, Cu, B, Mo).
     *   Berechnet den resultierenden EC-Wert (mS/cm) der Nährlösung.
 *   **Düngerdatenbank:**
@@ -17,9 +18,18 @@ Ein fortschrittlicher Nährstoffrechner für Pflanzen (insbesondere Cannabis), e
 *   **Wachstumsphasen-Profile:**
     *   Vordefinierte NPK-Zielwerte und EC-Bereiche für verschiedene Wachstumsphasen (Keimling bis Spülung).
 *   **Visuelle Analyse & Empfehlungen:**
-    *   NPK-Balkendiagramme zur Visualisierung der aktuellen Werte im Vergleich zu den Zielbereichen.
+    *   **Nährstoff-Analyse-Tab:** Zeigt detaillierte Nährstofftabellen mit Status (optimal, niedrig, hoch) und Warnungen, basierend auf der gewählten Wachstumsphase.
+    *   **Live-Nährstoff-Visualisierung (Misch-Assistent):** Ein interaktives Balkendiagramm im Misch-Assistenten zeigt N, P, K, EC und pH-Werte in Echtzeit an, inklusive farblicher Indikatoren für optimale, warnende oder kritische Bereiche.
     *   Tabelle mit Nährstoffbeiträgen der einzelnen Dünger.
     *   Automatische Optimierungsempfehlungen (z.B. "Stickstoff erhöhen").
+*   **Misch-Assistent:**
+    *   Ein interaktiver Assistent, der Nutzer Schritt für Schritt durch den Prozess der Nährstoffmischung führt, mit Live-Berechnungen und Visualisierungen.
+*   **Gießplaner:**
+    *   Verwalten Sie Gießtermine, -mengen und -intervalle für verschiedene Pflanzen oder Gruppen, um eine konsistente Bewässerung sicherzustellen.
+*   **Einstellungen:**
+    *   Verwalten Sie Ihren Google Gemini API Key, passen Sie Maßeinheiten an (z.B. Liter vs. Gallonen) und konfigurieren Sie Standardwerte für Wassermenge, Wachstumsphase und Wassertyp.
+*   **Referenzen:**
+    *   Ein dedizierter Tab mit häufig gestellten Fragen (FAQ), Links zu wissenschaftlichen Studien und Erklärungen relevanter Fachbegriffe rund um Pflanzennährstoffe und Düngung.
 *   **KI-Helfer (Chatbar):**
     *   Eine Chatleiste oberhalb der Tabs bietet direkten Zugriff auf einen KI-Assistenten (Google Gemini 1.5 Flash).
     *   Der KI-Helfer kann Fragen zur Bedienung des Rechners, zu Nährstoffen, Pflanzenproblemen etc. beantworten.
@@ -79,7 +89,6 @@ Ein fortschrittlicher Nährstoffrechner für Pflanzen (insbesondere Cannabis), e
 *   Erweiterte Diagramme und Analysefunktionen.
 *   Mehr Optionen für die Eingabe von Wasserwerten (z.B. Härtegrad).
 *   Community-Datenbank für Dünger und Rezepte.
-*   Eine dedizierte Einstellungsseite für den API Key und andere Präferenzen.
 *   Lokalisierung in weitere Sprachen.
 
 ## Lizenz

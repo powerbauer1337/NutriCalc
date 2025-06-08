@@ -2,6 +2,7 @@ import React from 'react';
 import { useWater } from '../contexts/WaterContext';
 import { NUTRIENT_FIELDS } from '../constants';
 import useAppSettings from '../hooks/useAppSettings.js';
+import Button from './Button.jsx';
 
 const WaterInput = () => {
   const { waterSources, mixedWater, addWaterSource, removeWaterSource, updateWaterSource } = useWater();
@@ -20,12 +21,15 @@ const WaterInput = () => {
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-lg font-semibold text-white">{source.name}</h3>
             {waterSources.length > 1 && (
-              <button
+              <Button
                 onClick={() => removeWaterSource(source.id)}
-                className="text-red-400 hover:text-red-500 font-bold"
+                variant="danger"
+                className="text-red-400 hover:text-red-500 font-bold py-1 px-2 text-xs"
+                aria-label={`Wasserquelle ${source.name} entfernen`}
+                title={`Wasserquelle ${source.name} entfernen`}
               >
                 Entfernen
-              </button>
+              </Button>
             )}
           </div>
           <h4 className="text-md font-semibold text-gray-200 mb-2">Basische Parameter</h4>
@@ -110,24 +114,30 @@ const WaterInput = () => {
       ))}
 
       <div className="flex justify-center space-x-2 mt-4">
-        <button
+        <Button
           onClick={() => addWaterSource('tapWater')}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md"
+          variant="primary"
+          aria-label="Leitungswasser hinzufügen"
+          title="Leitungswasser hinzufügen"
         >
           Leitungswasser hinzufügen
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => addWaterSource('roWater')}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md"
+          variant="primary"
+          aria-label="Osmosewasser hinzufügen"
+          title="Osmosewasser hinzufügen"
         >
           Osmosewasser hinzufügen
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => addWaterSource('custom')}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md"
+          variant="primary"
+          aria-label="Eigene Quelle hinzufügen"
+          title="Eigene Quelle hinzufügen"
         >
           Eigene Quelle hinzufügen
-        </button>
+        </Button>
       </div>
 
       {mixedWater && (
