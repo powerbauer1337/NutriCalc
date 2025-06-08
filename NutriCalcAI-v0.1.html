@@ -110,17 +110,69 @@
         const useToasts = () => { const context = useContext(ToastContext); if (!context) { throw new Error('useToasts must be used within a ToastProviderInternal'); } return context.addToast; };
         
         const LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS = 'customFertilizers'; const LOCAL_STORAGE_KEY_CUSTOM_WATER = 'customWaterProfile'; const RECIPE_VERSION = "1.0.0";
-        const TAB_BASIC = 'basic'; const TAB_ADVANCED = 'advanced'; const TAB_ANALYSIS = 'analysis'; const TAB_CUSTOM_FERTILIZER = 'customFertilizer';
+        const TAB_BASIC = 'basic'; const TAB_ADVANCED = 'advanced'; const TAB_ANALYSIS = 'analysis'; const TAB_CUSTOM_FERTILIZER = 'customFertilizer'; const TAB_SETTINGS = 'settings';
         const LOCAL_STORAGE_KEY_GEMINI_API_KEY = 'geminiApiKey';
-        const USER_PROVIDED_API_KEY = "AIzaSyAZJQgJYEv-7neMrMzhJXCFW_En3MgoDCY"; 
+        // Remove hardcoded API key
+        // const USER_PROVIDED_API_KEY = "AIzaSyAZJQgJYEv-7neMrMzhJXCFW_En3MgoDCY"; 
 
-        const NUTRIENT_FIELDS = [ { key: 'n', label: 'N (Stickstoff)'},{ key: 'p', label: 'P (Phosphor)'},{ key: 'k', label: 'K (Kalium)'},{ key: 'ca', label: 'Ca (Calcium)'},{ key: 'mg', label: 'Mg (Magnesium)'},{ key: 's', label: 'S (Schwefel)'},{ key: 'b', label: 'B (Bor)'},{ key: 'cu', label: 'Cu (Kupfer)'},{ key: 'fe', label: 'Fe (Eisen)'},{ key: 'mn', label: 'Mn (Mangan)'},{ key: 'mo', label: 'Mo (Molybdän)'},{ key: 'zn', label: 'Zn (Zink)'}, ];
+        const NUTRIENT_FIELDS = [ { key: 'n', label: 'N (Stickstoff)'},{ key: 'p', label: 'P (Phosphor)'},{ key: 'k', label: 'K (Kalium)'},{ key: 'ca', label: 'Ca (Calcium)'},{ key: 'mg', label: 'Mg (Magnesium)'},{ key: 's', label: 'S (Schwefel)'},{ key: 'b', label: 'B (Bor)'},{ key: 'cu', label: 'Cu (Kupfer)'},{ key: 'fe', label: 'Fe (Eisen)'},{ key: 'mn', label: 'Mn (Mangan)'},{ key: 'mo', label: 'Mo (Molybdän)'},{ key: 'zn', label: 'Zn (Zink)' }, { key: 'na', label: 'Na (Natrium)' }, { key: 'cl', label: 'Cl (Chlorid)' }, { key: 'no3', label: 'NO₃ (Nitrat)' }, { key: 'so4', label: 'SO₄ (Sulfat)' }, { key: 'po4', label: 'PO₄ (Phosphat)' } ];
         const BASE_FERTILIZER_DATABASE = { ta_calmg: { name: 'Terra Aquatica CaMg', type: 'liquid', composition: { n: 11.54, ca: 33.00, mg: 6.96 }, unit: 'ml'}, ta_finalpart: { name: 'Terra Aquatica FinalPart', type: 'liquid', composition: { p: 31.58, k: 50.06, mg: 21.82, s: 24.12 }, unit: 'ml'}, hesi_bloom: { name: 'Hesi Blüh Complex', type: 'liquid', composition: { n: 31.92, p: 12.07, k: 31.80, ca:0.11,mg:1.6,b:1.04,cu:0.21,fe:0.03,mn:1.7,mo:0.17,zn:0.74 }, unit: 'ml'}, hesi_tnt: { name: 'Hesi TNT Complex', type: 'liquid', composition: { n: 31.32, p: 10.48, k: 26.87, ca:0.1,mg:1.57,b:0.002,cu:0.005,fe:0.045,mn:0.011,mo:0.008,zn:0.009 }, unit: 'ml'}, bittersalz: { name: 'Bittersalz (MgSO4·7H2O)', type: 'powder', composition: { mg: 9.8, s: 13.0 }, unit: 'g'} };
         const GROWTH_STAGES = { seedling: { name: 'Keimling (1-2 W.)', n: [50, 100], p: [20, 40], k: [40, 80], ec: [0.4, 0.8] }, veg2: { name: 'Wachstum (5-6 W.)', n: [150, 200], p: [40, 60], k: [120, 160], ec: [1.2, 1.6] }, flower2: { name: 'Blüte (W. 4-5)', n: [100, 150], p: [100, 150], k: [250, 320], ec: [2.0, 2.4] }, flush: { name: 'Spülung (letzte W.)', n: [0, 20], p: [0, 10], k: [0, 20], ec: [0.2, 0.6] } };
         const WATER_TYPES = { ro: { name: 'RO/Destilliert', ca: 0, mg: 0, s:0, baseEC: 0}, medium: { name: 'Mittleres LW', ca: 60, mg: 15, s:8, baseEC: 0.3}, custom: { name: 'Eigenes Profil', ca:0, mg:0, s:0, baseEC:0 } };
-        const initialCustomWaterProfile = { ca: 0, mg: 0, s: 0, baseEC: 0.0 };
+        const initialCustomWaterProfile = { ca: 0, mg: 0, s: 0, na: 0, cl: 0, no3: 0, so4: 0, po4: 0, baseEC: 0.0 };
         const generateNewId = () => `custom_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
+        // Utility function for nutrient and EC calculation
+        function calculateNutrientResults({ waterVolume, growthStage, waterType, selectedFertilizers, fertilizerDatabase, customWaterProfile, NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES }) {
+          if (waterVolume <= 0) {
+            return { nutrients: {}, contributions: {}, stage: GROWTH_STAGES[growthStage] };
+          }
+          let baseN = { ca: 0, mg: 0, s: 0, na: 0, cl: 0, no3: 0, so4: 0, po4: 0 };
+          let currentEC = 0;
+          if (waterType === 'custom') {
+            baseN = {
+              ca: customWaterProfile.ca||0,
+              mg: customWaterProfile.mg||0,
+              s: customWaterProfile.s||0,
+              na: customWaterProfile.na||0,
+              cl: customWaterProfile.cl||0,
+              no3: customWaterProfile.no3||0,
+              so4: customWaterProfile.so4||0,
+              po4: customWaterProfile.po4||0
+            };
+            currentEC = customWaterProfile.baseEC||0;
+          } else {
+            const pWater = WATER_TYPES[waterType];
+            baseN = { ca: pWater.ca||0, mg: pWater.mg||0, s: pWater.s||0, na: 0, cl: 0, no3: 0, so4: 0, po4: 0 };
+            currentEC = pWater.baseEC !== undefined ? pWater.baseEC : 0;
+          }
+          let tN = NUTRIENT_FIELDS.reduce((acc,f) => {acc[f.key]=0; return acc;}, {});
+          // Add new ions to tN
+          tN.ca = baseN.ca; tN.mg = baseN.mg; tN.s = baseN.s;
+          tN.na = baseN.na; tN.cl = baseN.cl; tN.no3 = baseN.no3; tN.so4 = baseN.so4; tN.po4 = baseN.po4;
+          tN.ec = currentEC;
+          let contrib = {};
+          let nutrEC = 0;
+          (selectedFertilizers||[]).forEach(fert => {
+            if (!fert.active || !fert.amount || Number(fert.amount)===0) return;
+            const fD = fertilizerDatabase[fert.id];
+            if (!fD?.composition) return;
+            const cFC = {};
+            const fA = Number(fert.amount);
+            Object.keys(fD.composition).forEach(nk => {
+              const nC = Number(fD.composition[nk])||0;
+              if (nC===0 || !NUTRIENT_FIELDS.find(field => field.key === nk)) return;
+              let nVppm = (fD.type==='powder')?(fA*nC*10)/waterVolume:(fA*nC)/waterVolume;
+              cFC[nk]=nVppm;
+              tN[nk]=(tN[nk]||0)+nVppm;
+            });
+            contrib[fert.id]=cFC;
+          });
+          nutrEC = ((tN.n||0)-(baseN.n||0))*0.007+((tN.p||0)-(baseN.p||0))*0.005+((tN.k||0)-(baseN.k||0))*0.008+((tN.ca||0)-baseN.ca)*0.006+((tN.mg||0)-baseN.mg)*0.004+((tN.s||0)-baseN.s)*0.003;
+          tN.ec = currentEC + Math.max(0, nutrEC);
+          Object.keys(tN).forEach(k => { tN[k]=Math.round(tN[k]*100)/100; });
+          return { nutrients:tN, contributions:contrib, stage:GROWTH_STAGES[growthStage] };
+        }
 
         const ChatBar = ({ appData }) => {
             const [apiKey, setApiKey] = useState('');
@@ -132,14 +184,10 @@
 
             useEffect(() => { 
                 const storedApiKey = localStorage.getItem(LOCAL_STORAGE_KEY_GEMINI_API_KEY);
-                const effectiveApiKey = storedApiKey || USER_PROVIDED_API_KEY;
-                if (effectiveApiKey) {
-                    setApiKey(effectiveApiKey);
-                    if (!storedApiKey && USER_PROVIDED_API_KEY) {
-                        localStorage.setItem(LOCAL_STORAGE_KEY_GEMINI_API_KEY, USER_PROVIDED_API_KEY);
-                    }
+                if (storedApiKey) {
+                    setApiKey(storedApiKey);
                 } else {
-                    setDisplayMessage("API Key fehlt. Konfiguriere ihn (bald in Einstellungen).");
+                    setDisplayMessage("Bitte API Key in den Einstellungen konfigurieren.");
                 }
             }, []);
             
@@ -235,6 +283,68 @@ Antworte direkt auf die Frage.`;
             );
         };
 
+        const WaterProfile = ({ customWaterProfile, handleCustomWaterProfileChange, commonInputClasses, commonLabelClasses }) => (
+          <div className="mt-3">
+            <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1 flex items-center gap-1"><Water className="w-4 h-4" />Eigenes Wasserprofil</h3>
+            <div className="grid grid-cols-2 gap-2">
+              <div><label className={commonLabelClasses}>Ca (mg/L)</label><input type="number" name="ca" value={customWaterProfile.ca} onChange={handleCustomWaterProfileChange} className={commonInputClasses} min="0" step="0.1"/></div>
+              <div><label className={commonLabelClasses}>Mg (mg/L)</label><input type="number" name="mg" value={customWaterProfile.mg} onChange={handleCustomWaterProfileChange} className={commonInputClasses} min="0" step="0.1"/></div>
+              <div><label className={commonLabelClasses}>S (mg/L)</label><input type="number" name="s" value={customWaterProfile.s} onChange={handleCustomWaterProfileChange} className={commonInputClasses} min="0" step="0.1"/></div>
+              <div><label className={commonLabelClasses}>Na (mg/L)</label><input type="number" name="na" value={customWaterProfile.na} onChange={handleCustomWaterProfileChange} className={commonInputClasses} min="0" step="0.1"/></div>
+              <div><label className={commonLabelClasses}>Cl (mg/L)</label><input type="number" name="cl" value={customWaterProfile.cl} onChange={handleCustomWaterProfileChange} className={commonInputClasses} min="0" step="0.1"/></div>
+              <div><label className={commonLabelClasses}>NO₃ (mg/L)</label><input type="number" name="no3" value={customWaterProfile.no3} onChange={handleCustomWaterProfileChange} className={commonInputClasses} min="0" step="0.1"/></div>
+              <div><label className={commonLabelClasses}>SO₄ (mg/L)</label><input type="number" name="so4" value={customWaterProfile.so4} onChange={handleCustomWaterProfileChange} className={commonInputClasses} min="0" step="0.1"/></div>
+              <div><label className={commonLabelClasses}>PO₄ (mg/L)</label><input type="number" name="po4" value={customWaterProfile.po4} onChange={handleCustomWaterProfileChange} className={commonInputClasses} min="0" step="0.1"/></div>
+              <div><label className={commonLabelClasses}>Basis-EC (mS/cm)</label><input type="number" name="baseEC" value={customWaterProfile.baseEC} onChange={handleCustomWaterProfileChange} className={commonInputClasses} min="0" step="0.01"/></div>
+            </div>
+          </div>
+        );
+
+        const FertilizerManager = ({
+          selectedFertilizers,
+          fertilizerDatabase,
+          waterVolume,
+          addFertilizer,
+          removeFertilizer,
+          updateFertilizerAmount,
+          toggleFertilizer,
+          commonInputClasses
+        }) => (
+          <div className="space-y-2 max-h-[400px] lg:max-h-[calc(100vh-350px)] overflow-y-auto p-0.5">
+            {(selectedFertilizers || []).map(fert => {
+              const fertData = fertilizerDatabase[fert.id];
+              if (!fertData) return null;
+              return (
+                <div key={fert.id} className={`p-2 border rounded-md ${fert.active ? 'bg-white dark:bg-slate-800 border-blue-300 dark:border-blue-600' : 'bg-slate-100 dark:bg-slate-900/50 border-slate-300 dark:border-slate-700'}`}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <input type="checkbox" id={`fertActive-${fert.id}`} checked={fert.active} onChange={() => toggleFertilizer(fert.id)} className="w-3.5 h-3.5 text-blue-600 dark:text-blue-500 border-slate-300 dark:border-slate-600 rounded focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-slate-700"/>
+                      <div>
+                        <label htmlFor={`fertActive-${fert.id}`} className="text-xs font-medium text-slate-700 dark:text-slate-200 cursor-pointer">{fertData.name} {fertData.isCustom && <span className="text-xs text-sky-500 dark:text-sky-400" title="Custom Dünger">(C)</span>}</label>
+                      </div>
+                    </div>
+                    <button onClick={() => removeFertilizer(fert.id)} className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-0.5" title="Entfernen"><Minus className="w-3 h-3" /></button>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <input type="number" value={fert.amount} onChange={(e) => updateFertilizerAmount(fert.id, e.target.value)} disabled={!fert.active} className={`${commonInputClasses} flex-1 text-xs disabled:opacity-60`} min="0" step={fertData.type === 'powder' ? "0.01" : "0.1"}/>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 min-w-fit">{fertData.unit}/{waterVolume > 0 ? waterVolume : 1}L</span>
+                  </div>
+                </div>
+              );
+            })}
+            <div className="border-t border-slate-300 dark:border-slate-700 pt-2 mt-2">
+              <select onChange={(e) => addFertilizer(e.target.value)} className={commonInputClasses} value="">
+                <option value="">Dünger hinzufügen...</option>
+                {Object.entries(fertilizerDatabase).sort(([,a],[,b]) => a.name.localeCompare(b.name)).map(([key, fert]) => (
+                  <option key={key} value={key} disabled={(selectedFertilizers || []).some(f => f.id === key)}>
+                    {fert.name}{fert.isCustom ? ' (C)' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        );
+
         const AdvancedNutrientCalculator = () => {
           const addToast = useToasts();
           const { theme, toggleTheme } = useTheme();
@@ -253,12 +363,24 @@ Antworte direkt auf die Frage.`;
 
           useEffect(() => { try { const stored = localStorage.getItem(LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS); if (stored) { const parsed = JSON.parse(stored); if (Array.isArray(parsed)) { const validFertilizers = parsed.map(f => ({ name: f.name || 'Unbenannt', type: f.type === 'powder' ? 'powder' : 'liquid', unit: f.type === 'powder' ? 'g' : 'ml', description: f.description || '', isCustom: true, id: f.id || generateNewId(), composition: NUTRIENT_FIELDS.reduce((acc, field) => { acc[field.key] = Number(f.composition?.[field.key]) || 0; return acc; }, {}), })).filter(f => f.id && typeof f.name === 'string'); setCustomFertilizers(validFertilizers); } } } catch (e) { console.error("Ladefehler Custom Dünger:", e); addToast("Fehler eigene Dünger.", "error");} }, [addToast]);
           useEffect(() => { localStorage.setItem(LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS, JSON.stringify(customFertilizers)); }, [customFertilizers]);
-          useEffect(() => { try { const storedProfile = localStorage.getItem(LOCAL_STORAGE_KEY_CUSTOM_WATER); if (storedProfile) { const parsed = JSON.parse(storedProfile); setCustomWaterProfile({ ca: Number(parsed.ca) || 0, mg: Number(parsed.mg) || 0, s: Number(parsed.s) || 0, baseEC: Number(parsed.baseEC) || 0.0, }); } } catch (e) { console.error("Ladefehler Wasserprofil:", e); setCustomWaterProfile(initialCustomWaterProfile); addToast("Fehler Wasserprofil.", "error");} }, [addToast]);
+          useEffect(() => { try { const storedProfile = localStorage.getItem(LOCAL_STORAGE_KEY_CUSTOM_WATER); if (storedProfile) { const parsed = JSON.parse(storedProfile); setCustomWaterProfile({ ca: Number(parsed.ca) || 0, mg: Number(parsed.mg) || 0, s: Number(parsed.s) || 0, na: Number(parsed.na) || 0, cl: Number(parsed.cl) || 0, no3: Number(parsed.no3) || 0, so4: Number(parsed.so4) || 0, po4: Number(parsed.po4) || 0, baseEC: Number(parsed.baseEC) || 0.0, }); } } catch (e) { console.error("Ladefehler Wasserprofil:", e); setCustomWaterProfile(initialCustomWaterProfile); addToast("Fehler Wasserprofil.", "error");} }, [addToast]);
           useEffect(() => { localStorage.setItem(LOCAL_STORAGE_KEY_CUSTOM_WATER, JSON.stringify(customWaterProfile)); }, [customWaterProfile]);
 
           const fertilizerDatabase = useMemo(() => { const combined = { ...BASE_FERTILIZER_DATABASE }; customFertilizers.forEach(fert => { combined[fert.id] = fert; }); return combined; }, [customFertilizers]);
           const handleCustomWaterProfileChange = (e) => { const { name, value } = e.target; setCustomWaterProfile(prev => ({ ...prev, [name]: Math.max(0, parseFloat(value)) || 0 })); };
-          const calculateResults = useCallback(() => { if (waterVolume <= 0) { setResults({ nutrients: {}, contributions: {}, stage: GROWTH_STAGES[growthStage] }); return; } let baseN = { ca: 0, mg: 0, s: 0 }; let currentEC = 0; if (waterType === 'custom') { baseN = { ca: customWaterProfile.ca||0, mg: customWaterProfile.mg||0, s: customWaterProfile.s||0 }; currentEC = customWaterProfile.baseEC||0; } else { const pWater = WATER_TYPES[waterType]; baseN = { ca: pWater.ca||0, mg: pWater.mg||0, s: pWater.s||0 }; currentEC = pWater.baseEC !== undefined ? pWater.baseEC : 0; } let tN = NUTRIENT_FIELDS.reduce((acc,f) => {acc[f.key]=0; return acc;}, {}); tN.ca = baseN.ca; tN.mg = baseN.mg; tN.s = baseN.s; tN.ec = currentEC; let contrib = {}; let nutrEC = 0; (selectedFertilizers||[]).forEach(fert => { if (!fert.active || !fert.amount || Number(fert.amount)===0) return; const fD = fertilizerDatabase[fert.id]; if (!fD?.composition) return; const cFC = {}; const fA = Number(fert.amount); Object.keys(fD.composition).forEach(nk => { const nC = Number(fD.composition[nk])||0; if (nC===0 || !NUTRIENT_FIELDS.find(field => field.key === nk)) return; let nVppm = (fD.type==='powder')?(fA*nC*10)/waterVolume:(fA*nC)/waterVolume; cFC[nk]=nVppm; tN[nk]=(tN[nk]||0)+nVppm; }); contrib[fert.id]=cFC; }); nutrEC = ((tN.n||0)-(baseN.n||0))*0.007+((tN.p||0)-(baseN.p||0))*0.005+((tN.k||0)-(baseN.k||0))*0.008+((tN.ca||0)-baseN.ca)*0.006+((tN.mg||0)-baseN.mg)*0.004+((tN.s||0)-baseN.s)*0.003; tN.ec = currentEC + Math.max(0, nutrEC); Object.keys(tN).forEach(k => { tN[k]=Math.round(tN[k]*100)/100; }); setResults({ nutrients:tN, contributions:contrib, stage:GROWTH_STAGES[growthStage] }); }, [waterVolume,growthStage,waterType,selectedFertilizers,fertilizerDatabase,customWaterProfile]);
+          const calculateResults = useCallback(() => {
+            setResults(calculateNutrientResults({
+              waterVolume,
+              growthStage,
+              waterType,
+              selectedFertilizers,
+              fertilizerDatabase,
+              customWaterProfile,
+              NUTRIENT_FIELDS,
+              GROWTH_STAGES,
+              WATER_TYPES
+            }));
+          }, [waterVolume,growthStage,waterType,selectedFertilizers,fertilizerDatabase,customWaterProfile]);
           useEffect(() => { calculateResults(); }, [calculateResults]);
 
           const addFertilizer = (id) => { if (!id || (selectedFertilizers||[]).find(f=>f.id===id)) return; const d = fertilizerDatabase[id]; setSelectedFertilizers(p=>[...(p||[]),{id,amount:d?.type==='powder'?0.1:1.0,active:true}]);};
@@ -282,7 +404,13 @@ Antworte direkt auf die Frage.`;
           const exportRecipe = () => { const rec={v:RECIPE_VERSION,name:`${GROWTH_STAGES[growthStage]?.name||'Unbekannt'} - ${new Date().toLocaleDateString()}`,wv:waterVolume,gs:growthStage,wt:waterType,cwpd:waterType==='custom'?customWaterProfile:null,sf:(selectedFertilizers||[]).map(s=>({i:s.id,a:s.amount,ac:s.active})),dcf:customFertilizers,ts:new Date().toISOString()}; const blob=new Blob([JSON.stringify(rec,null,1)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a');a.href=url;a.download=`nutrient-recipe-${growthStage}-${Date.now()}.json`;a.click();URL.revokeObjectURL(url);addToast("Rezept exportiert!","success");};
           const handleImportRecipe = (event) => { const file=event.target.files[0];if(!file)return; const reader=new FileReader();reader.onload=(e)=>{let ok=true;try{const iR=JSON.parse(e.target.result);if(!iR||iR.v!==RECIPE_VERSION){addToast(`Falsche Rezeptversion.`,'error');ok=false;return;}if(!iR.sf||!Array.isArray(iR.sf)||!iR.dcf||!Array.isArray(iR.dcf)){addToast("Rezept unvollständig.",'error');ok=false;return;}let cCFs=[...customFertilizers];const rCFs=iR.dcf||[];const bFNL=Object.values(BASE_FERTILIZER_DATABASE).map(f=>f.name.toLowerCase());rCFs.forEach(rcf=>{if(!rcf||!rcf.id||!rcf.name)return;if(cCFs.find(c=>c.id===rcf.id))return;const nl=rcf.name.toLowerCase();if(cCFs.some(c=>c.name.toLowerCase()===nl)||bFNL.includes(nl)){addToast(`CustomDünger "${rcf.name}" übersprungen: Namenskonflikt.`,'warning');}else{const normRcf={name:rcf.name,type:rcf.type==='powder'?'powder':'liquid',unit:rcf.type==='powder'?'g':'ml',description:rcf.description||'',isCustom:true,id:rcf.id,composition:NUTRIENT_FIELDS.reduce((acc,field)=>{acc[field.key]=Number(rcf.composition?.[field.key])||0;return acc;},{}),};cCFs.push(normRcf);}});setCustomFertilizers(cCFs);const tFDb={...BASE_FERTILIZER_DATABASE};cCFs.forEach(f=>{tFDb[f.id]=f;});setWaterVolume(Number(iR.wv)||10);setGrowthStage(GROWTH_STAGES[iR.gs]?iR.gs:initialGrowthStage);const nWT=WATER_TYPES[iR.wt]?iR.wt:'ro';setWaterType(nWT);if(nWT==='custom'&&iR.cwpd){setCustomWaterProfile({ca:Number(iR.cwpd.ca)||0,mg:Number(iR.cwpd.mg)||0,s:Number(iR.cwpd.s)||0,baseEC:Number(iR.cwpd.baseEC)||0,});}else if(nWT==='custom'){setCustomWaterProfile(initialCustomWaterProfile);}const vSFs=(iR.sf||[]).filter(s=>s&&s.i&&tFDb[s.i]).map(s=>({id:s.i,amount:Math.max(0,Number(s.a))||0,active:typeof s.ac==='boolean'?s.ac:true,}));setSelectedFertilizers(vSFs);if(ok)addToast("Rezept geladen!",'success');}catch(err){console.error("Import Fehler:",err);addToast("Import Fehler: "+err.message,'error');}finally{if(importFileRef.current)importFileRef.current.value="";}};reader.readAsText(file);};
           
-          const TABS_CONFIG = [ { id: TAB_BASIC, label: 'Setup' }, { id: TAB_ADVANCED, label: 'Details' }, { id: TAB_ANALYSIS, label: 'Analyse' }, { id: TAB_CUSTOM_FERTILIZER, label: 'Dünger' } ];
+          const TABS_CONFIG = [
+            { id: TAB_BASIC, label: 'Setup' },
+            { id: TAB_ADVANCED, label: 'Details' },
+            { id: TAB_ANALYSIS, label: 'Analyse' },
+            { id: TAB_CUSTOM_FERTILIZER, label: 'Dünger' },
+            { id: TAB_SETTINGS, label: 'Einstellungen' }
+          ];
           const appDataForChatbar = { waterVolume, growthStage, waterType, customWaterProfile, selectedFertilizers, fertilizerDatabase, results, GROWTH_STAGES_DATA: GROWTH_STAGES, WATER_TYPES_DATA: WATER_TYPES, NUTRIENT_FIELDS_DATA: NUTRIENT_FIELDS, lastUserQueryForAI, lastAIResponseForAI, setLastAIInteraction };
 
           const commonInputClasses = "w-full px-2 py-1 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400";
@@ -291,6 +419,16 @@ Antworte direkt auf die Frage.`;
           const commonTitleClasses = "text-md font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2";
           const commonButtonClasses = "w-full px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 flex items-center justify-center gap-1.5";
 
+          const clearAllData = () => {
+            if (window.confirm('Alle Daten (eigene Dünger, Wasserprofil, Auswahl) wirklich löschen?')) {
+              localStorage.removeItem(LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS);
+              localStorage.removeItem(LOCAL_STORAGE_KEY_CUSTOM_WATER);
+              setCustomFertilizers([]);
+              setCustomWaterProfile(initialCustomWaterProfile);
+              setSelectedFertilizers([ { id: 'ta_calmg', amount: 1.0, active: true }, { id: 'hesi_tnt', amount: 3.0, active: true } ]);
+              addToast('Alle Daten wurden zurückgesetzt.', 'info');
+            }
+          };
 
           return (
             <div className="max-w-4xl mx-auto p-3 sm:p-4 bg-white dark:bg-slate-800 rounded-lg shadow-xl transition-colors duration-300">
@@ -317,8 +455,16 @@ Antworte direkt auf die Frage.`;
                       <div> <label htmlFor="waterVolumeInput" className={commonLabelClasses}>Wassermenge (L)</label> <input id="waterVolumeInput" type="number" value={waterVolume} onChange={(e) => setWaterVolume(Math.max(0.1, Number(e.target.value)))} className={commonInputClasses} min="0.1" step="0.1"/> </div>
                       <div> <label htmlFor="growthStageSelect" className={commonLabelClasses}>Wachstumsphase</label> <select id="growthStageSelect" value={growthStage} onChange={(e) => setGrowthStage(e.target.value)} className={commonInputClasses}> {Object.entries(GROWTH_STAGES).map(([key, stage]) => (<option key={key} value={key}>{stage.name}</option>))} </select> </div>
                       <div> <label htmlFor="waterTypeSelect" className={commonLabelClasses}>Wassertyp</label> <select id="waterTypeSelect" value={waterType} onChange={(e) => setWaterType(e.target.value)} className={commonInputClasses}> {Object.entries(WATER_TYPES).map(([key, water]) => (<option key={key} value={key}>{water.name}</option>))} </select> </div>
-                      {waterType === 'custom' && ( <div className="space-y-2 p-2 bg-blue-100 dark:bg-blue-900/50 border border-blue-300 dark:border-blue-700 rounded-md mt-1"> <h3 className="text-xs font-medium text-blue-700 dark:text-blue-300 flex items-center gap-1"><Water className="w-3 h-3" />Eigenes Profil</h3> {[ {key:'ca', label:'Ca'}, {key:'mg', label:'Mg'}, {key:'s', label:'S'}, {key:'baseEC', label:'EC'} ].map(item => ( <div key={item.key}> <label htmlFor={`custom${item.key}`} className={commonLabelClasses}>{item.label} ({item.key === 'baseEC' ? 'mS/cm' : 'ppm'})</label> <input type="number" name={item.key} id={`custom${item.key}`} value={customWaterProfile[item.key]} onChange={handleCustomWaterProfileChange} min="0" step="0.01" className={`${commonInputClasses} text-xs`}/> </div>))} </div> )}
+                      {waterType === 'custom' && (
+                        <WaterProfile
+                          customWaterProfile={customWaterProfile}
+                          handleCustomWaterProfileChange={handleCustomWaterProfileChange}
+                          commonInputClasses={commonInputClasses}
+                          commonLabelClasses={commonLabelClasses}
+                        />
+                      )}
                       <button onClick={optimizeNutrients} className={commonButtonClasses}> <Target className="w-4 h-4" />Auto-Opt. </button>
+                      <button onClick={clearAllData} className="w-full px-3 py-1.5 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 flex items-center justify-center gap-1.5 mt-2"> <Trash2 className="w-4 h-4" />Alle Daten zurücksetzen</button>
                     </div>
                   </div>
                   <div className="space-y-3"> 
@@ -363,24 +509,77 @@ Antworte direkt auf die Frage.`;
                 <div className="space-y-4">
                   <h2 className={commonTitleClasses}><BarChart3 className="w-4 h-4" />Analyse & Empfehlung</h2>
                   <div className={`${commonContainerClasses} p-3 sm:p-4`}>
-                    <h3 className="font-semibold text-slate-800 dark:text-slate-100 mb-3 text-sm">NPK-Verhältnis Visualisierung</h3>
-                    <div className="space-y-3">
-                      {[ { key: 'n', label: 'Stickstoff (N)', color: 'bg-blue-500 dark:bg-blue-600', range: results.stage?.n }, { key: 'p', label: 'Phosphor (P)', color: 'bg-red-500 dark:bg-red-600', range: results.stage?.p }, { key: 'k', label: 'Kalium (K)', color: 'bg-green-500 dark:bg-green-600', range: results.stage?.k }
-                      ].map(nutrient => { const value = results.nutrients?.[nutrient.key] ?? 0; const progressWidth = getProgressBarWidth(value, nutrient.range); const status = getNutrientStatus(value, nutrient.range);
-                        return ( <div key={nutrient.key} className="space-y-1"> <div className="flex justify-between items-center text-xs"> <span className="font-medium text-slate-700 dark:text-slate-200">{nutrient.label}</span> <span className={`px-1.5 py-0.5 rounded text-[0.65rem] font-medium ${getStatusColor(status)}`}>{value.toFixed(1)} ppm ({status})</span> </div> <div className="relative h-3.5"> <div className="w-full h-full bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden"> <div className={`h-full ${nutrient.color} transition-all duration-500 ease-out`} style={{ width: `${progressWidth}%` }}></div> </div> {nutrient.range && ( <div className="absolute inset-0 flex items-center justify-center text-[0.6rem] font-medium text-white mix-blend-difference px-2 pointer-events-none"> Optimal: {nutrient.range[0]}-{nutrient.range[1]} </div> )} </div> {nutrient.range && ( <div className="flex justify-between text-[0.65rem] text-slate-500 dark:text-slate-400 mt-0.5"> <span>0</span> <span>{Math.round(nutrient.range[1] * 1.2)}</span> </div> )} </div> );
-                      })}
-                    </div>
-                  </div>
-                  <div className={`${commonContainerClasses} p-3 sm:p-4`}>
-                    <h3 className="font-semibold text-slate-800 dark:text-slate-100 mb-3 text-sm">Dünger-Beiträge nach Nährstoff (ppm)</h3>
+                    <h3 className="font-semibold text-slate-800 dark:text-slate-100 mb-3 text-sm">Nährstoff-Beiträge nach Nährstoff (ppm)</h3>
                     <div className="overflow-x-auto">
                       <table className="w-full text-xs">
-                        <thead className="text-slate-700 dark:text-slate-300"><tr className="border-b border-slate-300 dark:border-slate-600"><th className="text-left p-1.5 font-medium">Dünger</th> {['n', 'p', 'k', 'ca', 'mg', 's'].map(n => <th key={n} className="text-center p-1.5 font-medium">{n.toUpperCase()}</th>)} </tr></thead>
+                        <thead className="text-slate-700 dark:text-slate-300">
+                          <tr className="border-b border-slate-300 dark:border-slate-600">
+                            <th className="text-left p-1.5 font-medium">Dünger</th>
+                            {NUTRIENT_FIELDS.map(n => (
+                              <th key={n.key} className="text-center p-1.5 font-medium">{n.label.split(' ')[0]}</th>
+                            ))}
+                          </tr>
+                        </thead>
                         <tbody className="text-slate-600 dark:text-slate-300">
-                          {(selectedFertilizers || []).filter(f => f.active && Number(f.amount) > 0).map(fert => { const fertData = fertilizerDatabase[fert.id]; const contribution = results.contributions?.[fert.id] || {}; if (!fertData) return null; 
-                            return ( <tr key={fert.id} className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50"> <td className="p-1.5 font-medium text-slate-700 dark:text-slate-200">{fertData.name} {fertData.isCustom && <span className="text-xs text-sky-500 dark:text-sky-400" title="Custom Dünger">(C)</span>}</td> {['n', 'p', 'k', 'ca', 'mg', 's'].map(nKey => <td key={nKey} className="text-center p-1.5">{(Number(contribution[nKey]) || 0).toFixed(1)}</td>)} </tr> );
+                          {(selectedFertilizers || []).filter(f => f.active && Number(f.amount) > 0).map(fert => {
+                            const fertData = fertilizerDatabase[fert.id];
+                            const contribution = results.contributions?.[fert.id] || {};
+                            if (!fertData) return null;
+                            return (
+                              <tr key={fert.id} className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                                <td className="p-1.5 font-medium text-slate-700 dark:text-slate-200">{fertData.name} {fertData.isCustom && <span className="text-xs text-sky-500 dark:text-sky-400" title="Custom Dünger">(C)</span>}</td>
+                                {NUTRIENT_FIELDS.map(nField => (
+                                  <td key={nField.key} className="text-center p-1.5">{(Number(contribution[nField.key]) || 0).toFixed(2)}</td>
+                                ))}
+                              </tr>
+                            );
                           })}
-                          <tr className="border-t-2 border-slate-300 dark:border-slate-600 font-semibold bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-200"> <td className="p-1.5">Gesamt</td> {['n', 'p', 'k', 'ca', 'mg', 's'].map(nKey => <td key={nKey} className="text-center p-1.5">{(results.nutrients?.[nKey] || 0).toFixed(1)}</td>)} </tr>
+                          <tr className="border-t-2 border-slate-300 dark:border-slate-600 font-semibold bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-200">
+                            <td className="p-1.5">Gesamt</td>
+                            {NUTRIENT_FIELDS.map(nField => {
+                              const value = results.nutrients?.[nField.key] || 0;
+                              // Determine optimal range for each nutrient
+                              let optimal = null;
+                              if (["n","p","k"].includes(nField.key)) optimal = results.stage?.[nField.key];
+                              else if (nField.key === "ca") optimal = [80, 120];
+                              else if (nField.key === "mg") optimal = [30, 60];
+                              else if (nField.key === "s") optimal = [30, 70];
+                              else if (nField.key === "fe") optimal = [0.5, 2.5];
+                              else if (nField.key === "mn") optimal = [0.2, 1.0];
+                              else if (nField.key === "zn") optimal = [0.05, 0.2];
+                              else if (nField.key === "cu") optimal = [0.01, 0.05];
+                              else if (nField.key === "b") optimal = [0.02, 0.1];
+                              else if (nField.key === "mo") optimal = [0.005, 0.02];
+                              const status = getNutrientStatus(value, optimal);
+                              return (
+                                <td key={nField.key} className={`text-center p-1.5 ${getStatusColor(status)}`} title={status !== 'optimal' ? 'Außerhalb Zielbereich' : 'Im Zielbereich'}>
+                                  {value.toFixed(2)}
+                                  {status !== 'optimal' && <span className="ml-1 align-middle">{getStatusIcon(status)}</span>}
+                                </td>
+                              );
+                            })}
+                          </tr>
+                          <tr className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400">
+                            <td className="p-1.5 font-medium">Optimal</td>
+                            {NUTRIENT_FIELDS.map(nField => {
+                              let optimal = null;
+                              if (["n","p","k"].includes(nField.key)) optimal = results.stage?.[nField.key];
+                              else if (nField.key === "ca") optimal = [80, 120];
+                              else if (nField.key === "mg") optimal = [30, 60];
+                              else if (nField.key === "s") optimal = [30, 70];
+                              else if (nField.key === "fe") optimal = [0.5, 2.5];
+                              else if (nField.key === "mn") optimal = [0.2, 1.0];
+                              else if (nField.key === "zn") optimal = [0.05, 0.2];
+                              else if (nField.key === "cu") optimal = [0.01, 0.05];
+                              else if (nField.key === "b") optimal = [0.02, 0.1];
+                              else if (nField.key === "mo") optimal = [0.005, 0.02];
+                              return (
+                                <td key={nField.key} className="text-center p-1.5">
+                                  {optimal ? `${optimal[0]}-${optimal[1]}` : '-'}
+                                </td>
+                              );
+                            })}
+                          </tr>
                         </tbody>
                       </table>
                     </div>
@@ -397,6 +596,9 @@ Antworte direkt auf die Frage.`;
                         <tbody className="text-slate-600 dark:text-slate-300"> {Object.entries(GROWTH_STAGES).map(([key, stage]) => ( <tr key={key} className={`border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 ${key === growthStage ? 'bg-blue-100 dark:bg-blue-700/50 font-semibold text-blue-800 dark:text-blue-300' : ''}`}> <td className="p-1">{stage.name}</td><td className="text-center p-1">{stage.n[0]}-{stage.n[1]}</td><td className="text-center p-1">{stage.p[0]}-{stage.p[1]}</td> <td className="text-center p-1">{stage.k[0]}-{stage.k[1]}</td><td className="text-center p-1">{stage.ec[0]}-{stage.ec[1]}</td> </tr> ))} </tbody>
                       </table>
                     </div> <p className="text-[0.65rem] text-slate-500 dark:text-slate-400 mt-1">* Blau: Aktuell ausgewählte Phase.</p>
+                  </div>
+                  <div className="mt-6">
+                    <ReferencesSection />
                   </div>
                 </div>
               )}
@@ -428,6 +630,46 @@ Antworte direkt auf die Frage.`;
                   </div>
                 </div>
               )}
+              {activeTab === TAB_SETTINGS && (
+                <div className="space-y-4">
+                  <h2 className={commonTitleClasses}><Settings className="w-4 h-4" />Einstellungen</h2>
+                  <div className={commonContainerClasses}>
+                    <div className="space-y-3">
+                      <div>
+                        <label htmlFor="apiKeyInput" className={commonLabelClasses}>Google Gemini API Key</label>
+                        <div className="flex gap-2">
+                          <input
+                            type="password"
+                            id="apiKeyInput"
+                            value={apiKey}
+                            onChange={(e) => {
+                              const newKey = e.target.value;
+                              setApiKey(newKey);
+                              localStorage.setItem(LOCAL_STORAGE_KEY_GEMINI_API_KEY, newKey);
+                              addToast("API Key gespeichert", "success");
+                            }}
+                            className={commonInputClasses}
+                            placeholder="API Key eingeben..."
+                          />
+                          <button
+                            onClick={() => {
+                              localStorage.removeItem(LOCAL_STORAGE_KEY_GEMINI_API_KEY);
+                              setApiKey('');
+                              addToast("API Key entfernt", "info");
+                            }}
+                            className="px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 flex items-center justify-center gap-1.5 text-sm"
+                          >
+                            <Trash2 className="w-4 h-4" /> Entfernen
+                          </button>
+                        </div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                          API Key von <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Google AI Studio</a> erforderlich.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           );
         };
@@ -440,6 +682,26 @@ Antworte direkt auf die Frage.`;
           </ThemeProvider>,
           document.getElementById('root')
         );
+
+        const ReferencesSection = () => {
+          const [open, setOpen] = React.useState(false);
+          return (
+            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg p-3">
+              <button onClick={() => setOpen(o => !o)} className="font-semibold text-blue-700 dark:text-blue-300 flex items-center gap-1 text-sm focus:outline-none">
+                <Info className="w-4 h-4" />Quellen & Literatur {open ? '▲' : '▼'}
+              </button>
+              {open && (
+                <ul className="mt-2 text-xs text-slate-700 dark:text-slate-200 space-y-1 list-disc list-inside">
+                  <li>J. Benton Jones Jr., <em>Hydroponics: A Practical Guide for the Soilless Grower</em></li>
+                  <li>Mills, H.A. & Jones, J.B. (1996). <em>Plant Analysis Handbook II</em></li>
+                  <li>Smart Fertilizer: Plant Nutrient Deficiency Guide (<a href="https://www.smart-fertilizer.com/articles/plant-nutrient-deficiency-guide/" target="_blank" rel="noopener noreferrer" className="underline text-blue-600 dark:text-blue-400">Link</a>)</li>
+                  <li>Royal Society of Chemistry: <em>Essential Nutrients for Plants</em></li>
+                  <li>Peer-reviewed articles and reputable horticultural resources</li>
+                </ul>
+              )}
+            </div>
+          );
+        };
     </script>
 </body>
 </html>
