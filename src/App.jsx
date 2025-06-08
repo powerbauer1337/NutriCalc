@@ -76,6 +76,11 @@ const AppLayout = () => {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiMessage, setAiMessage] = useState("Hallo! Ich bin dein KI-Helfer. Frag mich z.B. 'Wie erstelle ich einen Dünger?' oder 'Ist mein N-Wert ok?'");
   const { mixedWater } = useWater();
+  const chatSuggestions = [
+    "Wie erstelle ich einen Dünger?",
+    "Ist mein N-Wert ok?",
+    "Was ist EC?"
+  ];
 
   // Refresh fertilizer database when custom fertilizers change
   const refreshFertilizerDatabase = () => {
@@ -152,6 +157,7 @@ const AppLayout = () => {
             key={tab.id}
             className={`px-3 sm:px-4 py-2.5 font-medium transition-colors text-xs sm:text-sm ${activeTab === tab.id ? 'border-b-2 border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
             onClick={() => setActiveTab(tab.id)}
+            data-testid={`tab-${tab.id.toLowerCase()}`}
           >
             {tab.label}
           </button>
@@ -163,7 +169,7 @@ const AppLayout = () => {
           onSend={handleSendAI}
           isLoading={aiLoading}
           displayMessage={aiMessage}
-          suggestions={["Wie erstelle ich einen Dünger?", "Ist mein N-Wert ok?", "Was ist EC?"]}
+          suggestions={chatSuggestions}
         />
         {activeTab === TABS_CONFIG[0].id && <SetupTab NUTRIENT_FIELDS={NUTRIENT_FIELDS} GROWTH_STAGES={GROWTH_STAGES} WATER_TYPES={WATER_TYPES} fertilizerDatabase={fertilizerDatabase} onAnalysisUpdate={setAnalysisInputs} mixedWater={mixedWater} />}
         {activeTab === TABS_CONFIG[1].id && <DetailsTab results={analysisInputs.results} />}

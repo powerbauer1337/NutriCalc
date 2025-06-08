@@ -8,7 +8,7 @@ const typeStyles = {
 };
 
 const ToastMessage = ({ message, type = 'info', onClose }) => (
-  <div className={`p-4 rounded-md shadow-lg border w-full flex items-start text-sm ${typeStyles[type] || typeStyles.info}`}> 
+  <div className={`p-4 rounded-md shadow-lg border w-full flex items-start text-sm ${typeStyles[type] || typeStyles.info}`} data-testid="toast-message"> 
     <div className="flex-1 font-medium">{message}</div>
     <button onClick={onClose} className="ml-4 text-slate-500 hover:text-slate-800 dark:text-slate-300 dark:hover:text-white p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
       ×
