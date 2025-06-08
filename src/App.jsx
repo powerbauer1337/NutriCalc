@@ -11,8 +11,10 @@ import SettingsTab from './components/SettingsTab.jsx';
 import DetailsTab from './components/DetailsTab.jsx';
 import ReferencesTab from './components/ReferencesTab.jsx';
 import Navigation from './components/Navigation.jsx';
-import { NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, BASE_FERTILIZER_DATABASE, LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS, TABS_CONFIG } from './constants';
+import { NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, BASE_FERTILIZER_DATABASE, LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS, TABS_CONFIG, TAB_MIXING_ASSISTANT, TAB_WATERING_SCHEDULER, TAB_SETTINGS } from './constants';
 import { useApiKey } from './hooks/useApiKey.js';
+import MixingAssistant from './components/MixingAssistant.jsx';
+import WateringScheduler from './components/WateringScheduler.jsx';
 
 const DarkModeToggle = () => {
   const { theme, toggleTheme } = useTheme();
@@ -165,8 +167,10 @@ const AppLayout = () => {
         {activeTab === TABS_CONFIG[1].id && <DetailsTab results={analysisInputs.results} />}
         {activeTab === TABS_CONFIG[2].id && <AnalysisTab {...analysisInputs} />}
         {activeTab === TABS_CONFIG[3].id && <FertilizerTab refreshFertilizerDatabase={refreshFertilizerDatabase} />}
-        {activeTab === TABS_CONFIG[4].id && <SettingsTab />}
-        {activeTab === TABS_CONFIG[5].id && <ReferencesTab />}
+        {activeTab === TAB_SETTINGS && <SettingsPage />}
+        {activeTab === TAB_MIXING_ASSISTANT && <MixingAssistant fertilizerDatabase={fertilizerDatabase} GROWTH_STAGES={GROWTH_STAGES} WATER_TYPES={WATER_TYPES} />}
+        {activeTab === TAB_WATERING_SCHEDULER && <WateringScheduler />}
+        {activeTab === TABS_CONFIG[TABS_CONFIG.length - 1].id && <ReferencesTab />}
       </main>
     </div>
   );

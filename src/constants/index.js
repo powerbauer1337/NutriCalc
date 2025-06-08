@@ -10,6 +10,8 @@ export const TAB_ANALYSIS = 'analysis';
 export const TAB_CUSTOM_FERTILIZER = 'customFertilizer';
 export const TAB_SETTINGS = 'settings';
 export const TAB_REFERENCES = 'references';
+export const TAB_MIXING_ASSISTANT = 'mixingassistant';
+export const TAB_WATERING_SCHEDULER = 'watering';
 
 // Tab configuration
 export const TABS_CONFIG = [
@@ -18,6 +20,8 @@ export const TABS_CONFIG = [
   { id: TAB_ANALYSIS, label: 'Analyse' },
   { id: TAB_CUSTOM_FERTILIZER, label: 'Dünger' },
   { id: TAB_SETTINGS, label: 'Einstellungen' },
+  { id: TAB_MIXING_ASSISTANT, label: 'Misch-Assistent' },
+  { id: TAB_WATERING_SCHEDULER, label: 'Gießplaner' },
   { id: TAB_REFERENCES, label: 'Referenzen' }
 ];
 
