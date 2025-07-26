@@ -1,5 +1,16 @@
+
+
+
+
+
 import React from 'react';
-import Button from './Button.jsx';
+import Button from './Button';
+
+interface ToastMessageProps {
+  message: string;
+  type?: 'success' | 'error' | 'info' | 'warning';
+  onClose: () => void;
+}
 
 const typeStyles = {
   success: 'bg-green-100 text-green-800 border-green-400 dark:bg-green-800 dark:text-green-100 dark:border-green-600',
@@ -8,7 +19,7 @@ const typeStyles = {
   info: 'bg-blue-100 text-blue-800 border-blue-400 dark:bg-blue-800 dark:text-blue-100 dark:border-blue-600',
 };
 
-const ToastMessage = ({ message, type = 'info', onClose }) => (
+const ToastMessage: React.FC<ToastMessageProps> = ({ message, type = 'info', onClose }) => (
   <div
     className={`p-4 rounded-md shadow-lg border w-full flex items-start text-sm ${typeStyles[type] || typeStyles.info}`}
     data-testid="toast-message"
@@ -28,4 +39,8 @@ const ToastMessage = ({ message, type = 'info', onClose }) => (
   </div>
 );
 
-export default ToastMessage; 
+export default ToastMessage;
+
+
+
+
