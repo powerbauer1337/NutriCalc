@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { LOCAL_STORAGE_KEY_GEMINI_API_KEY } from '../constants';
 
 export const useApiKey = () => {
-  const [apiKey, setApiKey] = useState('');
+  const [apiKey, setApiKey] = useState<string>('');
 
   useEffect(() => {
     const storedKey = localStorage.getItem(LOCAL_STORAGE_KEY_GEMINI_API_KEY);
@@ -11,7 +11,7 @@ export const useApiKey = () => {
     }
   }, []);
 
-  const updateApiKey = (newKey) => {
+  const updateApiKey = (newKey: string) => {
     setApiKey(newKey);
     localStorage.setItem(LOCAL_STORAGE_KEY_GEMINI_API_KEY, newKey);
   };

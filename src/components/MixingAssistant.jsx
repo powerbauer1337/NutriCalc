@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { calculateNutrientResults } from '../utils/calculateNutrients.js';
+import { calculateNutrientResults } from '../utils/calculateNutrients';
 import Button from './Button.jsx';
 import NutrientBarChart from './NutrientBarChart.jsx';
 

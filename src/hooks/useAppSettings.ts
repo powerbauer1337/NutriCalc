@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react';
 
+interface AppSettings {
+  unit: 'liter' | 'gallon';
+  waterAmount: string;
+  growthPhase: string;
+  waterType: string;
+}
+
 const useAppSettings = () => {
-  const [settings, setSettings] = useState(() => {
+  const [settings, setSettings] = useState<AppSettings>(() => {
     try {
       const storedSettings = localStorage.getItem('appSettings');
       return storedSettings ? JSON.parse(storedSettings) : {
@@ -29,7 +36,7 @@ const useAppSettings = () => {
     }
   }, [settings]);
 
-  const updateSetting = (key, value) => {
+  const updateSetting = (key: string, value: string) => {
     setSettings(prevSettings => ({
       ...prevSettings,
       [key]: value,

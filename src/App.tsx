@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
-import { ThemeProvider, useTheme } from './contexts/ThemeContext.jsx';
-import { ToastProvider, useToasts } from './contexts/ToastContext.jsx';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { ToastProvider, useToasts } from './contexts/ToastContext';
 import { WaterProvider, useWater } from './contexts/WaterContext';
-import ChatBar from './components/ChatBar.jsx';
-import SetupTab from './components/SetupTab.jsx';
-import WaterInput from './components/WaterInput.jsx';
-import FertilizerTab from './components/FertilizerTab.jsx';
-import AnalysisTab from './components/AnalysisTab.jsx';
-import SettingsTab from './components/SettingsTab.jsx';
-import DetailsTab from './components/DetailsTab.jsx';
-import ReferencesTab from './components/ReferencesTab.jsx';
-import Navigation from './components/Navigation.jsx';
+import ChatBar from './components/ChatBar';
+import SetupTab from './components/SetupTab';
+import WaterInput from './components/WaterInput';
+import FertilizerTab from './components/FertilizerTab';
+import AnalysisTab from './components/AnalysisTab';
+import SettingsTab from './components/SettingsTab';
+import DetailsTab from './components/DetailsTab';
+import ReferencesTab from './components/ReferencesTab';
+import Navigation from './components/Navigation';
 import { NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, BASE_FERTILIZER_DATABASE, LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS, TABS_CONFIG, TAB_MIXING_ASSISTANT, TAB_WATERING_SCHEDULER, TAB_SETTINGS } from './constants';
-import { useApiKey } from './hooks/useApiKey.js';
-import MixingAssistant from './components/MixingAssistant.jsx';
-import WateringScheduler from './components/WateringScheduler.jsx';
+import { useApiKey } from './hooks/useApiKey';
+import MixingAssistant from './components/MixingAssistant';
+import WateringScheduler from './components/WateringScheduler';
+import { Fertilizer, GrowthStage, WaterType, NutrientCalculation } from './types';
 
 const DarkModeToggle = () => {
   const { theme, toggleTheme } = useTheme();
@@ -33,11 +34,11 @@ const DarkModeToggle = () => {
   );
 };
 
-function mergeFertilizerDatabases(baseDb, customList) {
-  const customDb = {};
+function mergeFertilizerDatabases(baseDb: Record<string, Fertilizer>, customList: Fertilizer[]): Record<string, Fertilizer> {
+  const customDb: Record<string, Fertilizer> = {};
   (customList || []).forEach(fert => {
     const id = fert.id || `custom_${fert.name.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}`;
-    const composition = {};
+    const composition: Record<string, number> = {};
     Object.entries(fert.composition || {}).forEach(([k, v]) => {
       composition[k.toLowerCase()] = Number(v) || 0;
     });
@@ -62,7 +63,7 @@ const AppLayout = () => {
     try { if (stored) customList = JSON.parse(stored); } catch {}
     return mergeFertilizerDatabases(BASE_FERTILIZER_DATABASE, customList);
   });
-  const [analysisInputs, setAnalysisInputs] = useState({
+  const [analysisInputs, setAnalysisInputs] = useState<NutrientCalculation>({
     NUTRIENT_FIELDS,
     GROWTH_STAGES,
     WATER_TYPES,
@@ -102,7 +103,7 @@ const AppLayout = () => {
     return () => window.removeEventListener('storage', handler);
   }, []);
 
-  const handleSendAI = async (userMessage) => {
+  const handleSendAI = async (userMessage: string) => {
     if (!apiKey) {
       addToast('API Key fehlt!', 'error');
       return;

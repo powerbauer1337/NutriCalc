@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 
-export function useDebounce(value, delay) {
+export function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export function useDebounce(value, delay) {
   return debouncedValue;
 }
 
-export function useThrottle(value, delay) {
+export function useThrottle<T>(value: T, delay: number): T {
   const [throttledValue, setThrottledValue] = useState(value);
   const [lastExecuted, setLastExecuted] = useState(0);
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { calculateNutrientResults } from '../utils/calculateNutrients.js';
+import { calculateNutrientResults } from '../utils/calculateNutrients';
 import { useToasts } from '../contexts/ToastContext.jsx';
 import FertilizerManager from './FertilizerManager.jsx';
 import WaterInput from './WaterInput.jsx';
