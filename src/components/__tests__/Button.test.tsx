@@ -9,19 +9,19 @@ describe('Button Component', () => {
     render(<Button>Test Button</Button>);
     const button = screen.getByRole('button', { name: 'Test Button' });
     expect(button).toBeInTheDocument();
-    expect(button).toHaveClass('btn');
+    expect(button).toHaveClass('inline-flex', 'items-center', 'justify-center');
   });
 
   it('applies variant classes correctly', () => {
     render(<Button variant="primary">Primary Button</Button>);
     const button = screen.getByRole('button', { name: 'Primary Button' });
-    expect(button).toHaveClass('btn', 'btn-primary');
+    expect(button).toHaveClass('bg-blue-600', 'hover:bg-blue-700', 'text-white');
   });
 
-  it('applies size classes correctly', () => {
-    render(<Button size="large">Large Button</Button>);
-    const button = screen.getByRole('button', { name: 'Large Button' });
-    expect(button).toHaveClass('btn', 'btn-large');
+  it('applies full width class correctly', () => {
+    render(<Button fullWidth>Full Width Button</Button>);
+    const button = screen.getByRole('button', { name: 'Full Width Button' });
+    expect(button).toHaveClass('w-full');
   });
 
   it('handles disabled state', () => {
