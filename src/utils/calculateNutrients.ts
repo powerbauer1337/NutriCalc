@@ -1,16 +1,16 @@
-import type { NutrientCalculation, SelectedFertilizer } from '../types/index.js';
+import type { NutrientCalculation, SelectedFertilizer, Fertilizer, NutrientField, GrowthStageConfig, WaterTypeConfig, MixedWater } from '../types/index.js';
 
 interface CalculateNutrientResultsParams {
   waterVolume: number;
   growthStage: string;
   waterType: string;
   selectedFertilizers: SelectedFertilizer[];
-  fertilizerDatabase: Record<string, any>;
-  customWaterProfile?: Record<string, any>;
-  NUTRIENT_FIELDS: Array<{ key: string }>;
-  GROWTH_STAGES: Record<string, any>;
-  WATER_TYPES: Record<string, any>;
-  mixedWater?: Record<string, any>;
+  fertilizerDatabase: Record<string, Fertilizer>;
+  customWaterProfile?: Record<string, number>;
+  NUTRIENT_FIELDS: NutrientField[];
+  GROWTH_STAGES: Record<string, GrowthStageConfig>;
+  WATER_TYPES: Record<string, WaterTypeConfig>;
+  mixedWater?: MixedWater;
 }
 
 export function calculateNutrientResults({
@@ -79,7 +79,7 @@ export function calculateNutrientResults({
   tN.ec = currentEC;
   tN.ph = basePH;
 
-  const contrib: Record<string, any> = {};
+  const contrib: Record<string, Record<string, number>> = {};
   let nutrEC = 0;
 
   (selectedFertilizers || []).forEach((fert) => {

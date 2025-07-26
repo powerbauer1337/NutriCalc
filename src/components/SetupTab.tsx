@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { calculateNutrientResults } from '../utils/calculateNutrients';
 import { useToasts } from '../contexts/ToastContext';
 import FertilizerManager from './FertilizerManager';
 import WaterInput from './WaterInput';
 import { GROWTH_STAGES, WATER_TYPES, NUTRIENT_FIELDS } from '../constants';
 import useAppSettings from '../hooks/useAppSettings';
-import { useDebounce } from '../hooks/useDebounce';
 import Button from './Button';
-import { Fertilizer, GrowthStage, WaterType, NutrientCalculation } from '../types';
+import { Card, CardHeader, CardTitle, CardContent } from './Card';
+import { Fertilizer } from '../types';
 
 const initialCustomWaterProfile = {
   ca: 0,
@@ -37,8 +37,8 @@ interface SetupTabProps {
   GROWTH_STAGES: typeof GROWTH_STAGES;
   WATER_TYPES: typeof WATER_TYPES;
   fertilizerDatabase: Record<string, Fertilizer>;
-  onAnalysisUpdate?: (data: any) => void;
-  mixedWater?: any;
+  onAnalysisUpdate?: (data: Record<string, unknown>) => void;
+  mixedWater?: Record<string, number>;
 }
 
 export const SetupTab: React.FC<SetupTabProps> = ({
@@ -179,7 +179,7 @@ export const SetupTab: React.FC<SetupTabProps> = ({
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       addToast('Setup exportiert!', 'success');
-    } catch (e) {
+    } catch {
       addToast('Fehler beim Export!', 'error');
     }
   };
@@ -215,7 +215,7 @@ export const SetupTab: React.FC<SetupTabProps> = ({
           }
         }
         addToast('Setup importiert!', 'success');
-      } catch (e) {
+      } catch {
         addToast('Ungültige Datei!', 'error');
       }
     };
@@ -261,176 +261,226 @@ export const SetupTab: React.FC<SetupTabProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto p-4 bg-white dark:bg-slate-800 rounded-lg shadow">
-      <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">Setup</h2>
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="waterVolume">
-              Wassermenge ({settings.unit === 'liter' ? 'Liter' : 'Gallonen'})
-            </label>
-            <input
-              id="waterVolume"
-              type="number"
-              min="0.1"
-              step="0.1"
-              value={waterVolume}
-              onChange={(e) => setWaterVolume(Math.max(0.1, Number(e.target.value)))}
-              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900"
-              placeholder="z.B. 10"
-              aria-label="Wassermenge"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="growthStage">
-              Wachstumsphase
-            </label>
-            <select
-              id="growthStage"
-              value={growthStage}
-              onChange={(e) => setGrowthStage(e.target.value)}
-              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900"
-              aria-label="Wachstumsphase"
-            >
-              {Object.entries(GROWTH_STAGES).map(([key, stage]) => (
-                <option key={key} value={key}>
-                  {stage.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="waterType">
-              Wassertyp
-            </label>
-            <select
-              id="waterType"
-              value={waterType}
-              onChange={(e) => setWaterType(e.target.value)}
-              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900"
-              aria-label="Wassertyp"
-            >
-              {Object.entries(WATER_TYPES).map(([key, type]) => (
-                <option key={key} value={key}>
-                  {type.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          {waterType === 'custom' && (
-            <div className="mt-3">
-              <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
-                Eigenes Wasserprofil
-              </h3>
-              <div className="grid grid-cols-2 gap-2">
-                {Object.keys(initialCustomWaterProfile).map((key) => (
-                  <div key={key}>
-                    <label className="block text-xs font-medium mb-0.5" htmlFor={key}>
-                      {key.toUpperCase()}
-                    </label>
-                    <input
-                      type="number"
-                      name={key}
-                      value={customWaterProfile[key]}
-                      onChange={(e) =>
-                        setCustomWaterProfile((prev) => ({
-                          ...prev,
-                          [key]: parseFloat(e.target.value) || 0,
-                        }))
-                      }
-                      className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900 text-xs"
-                      min="0"
-                      step="0.01"
-                      aria-label={key.toUpperCase()}
-                    />
-                  </div>
-                ))}
-              </div>
+    <div className="space-y-8">
+      <div className="grid lg:grid-cols-2 gap-8">
+        {/* Basic Settings Card */}
+        <Card variant="elevated">
+          <CardHeader>
+            <CardTitle>Grundeinstellungen</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2" htmlFor="waterVolume">
+                Wassermenge ({settings.unit === 'liter' ? 'Liter' : 'Gallonen'})
+              </label>
+              <input
+                id="waterVolume"
+                type="number"
+                min="0.1"
+                step="0.1"
+                value={waterVolume}
+                onChange={(e) => setWaterVolume(Math.max(0.1, Number(e.target.value)))}
+                className="w-full px-4 py-2.5 bg-white border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                placeholder="z.B. 10"
+                aria-label="Wassermenge"
+              />
             </div>
-          )}
-        </div>
-        <div>
-          <WaterInput />
-          {mixedWater && (
-            <div className="mt-6 p-4 bg-gray-700 rounded-md text-white">
-              <h3 className="text-lg font-semibold mb-2">Gemischtes Wasser Ergebnis:</h3>
-              <p>pH: {mixedWater.ph?.toFixed(2) ?? 'N/A'}</p>
-              <p>EC: {mixedWater.ec?.toFixed(2) ?? 'N/A'} mS/cm</p>
-              <p>Ca: {mixedWater.ca?.toFixed(1) ?? 'N/A'} mg/L</p>
-              <p>Mg: {mixedWater.mg?.toFixed(1) ?? 'N/A'} mg/L</p>
-              <p>Na: {mixedWater.na?.toFixed(1) ?? 'N/A'} mg/L</p>
-              <p>Gesamtvolumen: {mixedWater.totalVolume?.toFixed(1) ?? 'N/A'} L</p>
-            </div>
-          )}
-          <h3 className="text-md font-semibold text-slate-800 dark:text-slate-100 mb-2 mt-4">
-            Dünger & Dosierung
-          </h3>
-          <FertilizerManager
-            selectedFertilizers={selectedFertilizers}
-            fertilizerDatabase={fertilizerDatabase}
-            waterVolume={waterVolume}
-            addFertilizer={addFertilizer}
-            removeFertilizer={removeFertilizer}
-            updateFertilizerAmount={updateFertilizerAmount}
-            toggleFertilizer={toggleFertilizer}
-          />
-        </div>
-      </div>
-      <div className="mt-6 p-4 bg-slate-100 dark:bg-slate-900 rounded-lg">
-        <h3 className="font-semibold mb-2 text-slate-800 dark:text-slate-100">
-          Berechnete Hauptwerte
-        </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {results &&
-            results.nutrients &&
-            mainNutrients.map((nutrient) => (
-              <div
-                key={nutrient.key}
-                className="flex flex-col items-center p-2 bg-white dark:bg-slate-800 rounded shadow text-center"
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2" htmlFor="growthStage">
+                Wachstumsphase
+              </label>
+              <select
+                id="growthStage"
+                value={growthStage}
+                onChange={(e) => setGrowthStage(e.target.value)}
+                className="w-full px-4 py-2.5 bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                aria-label="Wachstumsphase"
               >
-                <span className="text-xs text-slate-500 dark:text-slate-400">{nutrient.label}</span>
-                <span className="text-lg font-bold text-blue-700 dark:text-blue-300">
-                  {results?.nutrients?.[nutrient.key] !== undefined &&
-                  results.nutrients?.[nutrient.key] !== null &&
-                  !isNaN(results.nutrients?.[nutrient.key])
-                    ? results.nutrients[nutrient.key].toFixed(2)
-                    : '0.00'}
-                  {''} {nutrient.unit}
-                </span>
+                {Object.entries(GROWTH_STAGES).map(([key, stage]) => (
+                  <option key={key} value={key}>
+                    {stage.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2" htmlFor="waterType">
+                Wassertyp
+              </label>
+              <select
+                id="waterType"
+                value={waterType}
+                onChange={(e) => setWaterType(e.target.value)}
+                className="w-full px-4 py-2.5 bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                aria-label="Wassertyp"
+              >
+                {Object.entries(WATER_TYPES).map(([key, type]) => (
+                  <option key={key} value={key}>
+                    {type.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {waterType === 'custom' && (
+              <div className="mt-6 p-4 bg-stone-50 rounded-lg border border-stone-200">
+                <h3 className="text-sm font-semibold text-stone-700 mb-3">
+                  Eigenes Wasserprofil
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {Object.keys(initialCustomWaterProfile).map((key) => (
+                    <div key={key}>
+                      <label className="block text-xs font-medium text-stone-600 mb-1" htmlFor={key}>
+                        {key.toUpperCase()}
+                      </label>
+                      <input
+                        type="number"
+                        name={key}
+                        value={customWaterProfile[key]}
+                        onChange={(e) =>
+                          setCustomWaterProfile((prev) => ({
+                            ...prev,
+                            [key]: parseFloat(e.target.value) || 0,
+                          }))
+                        }
+                        className="w-full px-3 py-2 bg-white border border-stone-300 rounded-md text-stone-900 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                        min="0"
+                        step="0.01"
+                        aria-label={key.toUpperCase()}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3 pt-4 border-t border-stone-200">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={autoOptimize}
+              >
+                Empfohlene Dosierung laden
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExport}
+              >
+                Daten exportieren
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById('importFile')?.click()}
+              >
+                Daten importieren
+              </Button>
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={clearAllData}
+              >
+                Alle Daten löschen
+              </Button>
+            </div>
+
+            <input
+              id="importFile"
+              type="file"
+              accept=".json"
+              onChange={handleImport}
+              className="hidden"
+            />
+          </CardContent>
+        </Card>
+        {/* Water Input and Mixed Water Results */}
+        <div className="space-y-6">
+          <WaterInput />
+
+          {mixedWater && (
+            <Card variant="elevated">
+              <CardHeader>
+                <CardTitle>Gemischtes Wasser Ergebnis</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  <div className="text-center p-3 bg-emerald-50 rounded-lg">
+                    <div className="text-2xl font-bold text-emerald-700">
+                      {mixedWater.ph?.toFixed(2) ?? 'N/A'}
+                    </div>
+                    <div className="text-sm text-stone-600">pH</div>
+                  </div>
+                  <div className="text-center p-3 bg-blue-50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-700">
+                      {mixedWater.ec?.toFixed(2) ?? 'N/A'}
+                    </div>
+                    <div className="text-sm text-stone-600">EC (mS/cm)</div>
+                  </div>
+                  <div className="text-center p-3 bg-orange-50 rounded-lg">
+                    <div className="text-2xl font-bold text-orange-700">
+                      {mixedWater.totalVolume?.toFixed(1) ?? 'N/A'}
+                    </div>
+                    <div className="text-sm text-stone-600">Volumen (L)</div>
+                  </div>
+                </div>
+                <div className="mt-4 grid grid-cols-3 gap-3 text-sm">
+                  <div>Ca: <span className="font-medium">{mixedWater.ca?.toFixed(1) ?? 'N/A'} mg/L</span></div>
+                  <div>Mg: <span className="font-medium">{mixedWater.mg?.toFixed(1) ?? 'N/A'} mg/L</span></div>
+                  <div>Na: <span className="font-medium">{mixedWater.na?.toFixed(1) ?? 'N/A'} mg/L</span></div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Fertilizer Manager */}
+          <Card variant="elevated">
+            <CardHeader>
+              <CardTitle>Dünger & Dosierung</CardTitle>
+            </CardHeader>
+            <CardContent padding="none">
+              <FertilizerManager
+                selectedFertilizers={selectedFertilizers}
+                fertilizerDatabase={fertilizerDatabase}
+                waterVolume={waterVolume}
+                addFertilizer={addFertilizer}
+                removeFertilizer={removeFertilizer}
+                updateFertilizerAmount={updateFertilizerAmount}
+                toggleFertilizer={toggleFertilizer}
+              />
+            </CardContent>
+          </Card>
         </div>
       </div>
-      <div className="flex gap-2 mb-4">
-        <Button
-          onClick={handleExport}
-          variant="primary"
-          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
-          aria-label="Exportieren"
-        >
-          Exportieren
-        </Button>
-        <label className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 focus-within:ring-2 focus-within:ring-green-500 text-xs cursor-pointer inline-flex items-center justify-center font-semibold transition-all duration-200">
-          Importieren
-          <input type="file" accept="application/json" onChange={handleImport} className="hidden" />
-        </label>
-        <Button
-          onClick={autoOptimize}
-          variant="secondary"
-          className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-xs"
-          aria-label="Auto-Optimieren"
-        >
-          Auto-Optimieren
-        </Button>
-        <Button
-          onClick={clearAllData}
-          variant="danger"
-          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 text-xs"
-          aria-label="Alle Daten löschen"
-        >
-          Alle Daten löschen
-        </Button>
-      </div>
+
+      {/* Results Section */}
+      {results && results.nutrients && (
+        <Card variant="elevated">
+          <CardHeader>
+            <CardTitle>Berechnete Hauptwerte</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {mainNutrients.map((nutrient) => (
+                <div
+                  key={nutrient.key}
+                  className="text-center p-4 bg-gradient-to-br from-stone-50 to-stone-100 rounded-lg border border-stone-200"
+                >
+                  <div className="text-xs font-medium text-stone-600 mb-1">{nutrient.label}</div>
+                  <div className="text-2xl font-bold text-emerald-700">
+                    {results?.nutrients?.[nutrient.key] !== undefined &&
+                    results.nutrients?.[nutrient.key] !== null &&
+                    !isNaN(results.nutrients?.[nutrient.key])
+                      ? results.nutrients[nutrient.key].toFixed(2)
+                      : '0.00'}
+                  </div>
+                  <div className="text-xs text-stone-500">{nutrient.unit}</div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

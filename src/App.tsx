@@ -25,7 +25,7 @@ import {
 import { useApiKey } from './hooks/useApiKey';
 import MixingAssistant from './components/MixingAssistant';
 import WateringScheduler from './components/WateringScheduler';
-import { Fertilizer, NutrientCalculation, FertilizerDatabase, FertilizerData } from './types';
+import { Fertilizer } from './types';
 
 const DarkModeToggle = () => {
   const { theme, toggleTheme } = useTheme();
@@ -91,7 +91,9 @@ const AppLayout = () => {
     let customList = [];
     try {
       if (stored) customList = JSON.parse(stored);
-    } catch {}
+    } catch {
+      // Silently ignore parsing errors and use empty array
+    }
     return mergeFertilizerDatabases(BASE_FERTILIZER_DATABASE, customList);
   });
   const [analysisInputs, setAnalysisInputs] = useState({
@@ -120,7 +122,7 @@ const AppLayout = () => {
   const chatSuggestions: string[] = ['Wie erstelle ich einen Dünger?', 'Ist mein N-Wert ok?', 'Was ist EC?'];
 
   // Stabilize the onAnalysisUpdate callback to prevent hot reload loops
-  const handleAnalysisUpdate = React.useCallback((data: any) => {
+  const handleAnalysisUpdate = React.useCallback((data: Record<string, unknown>) => {
     setAnalysisInputs(data);
   }, []);
 
@@ -130,7 +132,9 @@ const AppLayout = () => {
     let customList = [];
     try {
       if (stored) customList = JSON.parse(stored);
-    } catch {}
+    } catch {
+      // Silently ignore parsing errors and use empty array
+    }
     setFertilizerDatabase(mergeFertilizerDatabases(BASE_FERTILIZER_DATABASE, customList));
   }, []);
 
@@ -205,8 +209,8 @@ const AppLayout = () => {
           } else if (response.status >= 500) {
             errorMsg = 'Server-Fehler. Bitte versuchen Sie es später erneut.';
           }
-        } catch (parseError) {
-          console.error('Failed to parse error response:', parseError);
+        } catch {
+          // Silently handle JSON parsing errors
         }
 
         setAiMessage(`AI Fehler: ${errorMsg}`);
@@ -224,17 +228,17 @@ const AppLayout = () => {
           addToast('Keine Antwort von der AI erhalten.', 'warning');
         }
       }
-    } catch (error: any) {
-      console.error('AI request failed:', error);
-      
+    } catch (error: unknown) {
       let errorMessage = 'Fehler bei der Antwortgenerierung.';
-      
-      if (error.name === 'AbortError') {
-        errorMessage = 'Anfrage-Timeout. Bitte versuchen Sie es erneut.';
-      } else if (error.message?.includes('Failed to fetch')) {
-        errorMessage = 'Netzwerkfehler. Bitte überprüfen Sie Ihre Internetverbindung.';
-      } else if (error.message) {
-        errorMessage = `Fehler: ${error.message}`;
+
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'Anfrage-Timeout. Bitte versuchen Sie es erneut.';
+        } else if (error.message?.includes('Failed to fetch')) {
+          errorMessage = 'Netzwerkfehler. Bitte überprüfen Sie Ihre Internetverbindung.';
+        } else {
+          errorMessage = `Fehler: ${error.message}`;
+        }
       }
       
       setAiMessage(errorMessage);
@@ -246,23 +250,39 @@ const AppLayout = () => {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gray-100 dark:bg-slate-900 transition-colors duration-300">
-        <header className="p-4 bg-blue-600 text-white text-center text-2xl font-bold shadow flex items-center justify-between md:ml-48">
-          <span>NutriCalc</span>
-          <DarkModeToggle />
-        </header>
+      <div className="min-h-screen bg-stone-50 transition-colors duration-300">
         <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
-        <main className="p-4 max-w-4xl mx-auto md:ml-48 pb-16 md:pb-0">
-          <ErrorBoundary>
-            <ChatBar
-              apiKey={!!apiKey}
-              onSend={handleSendAI}
-              isLoading={aiLoading}
-              displayMessage={aiMessage}
-              suggestions={chatSuggestions}
-            />
-          </ErrorBoundary>
-          <ErrorBoundary>
+
+        {/* Header with AI Chat */}
+        <header className="md:ml-64 bg-white/80 backdrop-blur-sm border-b border-stone-200 sticky top-0 z-40">
+          <div className="px-6 py-4">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-2xl font-bold text-stone-900">
+                  {TABS_CONFIG.find(tab => tab.id === activeTab)?.label || 'NutriCalc'}
+                </h2>
+                <p className="text-stone-600 text-sm">
+                  {TABS_CONFIG.find(tab => tab.id === activeTab)?.description || 'Nutrient calculation and analysis'}
+                </p>
+              </div>
+              <DarkModeToggle />
+            </div>
+
+            <ErrorBoundary>
+              <ChatBar
+                apiKey={!!apiKey}
+                onSend={handleSendAI}
+                isLoading={aiLoading}
+                displayMessage={aiMessage}
+                suggestions={chatSuggestions}
+              />
+            </ErrorBoundary>
+          </div>
+        </header>
+
+        <main className="md:ml-64 px-6 py-8 pb-20 md:pb-8">
+          <div className="max-w-6xl mx-auto">
+            <ErrorBoundary>
             {activeTab === TABS_CONFIG[0].id && (
               <SetupTab
                 NUTRIENT_FIELDS={NUTRIENT_FIELDS}
@@ -288,7 +308,8 @@ const AppLayout = () => {
             )}
             {activeTab === TAB_WATERING_SCHEDULER && <WateringScheduler />}
             {activeTab === TABS_CONFIG[TABS_CONFIG.length - 1].id && <ReferencesTab />}
-          </ErrorBoundary>
+            </ErrorBoundary>
+          </div>
         </main>
       </div>
     </ErrorBoundary>

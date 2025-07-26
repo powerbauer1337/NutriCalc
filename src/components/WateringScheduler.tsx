@@ -22,7 +22,9 @@ const WateringScheduler = () => {
     if (stored) {
       try {
         setEvents(JSON.parse(stored));
-      } catch {}
+      } catch {
+        // Silently ignore parsing errors and use empty array
+      }
     }
   }, []);
 

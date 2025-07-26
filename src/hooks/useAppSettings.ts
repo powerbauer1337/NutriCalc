@@ -19,7 +19,7 @@ const useAppSettings = () => {
             growthPhase: '',
             waterType: '',
           };
-    } catch (error) {
+    } catch {
       // Silently fall back to defaults if localStorage parsing fails
       return {
         unit: 'liter',
@@ -33,7 +33,7 @@ const useAppSettings = () => {
   useEffect(() => {
     try {
       localStorage.setItem('appSettings', JSON.stringify(settings));
-    } catch (error) {
+    } catch {
       // Silently handle localStorage save errors
     }
   }, [settings]);

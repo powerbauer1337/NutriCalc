@@ -30,8 +30,8 @@ function deobfuscate(obfuscatedText: string, key: string): string {
       result += String.fromCharCode(textChar ^ keyChar);
     }
     return result;
-  } catch (error) {
-    console.error('Failed to deobfuscate data:', error);
+  } catch {
+    // Silently handle deobfuscation errors
     return '';
   }
 }
@@ -48,8 +48,7 @@ export function storeApiKey(apiKey: string): void {
       version: '1.0'
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (error) {
-    console.error('Failed to store API key:', error);
+  } catch {
     // Fallback to regular storage if obfuscation fails
     localStorage.setItem('nutricalc_gemini_api_key', apiKey);
   }
@@ -78,8 +77,8 @@ export function retrieveApiKey(): string {
     }
     
     return '';
-  } catch (error) {
-    console.error('Failed to retrieve API key:', error);
+  } catch {
+    // Silently handle retrieval errors
     return '';
   }
 }
@@ -91,8 +90,8 @@ export function removeApiKey(): void {
   try {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem('nutricalc_gemini_api_key'); // Remove old key too
-  } catch (error) {
-    console.error('Failed to remove API key:', error);
+  } catch {
+    // Silently handle removal errors
   }
 }
 
