@@ -1,4 +1,29 @@
-export const WATER_DEFAULTS = {
+
+
+
+
+interface WaterProfile {
+  name: string;
+  ph: number;
+  ec: number; // mS/cm
+  ca: number; // mg/L
+  mg: number; // mg/L
+  na: number; // mg/L
+  s: number;
+  fe: number;
+  mn: number;
+  zn: number;
+  cu: number;
+  b: number;
+  mo: number;
+}
+
+interface WaterDefaults {
+  tapWater: WaterProfile;
+  roWater: WaterProfile;
+}
+
+export const WATER_DEFAULTS: WaterDefaults = {
   tapWater: {
     name: 'Leitungswasser',
     ph: 7.5,
@@ -29,4 +54,7 @@ export const WATER_DEFAULTS = {
     b: 0,
     mo: 0,
   },
-}; 
+};
+
+
+
