@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS } from '../constants';
-import { useToasts } from '../contexts/ToastContext.jsx';
+import { useToasts } from '../contexts/ToastContext';
 import Button from './Button.jsx';
 
 const defaultFertilizer = {

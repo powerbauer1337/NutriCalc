@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { calculateNutrientResults } from '../utils/calculateNutrients';
-import { useToasts } from '../contexts/ToastContext.jsx';
-import FertilizerManager from './FertilizerManager.jsx';
-import WaterInput from './WaterInput.jsx';
+import { useToasts } from '../contexts/ToastContext';
+import FertilizerManager from './FertilizerManager';
+import WaterInput from './WaterInput';
 import { GROWTH_STAGES, WATER_TYPES, NUTRIENT_FIELDS } from '../constants';
-import useAppSettings from '../hooks/useAppSettings.js';
-import Button from './Button.jsx';
+import useAppSettings from '../hooks/useAppSettings';
+import Button from './Button';
+import { Fertilizer, GrowthStage, WaterType, NutrientCalculation } from '../types';
 
 const initialCustomWaterProfile = { ca: 0, mg: 0, s: 0, na: 0, cl: 0, no3: 0, so4: 0, po4: 0, baseEC: 0.0 };
 
@@ -20,7 +21,23 @@ const mainNutrients = [
   { key: 'ec', label: 'EC', unit: 'mS/cm' },
 ];
 
-export const SetupTab = ({ NUTRIENT_FIELDS: propNutrientFields, GROWTH_STAGES, WATER_TYPES, fertilizerDatabase, onAnalysisUpdate, mixedWater }) => {
+interface SetupTabProps {
+  NUTRIENT_FIELDS: typeof NUTRIENT_FIELDS;
+  GROWTH_STAGES: typeof GROWTH_STAGES;
+  WATER_TYPES: typeof WATER_TYPES;
+  fertilizerDatabase: Record<string, Fertilizer>;
+  onAnalysisUpdate?: (data: any) => void;
+  mixedWater?: any;
+}
+
+export const SetupTab: React.FC<SetupTabProps> = ({ 
+  NUTRIENT_FIELDS: propNutrientFields, 
+  GROWTH_STAGES, 
+  WATER_TYPES, 
+  fertilizerDatabase, 
+  onAnalysisUpdate, 
+  mixedWater 
+}) => {
   const addToast = useToasts();
   const { settings } = useAppSettings();
 
@@ -30,8 +47,8 @@ export const SetupTab = ({ NUTRIENT_FIELDS: propNutrientFields, GROWTH_STAGES, W
   });
   const [growthStage, setGrowthStage] = useState(settings.growthPhase || Object.keys(GROWTH_STAGES)[0]);
   const [waterType, setWaterType] = useState(settings.waterType || Object.keys(WATER_TYPES)[0]);
-  const [customWaterProfile, setCustomWaterProfile] = useState(initialCustomWaterProfile);
-  const [selectedFertilizers, setSelectedFertilizers] = useState(defaultFertilizerSelection);
+  const [customWaterProfile, setCustomWaterProfile] = useState<Record<string, number>>(initialCustomWaterProfile);
+  const [selectedFertilizers, setSelectedFertilizers] = useState<Array<{id: string, amount: number, active: boolean}>>(defaultFertilizerSelection);
 
   const initialNutrientResults = {};
   mainNutrients.forEach(field => {
