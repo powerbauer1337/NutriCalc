@@ -110,7 +110,7 @@ const WaterInput: React.FC = () => {
               (field) => !['n', 'p', 'k', 'ca', 'mg', 'na'].includes(field.key)
             ).map((field) => (
               <label key={field.key} className="block">
-                <span className="text-gray-300">{field.label.split(' ')[0]}:</span>
+                <span className="text-gray-300">{field.label ? field.label.split(' ')[0] : field.key.toUpperCase()}:</span>
                 <input
                   type="number"
                   step="0.001"
@@ -187,7 +187,7 @@ const WaterInput: React.FC = () => {
                       key={field.key}
                       className="py-2 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
                     >
-                      {field.label.split(' ')[0]} ({field.key.toUpperCase()})
+                      {field.label ? field.label.split(' ')[0] : field.key.toUpperCase()} ({field.key.toUpperCase()})
                     </th>
                   ))}
                 </tr>

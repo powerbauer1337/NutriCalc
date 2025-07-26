@@ -117,9 +117,9 @@ const SettingsPage = () => {
           className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100"
         >
           <option value="">Auswählen...</option>
-          {GROWTH_STAGES.map((phase) => (
-            <option key={phase.value} value={phase.value}>
-              {phase.label}
+          {Object.entries(GROWTH_STAGES).map(([key, stage]) => (
+            <option key={key} value={key}>
+              {stage.name}
             </option>
           ))}
         </select>
@@ -136,9 +136,9 @@ const SettingsPage = () => {
           className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100"
         >
           <option value="">Auswählen...</option>
-          {WATER_TYPES.map((type) => (
-            <option key={type.value} value={type.value}>
-              {type.label}
+          {Object.entries(WATER_TYPES).map(([key, type]) => (
+            <option key={key} value={key}>
+              {type.name}
             </option>
           ))}
         </select>

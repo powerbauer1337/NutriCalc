@@ -57,7 +57,7 @@ const FertilizerTab: React.FC<FertilizerTabProps> = ({ refreshFertilizerDatabase
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS, JSON.stringify(fertilizers));
     if (refreshFertilizerDatabase) refreshFertilizerDatabase();
-  }, [fertilizers, refreshFertilizerDatabase]);
+  }, [fertilizers]); // Remove refreshFertilizerDatabase from dependencies to prevent infinite loop
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

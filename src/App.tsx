@@ -10,6 +10,7 @@ import AnalysisTab from './components/AnalysisTab';
 
 import DetailsTab from './components/DetailsTab';
 import ReferencesTab from './components/ReferencesTab';
+import SettingsPage from './components/SettingsPage';
 import Navigation from './components/Navigation';
 import {
   NUTRIENT_FIELDS,
@@ -111,7 +112,7 @@ const AppLayout = () => {
     },
   });
   const { apiKey } = useApiKey();
-  const addToast = useToasts();
+  const { addToast } = useToasts();
   const [aiLoading, setAiLoading] = useState(false);
   const [aiMessage, setAiMessage] = useState(
     "Hallo! Ich bin dein KI-Helfer. Frag mich z.B. 'Wie erstelle ich einen Dünger?' oder 'Ist mein N-Wert ok?' oder 'Was ist EC?'"

@@ -1,6 +1,12 @@
 # Private individual user cursor rules
 .cursor/rules/_*.mdc
 
+# AI and development tools
+.ai/
+.cursor/
+.openhands/
+.claude/
+
 # Dependencies
 node_modules/
 .pnp
