@@ -12,6 +12,20 @@ export interface Fertilizer {
   ph: number;
   description?: string;
   category?: string;
+  composition?: Record<string, number>;
+}
+
+export interface FertilizerData {
+  name: string;
+  type: 'powder' | 'liquid';
+  unit: string;
+  composition: Record<string, number>;
+  description?: string;
+  category?: string;
+}
+
+export interface FertilizerDatabase {
+  [key: string]: FertilizerData;
 }
 
 export interface WaterType {
@@ -32,21 +46,54 @@ export interface GrowthStage {
   ph: { min: number; max: number };
 }
 
+export interface NutrientValues {
+  n: number;
+  p: number;
+  k: number;
+  ec: number;
+  ph: number;
+}
+
 export interface NutrientCalculation {
-  nutrients: {
-    n: number;
-    p: number;
-    k: number;
-    ec: number;
-    ph: number;
+  NUTRIENT_FIELDS?: unknown;
+  GROWTH_STAGES?: unknown;
+  WATER_TYPES?: unknown;
+  fertilizerDatabase?: Record<string, Fertilizer>;
+  selectedFertilizers?: SelectedFertilizer[];
+  waterVolume?: number;
+  growthStage?: string;
+  waterType?: string;
+  customWaterProfile?: Record<string, number>;
+  results?: {
+    nutrients: NutrientValues;
+    contributions: Record<string, NutrientContribution>;
+    stage: GrowthStage;
   };
-  contributions: Record<string, any>;
-  stage: GrowthStage;
+}
+
+export interface NutrientContribution {
+  [fertilizerName: string]: NutrientValues;
 }
 
 export interface SelectedFertilizer {
   id: string;
   amount: number;
+  active?: boolean;
+}
+
+export interface MixedWater {
+  totalVolume: number;
+  ph: number;
+  ec: number;
+  ca: number;
+  mg: number;
+  s: number;
+  fe: number;
+  mn: number;
+  zn: number;
+  cu: number;
+  b: number;
+  mo: number;
 }
 
 export interface MixingSetup {
@@ -54,8 +101,8 @@ export interface MixingSetup {
   waterType: string;
   growthStage: string;
   selectedFertilizers: SelectedFertilizer[];
-  customWaterProfile?: Record<string, any>;
-  mixedWater?: any;
+  customWaterProfile?: Record<string, number>;
+  mixedWater?: MixedWater;
 }
 
 export interface UserSettings {
@@ -97,3 +144,39 @@ export interface ApiKey {
 }
 
 export type AppTheme = 'light' | 'dark' | 'system';
+
+// Component prop types
+export interface ChatBarProps {
+  apiKey: boolean;
+  onSend: (message: string) => void;
+  isLoading: boolean;
+  displayMessage: string;
+  suggestions?: string[];
+}
+
+export interface AnalysisTabProps extends NutrientCalculation {
+  // Additional props specific to AnalysisTab
+}
+
+export interface ToastContextType {
+  addToast: (message: string, type?: ToastMessage['type'], duration?: number) => void;
+  removeToast: (id: string) => void;
+}
+
+export interface Toast {
+  id: string;
+  message: string;
+  type: 'success' | 'error' | 'warning' | 'info';
+  duration?: number;
+}
+
+// Water defaults type
+export interface WaterDefaults {
+  [key: string]: {
+    ca: number;
+    mg: number;
+    s: number;
+    ec: number;
+    ph: number;
+  };
+}

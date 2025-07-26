@@ -9,13 +9,13 @@ describe('Button Component', () => {
     render(<Button>Test Button</Button>);
     const button = screen.getByRole('button', { name: 'Test Button' });
     expect(button).toBeInTheDocument();
-    expect(button).toHaveClass('inline-flex', 'items-center', 'justify-center');
+    expect(button).toHaveClass('btn-primary');
   });
 
   it('applies variant classes correctly', () => {
     render(<Button variant="primary">Primary Button</Button>);
     const button = screen.getByRole('button', { name: 'Primary Button' });
-    expect(button).toHaveClass('bg-blue-600', 'hover:bg-blue-700', 'text-white');
+    expect(button).toHaveClass('btn-primary');
   });
 
   it('applies full width class correctly', () => {

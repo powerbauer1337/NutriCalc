@@ -20,19 +20,19 @@ const SettingsPage = () => {
     setInputValue('');
   };
 
-  const handleUnitChange = (e) => {
+  const handleUnitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     updateSetting('unit', e.target.value);
   };
 
-  const handleDefaultWaterAmountChange = (e) => {
+  const handleDefaultWaterAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateSetting('waterAmount', e.target.value);
   };
 
-  const handleDefaultGrowthPhaseChange = (e) => {
+  const handleDefaultGrowthPhaseChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     updateSetting('growthPhase', e.target.value);
   };
 
-  const handleDefaultWaterTypeChange = (e) => {
+  const handleDefaultWaterTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     updateSetting('waterType', e.target.value);
   };
 

@@ -25,7 +25,7 @@ import {
 import { useApiKey } from './hooks/useApiKey';
 import MixingAssistant from './components/MixingAssistant';
 import WateringScheduler from './components/WateringScheduler';
-import { Fertilizer, GrowthStage, WaterType, NutrientCalculation } from './types';
+import { Fertilizer, NutrientCalculation, FertilizerDatabase, FertilizerData } from './types';
 
 const DarkModeToggle = () => {
   const { theme, toggleTheme } = useTheme();
