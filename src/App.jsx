@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext.jsx';
 import { ToastProvider, useToasts } from './contexts/ToastContext.jsx';
 import { WaterProvider, useWater } from './contexts/WaterContext';
@@ -13,8 +13,10 @@ import ReferencesTab from './components/ReferencesTab.jsx';
 import Navigation from './components/Navigation.jsx';
 import { NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, BASE_FERTILIZER_DATABASE, LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS, TABS_CONFIG, TAB_MIXING_ASSISTANT, TAB_WATERING_SCHEDULER, TAB_SETTINGS } from './constants';
 import { useApiKey } from './hooks/useApiKey.js';
-import MixingAssistant from './components/MixingAssistant.jsx';
-import WateringScheduler from './components/WateringScheduler.jsx';
+
+// Lazy load heavy components
+const MixingAssistant = lazy(() => import('./components/MixingAssistant.jsx'));
+const WateringScheduler = lazy(() => import('./components/WateringScheduler.jsx'));
 
 const DarkModeToggle = () => {
   const { theme, toggleTheme } = useTheme();
@@ -168,8 +170,16 @@ const AppLayout = () => {
         {activeTab === TABS_CONFIG[2].id && <AnalysisTab {...analysisInputs} />}
         {activeTab === TABS_CONFIG[3].id && <FertilizerTab refreshFertilizerDatabase={refreshFertilizerDatabase} />}
         {activeTab === TAB_SETTINGS && <SettingsPage />}
-        {activeTab === TAB_MIXING_ASSISTANT && <MixingAssistant fertilizerDatabase={fertilizerDatabase} GROWTH_STAGES={GROWTH_STAGES} WATER_TYPES={WATER_TYPES} />}
-        {activeTab === TAB_WATERING_SCHEDULER && <WateringScheduler />}
+        {activeTab === TAB_MIXING_ASSISTANT && (
+          <Suspense fallback={<div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+            <MixingAssistant fertilizerDatabase={fertilizerDatabase} GROWTH_STAGES={GROWTH_STAGES} WATER_TYPES={WATER_TYPES} />
+          </Suspense>
+        )}
+        {activeTab === TAB_WATERING_SCHEDULER && (
+          <Suspense fallback={<div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+            <WateringScheduler />
+          </Suspense>
+        )}
         {activeTab === TABS_CONFIG[TABS_CONFIG.length - 1].id && <ReferencesTab />}
       </main>
     </div>
