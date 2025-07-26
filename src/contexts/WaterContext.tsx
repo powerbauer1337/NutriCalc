@@ -1,15 +1,50 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { WATER_DEFAULTS } from '../constants/waterDefaults';
 import { NUTRIENT_FIELDS } from '../constants';
 
-const WaterContext = createContext();
+interface WaterSource {
+  id: string;
+  name: string;
+  ph: number;
+  ec: number;
+  ca: number;
+  mg: number;
+  na: number;
+  s: number;
+  fe: number;
+  mn: number;
+  zn: number;
+  cu: number;
+  b: number;
+  mo: number;
+  volume: number;
+}
 
-export const WaterProvider = ({ children }) => {
-  const [waterSources, setWaterSources] = useState([
+interface MixedWater extends Omit<WaterSource, 'id' | 'name' | 'volume'> {
+  totalVolume: number;
+}
+
+interface WaterContextType {
+  waterSources: WaterSource[];
+  mixedWater: MixedWater | null;
+  addWaterSource: (type: string) => void;
+  removeWaterSource: (id: string) => void;
+  updateWaterSource: (id: string, field: keyof WaterSource, value: number | string) => void;
+}
+
+const WaterContext = createContext<WaterContextType | undefined>(undefined);
+
+interface WaterProviderProps {
+  children: ReactNode;
+}
+
+export const WaterProvider: React.FC<WaterProviderProps> = ({ children }) => {
+  const [waterSources, setWaterSources] = useState<WaterSource[]>([
     { id: 'tapWater', ...WATER_DEFAULTS.tapWater, volume: 100 },
     { id: 'roWater', ...WATER_DEFAULTS.roWater, volume: 0 },
   ]);
-  const [mixedWater, setMixedWater] = useState(null);
+  const [mixedWater, setMixedWater] = useState<MixedWater | null>(null);
 
   useEffect(() => {
     calculateMixedWater();
@@ -24,7 +59,7 @@ export const WaterProvider = ({ children }) => {
     let sum_H_plus_volume = 0;
     let sum_volume = 0;
     
-    const paramSums = {};
+    const paramSums: Record<string, number> = {};
     NUTRIENT_FIELDS.forEach(field => {
         paramSums[field.key] = 0;
     });
@@ -40,7 +75,7 @@ export const WaterProvider = ({ children }) => {
 
         // Other parameters (linear average)
         NUTRIENT_FIELDS.forEach(field => {
-            paramSums[field.key] += (source[field.key] || 0) * volume;
+            paramSums[field.key] += (source[field.key as keyof WaterSource] as number || 0) * volume;
         });
         paramSums.ec += ec * volume;
       }
@@ -56,7 +91,7 @@ export const WaterProvider = ({ children }) => {
     const ph_mix = -Math.log10(H_plus_mix);
 
     // Calculate mixed values for other parameters
-    const mixedNutrients = {};
+    const mixedNutrients: Record<string, number> = {};
     NUTRIENT_FIELDS.forEach(field => {
         mixedNutrients[field.key] = paramSums[field.key] / sum_volume;
     });
@@ -70,8 +105,8 @@ export const WaterProvider = ({ children }) => {
     });
   };
 
-  const addWaterSource = (type) => {
-    const newSource = {
+  const addWaterSource = (type: string) => {
+    const newSource: WaterSource = {
       id: `${type}-${Date.now()}`, // Unique ID
       ...(WATER_DEFAULTS[type] || {
         name: 'Neue Quelle',
@@ -93,11 +128,11 @@ export const WaterProvider = ({ children }) => {
     setWaterSources(prevSources => [...prevSources, newSource]);
   };
 
-  const removeWaterSource = (id) => {
+  const removeWaterSource = (id: string) => {
     setWaterSources(prevSources => prevSources.filter(source => source.id !== id));
   };
 
-  const updateWaterSource = (id, field, value) => {
+  const updateWaterSource = (id: string, field: keyof WaterSource, value: number | string) => {
     setWaterSources(prevSources =>
       prevSources.map(source =>
         source.id === id ? { ...source, [field]: value } : source
@@ -120,4 +155,10 @@ export const WaterProvider = ({ children }) => {
   );
 };
 
-export const useWater = () => useContext(WaterContext); 
+export const useWater = (): WaterContextType => {
+  const context = useContext(WaterContext);
+  if (!context) {
+    throw new Error('useWater must be used within a WaterProvider');
+  }
+  return context;
+};
