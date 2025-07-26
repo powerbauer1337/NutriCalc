@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import Button from './Button.jsx';
+import Button from './Button';
 
 const ChatBar = ({ apiKey, onSend, isLoading, displayMessage, suggestions = [] }) => {
   const [inputValue, setInputValue] = useState('');

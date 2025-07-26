@@ -2,8 +2,8 @@ import React from 'react';
 import { useApiKey } from '../hooks/useApiKey.js';
 import useAppSettings from '../hooks/useAppSettings';
 import { GROWTH_STAGES, WATER_TYPES } from '../constants/index.js';
-import { useTheme } from '../contexts/ThemeContext.jsx';
-import Button from './Button.jsx';
+import { useTheme } from '../contexts/ThemeContext';
+import Button from './Button';
 
 const SettingsPage = () => {
   const { apiKey, updateApiKey, removeApiKey } = useApiKey();

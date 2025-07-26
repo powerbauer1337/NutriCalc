@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Button from './Button.jsx';
+import Button from './Button';
 
 const STORAGE_KEY = 'nutricalc_watering_events';
 

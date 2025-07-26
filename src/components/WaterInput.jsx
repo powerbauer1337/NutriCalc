@@ -2,7 +2,7 @@ import React from 'react';
 import { useWater } from '../contexts/WaterContext';
 import { NUTRIENT_FIELDS } from '../constants';
 import useAppSettings from '../hooks/useAppSettings';
-import Button from './Button.jsx';
+import Button from './Button';
 
 const WaterInput = () => {
   const { waterSources, mixedWater, addWaterSource, removeWaterSource, updateWaterSource } = useWater();

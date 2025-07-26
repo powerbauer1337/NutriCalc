@@ -1,18 +1,29 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 
-/**
- * Reusable Button component matching the design system.
- * Supports variants, fullWidth, disabled, loading, and custom className.
- * @param {object} props
- */
+
+
+
+
+
+import React from 'react';
+
+interface ButtonProps {
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'danger';
+  fullWidth?: boolean;
+  disabled?: boolean;
+  loading?: boolean;
+  className?: string;
+  type?: 'button' | 'submit' | 'reset';
+  onClick?: () => void;
+}
+
 const VARIANTS = {
   primary: 'bg-blue-600 hover:bg-blue-700 text-white',
   secondary: 'bg-slate-100 hover:bg-slate-200 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100',
   danger: 'bg-red-600 hover:bg-red-700 text-white',
 };
 
-const Button = ({
+const Button: React.FC<ButtonProps> = ({
   children,
   variant = 'primary',
   fullWidth = false,
@@ -36,14 +47,8 @@ const Button = ({
   </button>
 );
 
-Button.propTypes = {
-  children: PropTypes.node.isRequired,
-  variant: PropTypes.oneOf(['primary', 'secondary', 'danger']),
-  fullWidth: PropTypes.bool,
-  disabled: PropTypes.bool,
-  loading: PropTypes.bool,
-  className: PropTypes.string,
-  type: PropTypes.oneOf(['button', 'submit', 'reset']),
-};
+export default Button;
 
-export default Button; 
+
+
+

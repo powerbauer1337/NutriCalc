@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { calculateNutrientResults } from '../utils/calculateNutrients';
-import Button from './Button.jsx';
-import NutrientBarChart from './NutrientBarChart.jsx';
+import Button from './Button';
+import NutrientBarChart from './NutrientBarChart';
 
 const MixingAssistant = ({ fertilizerDatabase, GROWTH_STAGES, WATER_TYPES }) => {
   // Loading state if props are missing

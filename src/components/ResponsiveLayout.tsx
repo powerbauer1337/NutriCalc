@@ -2,10 +2,17 @@
 
 
 
+
+
+
 import React, { useState, useEffect } from 'react';
 import { useDataPersistence } from '../contexts/DataPersistenceContext';
 
-const ResponsiveLayout = ({ children }) => {
+interface ResponsiveLayoutProps {
+  children: React.ReactNode;
+}
+
+const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { updateSettings } = useDataPersistence();
@@ -135,6 +142,9 @@ const ResponsiveLayout = ({ children }) => {
 };
 
 export default ResponsiveLayout;
+
+
+
 
 
 
