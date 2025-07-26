@@ -1,15 +1,43 @@
+
+
+
+
+
+
+
+
+
+
 import React from 'react';
 import { useWater } from '../contexts/WaterContext';
 import { NUTRIENT_FIELDS } from '../constants';
 import useAppSettings from '../hooks/useAppSettings';
 import Button from './Button';
 
-const WaterInput = () => {
+interface WaterSource {
+  id: string;
+  name: string;
+  ph: number;
+  ec: number;
+  ca: number;
+  mg: number;
+  na: number;
+  [key: string]: any;
+}
+
+interface MixedWater {
+  ph: number;
+  ec: number;
+  totalVolume: number;
+  [key: string]: number;
+}
+
+const WaterInput: React.FC = () => {
   const { waterSources, mixedWater, addWaterSource, removeWaterSource, updateWaterSource } = useWater();
   const { settings } = useAppSettings();
 
-  const handleChange = (id, field, value) => {
-    updateWaterSource(id, field, parseFloat(value));
+  const handleChange = (id: string, field: string, value: string) => {
+    updateWaterSource(id, field as keyof WaterSource, parseFloat(value));
   };
 
   return (
@@ -188,4 +216,12 @@ const WaterInput = () => {
   );
 };
 
-export default WaterInput; 
+export default WaterInput;
+
+
+
+
+
+
+
+
