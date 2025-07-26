@@ -1,28 +1,49 @@
 import { useState, useEffect } from 'react';
-import { LOCAL_STORAGE_KEY_GEMINI_API_KEY } from '../constants';
+import {
+  storeApiKey,
+  retrieveApiKey,
+  removeApiKey as removeStoredApiKey,
+  validateApiKey,
+  sanitizeApiKeyForLogging
+} from '../utils/secureStorage';
 
 export const useApiKey = () => {
   const [apiKey, setApiKey] = useState<string>('');
+  const [isValid, setIsValid] = useState<boolean>(false);
 
   useEffect(() => {
-    const storedKey = localStorage.getItem(LOCAL_STORAGE_KEY_GEMINI_API_KEY);
+    const storedKey = retrieveApiKey();
     if (storedKey) {
       setApiKey(storedKey);
+      setIsValid(validateApiKey(storedKey));
     }
   }, []);
 
   const updateApiKey = (newKey: string) => {
-    setApiKey(newKey);
-    localStorage.setItem(LOCAL_STORAGE_KEY_GEMINI_API_KEY, newKey);
+    const trimmedKey = newKey.trim();
+    const valid = validateApiKey(trimmedKey);
+    
+    setApiKey(trimmedKey);
+    setIsValid(valid);
+    
+    if (trimmedKey) {
+      storeApiKey(trimmedKey);
+      console.log('API key updated:', sanitizeApiKeyForLogging(trimmedKey));
+    } else {
+      removeStoredApiKey();
+    }
   };
 
   const removeApiKey = () => {
     setApiKey('');
-    localStorage.removeItem(LOCAL_STORAGE_KEY_GEMINI_API_KEY);
+    setIsValid(false);
+    removeStoredApiKey();
+    console.log('API key removed');
   };
 
   return {
     apiKey,
+    isValid,
     updateApiKey,
     removeApiKey,
   };

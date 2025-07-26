@@ -1,18 +1,26 @@
 import React, { useState, useRef } from 'react';
 import Button from './Button';
 
-const ChatBar = ({ apiKey, onSend, isLoading, displayMessage, suggestions = [] }) => {
-  const [inputValue, setInputValue] = useState('');
-  const inputRef = useRef(null);
+interface ChatBarProps {
+  apiKey: boolean;
+  onSend: (message: string) => void;
+  isLoading: boolean;
+  displayMessage: string;
+  suggestions?: string[];
+}
 
-  const handleSend = (e) => {
+const ChatBar: React.FC<ChatBarProps> = React.memo(({ apiKey, onSend, isLoading, displayMessage, suggestions = [] }) => {
+  const [inputValue, setInputValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim() || !apiKey) return;
     onSend(inputValue.trim());
     setInputValue('');
   };
 
-  const suggestionClicked = (suggestion) => {
+  const suggestionClicked = (suggestion: string) => {
     setInputValue(suggestion);
     inputRef.current?.focus();
   };
@@ -66,6 +74,8 @@ const ChatBar = ({ apiKey, onSend, isLoading, displayMessage, suggestions = [] }
       </form>
     </div>
   );
-};
+});
+
+ChatBar.displayName = 'ChatBar';
 
 export default ChatBar;

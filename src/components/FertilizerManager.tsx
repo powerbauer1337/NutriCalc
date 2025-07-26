@@ -1,7 +1,31 @@
 import React from 'react';
 import Button from './Button';
 
-const FertilizerManager = ({
+interface SelectedFertilizer {
+  id: string;
+  amount: number;
+  active: boolean;
+}
+
+interface FertilizerData {
+  name: string;
+  type: 'liquid' | 'powder';
+  unit: string;
+  composition: Record<string, number>;
+  description?: string;
+}
+
+interface FertilizerManagerProps {
+  selectedFertilizers: SelectedFertilizer[];
+  fertilizerDatabase: Record<string, FertilizerData>;
+  waterVolume: number;
+  addFertilizer: (id: string) => void;
+  removeFertilizer: (id: string) => void;
+  updateFertilizerAmount: (id: string, value: string) => void;
+  toggleFertilizer: (id: string) => void;
+}
+
+const FertilizerManager: React.FC<FertilizerManagerProps> = React.memo(({
   selectedFertilizers,
   fertilizerDatabase,
   waterVolume,
@@ -94,6 +118,8 @@ const FertilizerManager = ({
       </select>
     </div>
   </div>
-);
+));
+
+FertilizerManager.displayName = 'FertilizerManager';
 
 export default FertilizerManager;

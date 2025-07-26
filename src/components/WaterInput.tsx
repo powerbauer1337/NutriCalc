@@ -12,23 +12,43 @@ interface WaterSource {
   ca: number;
   mg: number;
   na: number;
-  [key: string]: any;
+  s: number;
+  fe: number;
+  mn: number;
+  zn: number;
+  cu: number;
+  b: number;
+  mo: number;
+  volume: number;
+  [key: string]: string | number;
 }
 
 interface MixedWater {
   ph: number;
   ec: number;
   totalVolume: number;
+  ca: number;
+  mg: number;
+  na: number;
+  s: number;
+  fe: number;
+  mn: number;
+  zn: number;
+  cu: number;
+  b: number;
+  mo: number;
   [key: string]: number;
 }
 
-const WaterInput: React.FC = () => {
+const WaterInput: React.FC = React.memo(() => {
   const { waterSources, mixedWater, addWaterSource, removeWaterSource, updateWaterSource } =
     useWater();
   const { settings } = useAppSettings();
 
   const handleChange = (id: string, field: string, value: string) => {
-    updateWaterSource(id, field as keyof WaterSource, parseFloat(value));
+    const numericValue = parseFloat(value);
+    const safeValue = isNaN(numericValue) ? 0 : Math.max(0, numericValue);
+    updateWaterSource(id, field as any, safeValue);
   };
 
   return (
@@ -114,7 +134,7 @@ const WaterInput: React.FC = () => {
                 <input
                   type="number"
                   step="0.001"
-                  value={source[field.key]}
+                  value={(source as any)[field.key]}
                   onChange={(e) => handleChange(source.id, field.key, e.target.value)}
                   className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900 mt-1 block"
                 />
@@ -212,7 +232,7 @@ const WaterInput: React.FC = () => {
                         key={field.key}
                         className="py-2 px-4 whitespace-nowrap text-sm text-gray-200"
                       >
-                        {(source[field.key] || 0).toFixed(1)}
+                        {((source as any)[field.key] || 0).toFixed(1)}
                       </td>
                     ))}
                   </tr>
@@ -230,7 +250,7 @@ const WaterInput: React.FC = () => {
                   </td>
                   {NUTRIENT_FIELDS.map((field) => (
                     <td key={field.key} className="py-2 px-4 whitespace-nowrap text-sm text-white">
-                      {(mixedWater[field.key] || 0).toFixed(1)}
+                      {((mixedWater as any)[field.key] || 0).toFixed(1)}
                     </td>
                   ))}
                 </tr>
@@ -241,6 +261,8 @@ const WaterInput: React.FC = () => {
       )}
     </div>
   );
-};
+});
+
+WaterInput.displayName = 'WaterInput';
 
 export default WaterInput;

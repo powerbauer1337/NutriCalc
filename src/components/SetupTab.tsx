@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { calculateNutrientResults } from '../utils/calculateNutrients';
 import { useToasts } from '../contexts/ToastContext';
 import FertilizerManager from './FertilizerManager';
 import WaterInput from './WaterInput';
 import { GROWTH_STAGES, WATER_TYPES, NUTRIENT_FIELDS } from '../constants';
 import useAppSettings from '../hooks/useAppSettings';
+import { useDebounce } from '../hooks/useDebounce';
 import Button from './Button';
 import { Fertilizer, GrowthStage, WaterType, NutrientCalculation } from '../types';
 
