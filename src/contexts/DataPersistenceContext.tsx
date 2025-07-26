@@ -1,12 +1,81 @@
 
 
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, ReactNode } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
-const DataPersistenceContext = createContext();
+interface Setup {
+  id: string;
+  name: string;
+  waterAmount: number;
+  waterType: string;
+  growthStage: string;
+  selectedFertilizers: any[];
+  customWaterProfile: any;
+  mixedWater?: any;
+  createdAt: string;
+  updatedAt: string;
+}
 
-export const useDataPersistence = () => {
+interface CustomFertilizer {
+  id: string;
+  name: string;
+  npk: { n: number; p: number; k: number };
+  elements: any;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+interface MixingHistory {
+  id: string;
+  name: string;
+  waterAmount: number;
+  fertilizers: any[];
+  result: any;
+  createdAt: string;
+}
+
+interface UserData {
+  setups: Setup[];
+  customFertilizers: CustomFertilizer[];
+  mixingHistory: MixingHistory[];
+  settings: {
+    theme: string;
+    language: string;
+    units: string;
+    notifications: boolean;
+  };
+}
+
+interface CurrentSetup {
+  waterAmount: number;
+  waterType: string;
+  growthStage: string;
+  selectedFertilizers: any[];
+  customWaterProfile: any;
+  mixedWater?: any;
+}
+
+interface DataPersistenceContextType {
+  userData: UserData;
+  currentSetup: CurrentSetup;
+  setCurrentSetup: (setup: CurrentSetup) => void;
+  addSetup: (setup: Omit<Setup, 'id' | 'createdAt' | 'updatedAt'>) => string;
+  updateSetup: (id: string, updates: Partial<Setup>) => void;
+  deleteSetup: (id: string) => void;
+  addCustomFertilizer: (fertilizer: Omit<CustomFertilizer, 'id' | 'createdAt'>) => string;
+  updateCustomFertilizer: (id: string, updates: Partial<CustomFertilizer>) => void;
+  deleteCustomFertilizer: (id: string) => void;
+  addMixingHistory: (mix: Omit<MixingHistory, 'id' | 'createdAt'>) => void;
+  updateSettings: (settings: Partial<UserData['settings']>) => void;
+  exportData: () => void;
+  importData: (file: File) => Promise<boolean>;
+  clearAllData: () => void;
+}
+
+const DataPersistenceContext = createContext<DataPersistenceContextType | undefined>(undefined);
+
+export const useDataPersistence = (): DataPersistenceContextType => {
   const context = useContext(DataPersistenceContext);
   if (!context) {
     throw new Error('useDataPersistence must be used within a DataPersistenceProvider');
@@ -14,7 +83,11 @@ export const useDataPersistence = () => {
   return context;
 };
 
-export const DataPersistenceProvider = ({ children }) => {
+interface DataPersistenceProviderProps {
+  children: ReactNode;
+}
+
+export const DataPersistenceProvider: React.FC<DataPersistenceProviderProps> = ({ children }) => {
   const [userData, setUserData] = useLocalStorage('nutricalc-user-data', {
     setups: [],
     customFertilizers: [],
