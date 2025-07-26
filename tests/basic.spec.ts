@@ -7,7 +7,7 @@ const setApiKey = async (page) => {
 };
 
 test('homepage loads and displays main UI', async ({ page }) => {
-  await page.goto('http://localhost:53214/', { timeout: 60000 });
+  await page.goto('/', { timeout: 60000 });
   await expect(page).toHaveTitle(/NutriCalc/i);
   await page.waitForSelector('nav', { timeout: 60000 });
   await expect(page.locator('nav')).toBeVisible();

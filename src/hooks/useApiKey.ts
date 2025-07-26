@@ -3,8 +3,7 @@ import {
   storeApiKey,
   retrieveApiKey,
   removeApiKey as removeStoredApiKey,
-  validateApiKey,
-  sanitizeApiKeyForLogging
+  validateApiKey
 } from '../utils/secureStorage';
 
 export const useApiKey = () => {
@@ -28,7 +27,6 @@ export const useApiKey = () => {
     
     if (trimmedKey) {
       storeApiKey(trimmedKey);
-      console.log('API key updated:', sanitizeApiKeyForLogging(trimmedKey));
     } else {
       removeStoredApiKey();
     }
@@ -38,7 +36,6 @@ export const useApiKey = () => {
     setApiKey('');
     setIsValid(false);
     removeStoredApiKey();
-    console.log('API key removed');
   };
 
   return {

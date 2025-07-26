@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo } from 'react';
 import { useMemoizedCalculation } from '../utils/memoization';
 
 const OptimizedNutrientBarChart = memo(({ nutrients, stage, fields }) => {

@@ -84,9 +84,17 @@ const Navigation = ({ activeTab, setActiveTab }) => {
   return (
     <nav aria-label="App Navigation" className="">
       {/* Sidebar (md+) */}
-      <div className="hidden md:flex flex-col w-48 min-h-full bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 py-6 px-2 space-y-1 fixed top-0 left-0 z-20">
-        <div className="mb-6 text-2xl font-bold text-blue-600 dark:text-blue-400 px-2">
-          NutriCalc
+      <div className="hidden md:flex flex-col w-64 min-h-full bg-white/95 backdrop-blur-sm border-r border-stone-200 py-6 px-4 space-y-1 fixed top-0 left-0 z-20 shadow-sm">
+        <div className="mb-8 px-2">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-lg">N</span>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-stone-900">NutriCalc</h1>
+              <p className="text-xs text-stone-500">Nutrient Calculator</p>
+            </div>
+          </div>
         </div>
         <div role="tablist" aria-orientation="vertical" className="flex flex-col gap-1">
           {TABS_CONFIG.map((tab, idx) => (
@@ -96,7 +104,7 @@ const Navigation = ({ activeTab, setActiveTab }) => {
               role="tab"
               aria-selected={activeTab === tab.id}
               tabIndex={activeTab === tab.id ? 0 : -1}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${activeTab === tab.id ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 ${activeTab === tab.id ? 'bg-emerald-50 text-emerald-700 shadow-sm ring-1 ring-emerald-200' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50'}`}
               onClick={() => setActiveTab(tab.id)}
               onKeyDown={(e) => handleKeyDown(e, idx)}
               aria-label={tab.label}
@@ -108,8 +116,8 @@ const Navigation = ({ activeTab, setActiveTab }) => {
         </div>
       </div>
       {/* Bottom nav (mobile) */}
-      <div className="fixed md:hidden bottom-0 left-0 right-0 z-30 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex justify-around py-1 shadow">
-        <div role="tablist" aria-orientation="horizontal" className="flex w-full">
+      <div className="fixed md:hidden bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-t border-stone-200 flex justify-around py-2 shadow-lg">
+        <div role="tablist" aria-orientation="horizontal" className="flex w-full max-w-md mx-auto">
           {TABS_CONFIG.map((tab, idx) => (
             <button
               key={tab.id}
@@ -117,13 +125,13 @@ const Navigation = ({ activeTab, setActiveTab }) => {
               role="tab"
               aria-selected={activeTab === tab.id}
               tabIndex={activeTab === tab.id ? 0 : -1}
-              className={`flex flex-col items-center flex-1 px-1 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 ${activeTab === tab.id ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-300 hover:text-blue-700 dark:hover:text-blue-300'}`}
+              className={`flex flex-col items-center flex-1 px-2 py-2 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${activeTab === tab.id ? 'text-emerald-600 bg-emerald-50' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50'}`}
               onClick={() => setActiveTab(tab.id)}
               onKeyDown={(e) => handleKeyDown(e, idx)}
               aria-label={tab.label}
             >
               {getTabIcon(tab.id)}
-              <span className="mt-0.5">{tab.label}</span>
+              <span className="mt-1 leading-tight">{tab.label}</span>
             </button>
           ))}
         </div>

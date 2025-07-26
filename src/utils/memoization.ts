@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from 'react';
 
-type AnyFunction = (...args: any[]) => any;
+type AnyFunction = (...args: unknown[]) => unknown;
 
 export const memoize = <T extends AnyFunction>(fn: T): T => {
   const cache = new Map<string, ReturnType<T>>();

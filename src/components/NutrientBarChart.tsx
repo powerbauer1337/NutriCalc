@@ -1,5 +1,5 @@
 import React from 'react';
-import { getNutrientStatus, getStatusColor, getProgressBarWidth } from '../utils/nutrientUtils';
+import { getNutrientStatus, getProgressBarWidth } from '../utils/nutrientUtils';
 
 /**
  * NutrientBarChart - Visualizes nutrient values as horizontal bars with color coding.
