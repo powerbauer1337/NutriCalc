@@ -55,20 +55,9 @@ export interface NutrientValues {
 }
 
 export interface NutrientCalculation {
-  NUTRIENT_FIELDS?: unknown;
-  GROWTH_STAGES?: unknown;
-  WATER_TYPES?: unknown;
-  fertilizerDatabase?: Record<string, Fertilizer>;
-  selectedFertilizers?: SelectedFertilizer[];
-  waterVolume?: number;
-  growthStage?: string;
-  waterType?: string;
-  customWaterProfile?: Record<string, number>;
-  results?: {
-    nutrients: NutrientValues;
-    contributions: Record<string, NutrientContribution>;
-    stage: GrowthStage;
-  };
+  nutrients: NutrientValues;
+  contributions: Record<string, NutrientContribution>;
+  stage: GrowthStage;
 }
 
 export interface NutrientContribution {
@@ -154,8 +143,46 @@ export interface ChatBarProps {
   suggestions?: string[];
 }
 
-export interface AnalysisTabProps extends NutrientCalculation {
-  // Additional props specific to AnalysisTab
+export interface AnalysisTabProps {
+  NUTRIENT_FIELDS: NutrientField[];
+  GROWTH_STAGES: GrowthStageConfig[];
+  WATER_TYPES: WaterTypeConfig[];
+  fertilizerDatabase: Record<string, Fertilizer>;
+  selectedFertilizers: SelectedFertilizer[];
+  waterVolume: number;
+  growthStage: string;
+  waterType: string;
+  customWaterProfile?: Record<string, number>;
+  results?: NutrientCalculation;
+}
+
+export interface NutrientField {
+  key: string;
+  label: string;
+  unit: string;
+  min: number;
+  max: number;
+  optimal: number;
+}
+
+export interface GrowthStageConfig {
+  value: string;
+  label: string;
+  n: { min: number; max: number };
+  p: { min: number; max: number };
+  k: { min: number; max: number };
+  ec: { min: number; max: number };
+  ph: { min: number; max: number };
+}
+
+export interface WaterTypeConfig {
+  value: string;
+  label: string;
+  ec: number;
+  ph: number;
+  n: number;
+  p: number;
+  k: number;
 }
 
 export interface ToastContextType {
