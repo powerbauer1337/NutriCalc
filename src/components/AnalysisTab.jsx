@@ -1,5 +1,5 @@
 import React from 'react';
-import { getNutrientStatus, getStatusColor } from '../utils/nutrientUtils.js';
+import { getNutrientStatus, getStatusColor } from '../utils/nutrientUtils';
 
 const AnalysisTab = ({ NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, fertilizerDatabase, selectedFertilizers, waterVolume, growthStage, waterType, customWaterProfile, results }) => {
   // Determine optimal ranges for the current growth stage
