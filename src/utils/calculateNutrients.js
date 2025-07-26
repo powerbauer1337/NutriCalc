@@ -1,4 +1,4 @@
-export function calculateNutrientResults({ waterVolume, growthStage, waterType, selectedFertilizers, fertilizerDatabase, customWaterProfile, NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, mixedWater }) {
+export function calculateNutrients({ waterVolume, growthStage, waterType, selectedFertilizers, fertilizerDatabase, customWaterProfile, NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, mixedWater }) {
   if (waterVolume <= 0) {
     return { nutrients: {}, contributions: {}, stage: GROWTH_STAGES[growthStage] };
   }
@@ -74,4 +74,9 @@ export function calculateNutrientResults({ waterVolume, growthStage, waterType, 
   });
   
   return { nutrients: tN, contributions: contrib, stage: GROWTH_STAGES[growthStage] };
+}
+
+// Backward compatibility alias
+export function calculateNutrientResults(params) {
+  return calculateNutrients(params);
 } 
