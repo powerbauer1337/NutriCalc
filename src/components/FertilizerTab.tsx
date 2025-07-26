@@ -1,24 +1,63 @@
+
+
+
+
+
+
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import { LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS } from '../constants';
 import { useToasts } from '../contexts/ToastContext';
 import Button from './Button';
 
-const defaultFertilizer = {
+interface FertilizerComposition {
+  n: string;
+  p: string;
+  k: string;
+}
+
+interface FertilizerForm {
+  name: string;
+  type: 'liquid' | 'powder';
+  unit: 'ml' | 'g' | '%';
+  composition: FertilizerComposition;
+  concentration: string;
+  description: string;
+}
+
+interface CustomFertilizer extends FertilizerForm {
+  id: string;
+  composition: {
+    n: string;
+    p: string;
+    k: string;
+  };
+}
+
+interface FertilizerTabProps {
+  refreshFertilizerDatabase?: () => void;
+}
+
+const defaultFertilizer: FertilizerForm = {
   name: '',
   type: 'liquid',
   unit: 'ml',
-  composition: { N: '', P: '', K: '' },
+  composition: { n: '', p: '', k: '' },
   concentration: '',
   description: '',
 };
 
-const generateCustomFertilizerId = (name) => `custom_${name.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}`;
+const generateCustomFertilizerId = (name: string): string => 
+  `custom_${name.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}`;
 
-const FertilizerTab = ({ refreshFertilizerDatabase }) => {
-  const [fertilizers, setFertilizers] = useState([]);
-  const [form, setForm] = useState(defaultFertilizer);
-  const [editingId, setEditingId] = useState(null);
-  const addToast = useToasts();
+const FertilizerTab: React.FC<FertilizerTabProps> = ({ refreshFertilizerDatabase }) => {
+  const [fertilizers, setFertilizers] = useState<CustomFertilizer[]>([]);
+  const [form, setForm] = useState<FertilizerForm>(defaultFertilizer);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const { addToast } = useToasts();
 
   useEffect(() => {
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS);
@@ -28,44 +67,59 @@ const FertilizerTab = ({ refreshFertilizerDatabase }) => {
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS, JSON.stringify(fertilizers));
     if (refreshFertilizerDatabase) refreshFertilizerDatabase();
-  }, [fertilizers]);
+  }, [fertilizers, refreshFertilizerDatabase]);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    if (["N", "P", "K"].includes(name)) {
+    if (['n', 'p', 'k'].includes(name)) {
       setForm({ ...form, composition: { ...form.composition, [name]: value } });
     } else {
       setForm({ ...form, [name]: value });
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const normalizedForm = {
       ...form,
-      composition: Object.fromEntries(Object.entries(form.composition).map(([k, v]) => [k.toLowerCase(), v])),
+      composition: Object.fromEntries(
+        Object.entries(form.composition).map(([k, v]) => [k.toLowerCase(), v])
+      ),
     };
     if (editingId !== null) {
-      setFertilizers(fertilizers.map(f => f.id === editingId ? { ...normalizedForm, id: editingId } : f));
+      setFertilizers(fertilizers.map(f => 
+        f.id === editingId ? { ...normalizedForm, id: editingId } as CustomFertilizer : f
+      ));
       setEditingId(null);
       addToast('Dünger erfolgreich bearbeitet!', 'success');
     } else {
       const id = generateCustomFertilizerId(form.name);
-      setFertilizers([...fertilizers, { ...normalizedForm, id }]);
+      setFertilizers([...fertilizers, { ...normalizedForm, id } as CustomFertilizer]);
       addToast('Dünger hinzugefügt!', 'success');
     }
     setForm(defaultFertilizer);
   };
 
-  const handleEdit = (id) => {
+  const handleEdit = (id: string) => {
     const fert = fertilizers.find(f => f.id === id);
     if (fert) {
-      setForm(fert);
+      setForm({
+        name: fert.name,
+        type: fert.type,
+        unit: fert.unit,
+        composition: {
+          n: fert.composition.n || '',
+          p: fert.composition.p || '',
+          k: fert.composition.k || '',
+        },
+        concentration: fert.concentration || '',
+        description: fert.description || '',
+      });
       setEditingId(id);
     }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (id: string) => {
     setFertilizers(fertilizers.filter(f => f.id !== id));
     if (editingId === id) {
       setForm(defaultFertilizer);
@@ -109,8 +163,8 @@ const FertilizerTab = ({ refreshFertilizerDatabase }) => {
         </div>
         <div className="flex gap-2">
           <input
-            name="N"
-            value={form.composition.N}
+            name="n"
+            value={form.composition.n}
             onChange={handleChange}
             placeholder="N (%)"
             type="number"
@@ -120,8 +174,8 @@ const FertilizerTab = ({ refreshFertilizerDatabase }) => {
             required
           />
           <input
-            name="P"
-            value={form.composition.P}
+            name="p"
+            value={form.composition.p}
             onChange={handleChange}
             placeholder="P (%)"
             type="number"
@@ -131,8 +185,8 @@ const FertilizerTab = ({ refreshFertilizerDatabase }) => {
             required
           />
           <input
-            name="K"
-            value={form.composition.K}
+            name="k"
+            value={form.composition.k}
             onChange={handleChange}
             placeholder="K (%)"
             type="number"
@@ -177,7 +231,7 @@ const FertilizerTab = ({ refreshFertilizerDatabase }) => {
             <li key={fert.id} className="flex items-center gap-2 p-2 bg-slate-100 dark:bg-slate-700 rounded">
               <div className="flex-1">
                 <div className="font-medium">{fert.name} <span className="text-xs text-slate-500">({fert.type})</span></div>
-                <div className="text-xs">N: {fert.composition.N}% , P: {fert.composition.P}% , K: {fert.composition.K}% | Konzentration: {fert.concentration}</div>
+                <div className="text-xs">N: {fert.composition.n}% , P: {fert.composition.p}% , K: {fert.composition.k}% | Konzentration: {fert.concentration}</div>
               </div>
               <Button onClick={() => handleEdit(fert.id)} variant="secondary" aria-label={`Dünger ${fert.name} bearbeiten`} title={`Dünger ${fert.name} bearbeiten`} className="text-xs">Bearbeiten</Button>
               <Button onClick={() => handleDelete(fert.id)} variant="danger" aria-label={`Dünger ${fert.name} löschen`} title={`Dünger ${fert.name} löschen`} className="text-xs">Löschen</Button>
@@ -189,4 +243,12 @@ const FertilizerTab = ({ refreshFertilizerDatabase }) => {
   );
 };
 
-export default FertilizerTab; 
+export default FertilizerTab;
+
+
+
+
+
+
+
+

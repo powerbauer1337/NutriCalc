@@ -1,132 +1,135 @@
 
 
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { WATER_DEFAULTS } from '../constants/waterDefaults';
-import { NUTRIENT_FIELDS } from '../constants';
-import { getNutrientStatus, getStatusColor, getProgressBarWidth } from '../utils/nutrientUtils';
+import React from 'react';
+import { getNutrientStatus, getStatusColor } from '../utils/nutrientUtils';
 
-const AnalysisTab = () => {
-  const [waterSources, setWaterSources] = useState([
-    { id: 'tapWater', ...WATER_DEFAULTS.tapWater, volume: 100 },
-    { id: 'roWater', ...WATER_DEFAULTS.roWater, volume: 0 },
-  ]);
-  const [mixedWater, setMixedWater] = useState(null);
+interface NutrientField {
+  key: string;
+  label: string;
+}
 
-  useEffect(() => {
-    calculateMixedWater();
-  }, [waterSources]);
+interface GrowthStage {
+  name: string;
+  [key: string]: any;
+}
 
-  const calculateMixedWater = () => {
-    if (waterSources.length === 0) {
-      setMixedWater(null);
-      return;
-    }
+interface WaterType {
+  name: string;
+}
 
-    let sum_H_plus_volume = 0;
-    let sum_volume = 0;
-    
-    const paramSums: Record<string, number> = {};
-    NUTRIENT_FIELDS.forEach(field => {
-        paramSums[field.key] = 0;
-    });
-    paramSums.ec = 0; // EC is a separate calculated value
+interface FertilizerDatabase {
+  [key: string]: any;
+}
 
-    waterSources.forEach(source => {
-      const { ph, ec, volume } = source;
-      if (volume > 0) {
-        // pH calculation (logarithmic)
-        const H_i = Math.pow(10, -ph);
-        sum_H_plus_volume += H_i * volume;
-        sum_volume += volume;
+interface SelectedFertilizer {
+  [key: string]: any;
+}
 
-        // Other parameters (linear average)
-        NUTRIENT_FIELDS.forEach(field => {
-            paramSums[field.key] += (source[field.key] || 0) * volume;
-        });
-        paramSums.ec += ec * volume;
-      }
-    });
+interface CustomWaterProfile {
+  [key: string]: any;
+}
 
-    if (sum_volume === 0) {
-      setMixedWater(null);
-      return;
-    }
-
-    // Calculate mixed pH
-    const H_plus_mix = sum_H_plus_volume / sum_volume;
-    const ph_mix = -Math.log10(H_plus_mix);
-
-    // Calculate mixed values for other parameters
-    const mixedNutrients: Record<string, number> = {};
-    NUTRIENT_FIELDS.forEach(field => {
-        mixedNutrients[field.key] = paramSums[field.key] / sum_volume;
-    });
-    const mixedEC = paramSums.ec / sum_volume;
-
-    setMixedWater({
-      ph: ph_mix,
-      ec: mixedEC,
-      ...mixedNutrients,
-      totalVolume: sum_volume,
-    });
+interface Results {
+  nutrients?: {
+    [key: string]: number;
   };
+}
 
-  const addWaterSource = (type: string) => {
-    const newSource = {
-      id: `${type}-${Date.now()}`, // Unique ID
-      ...(WATER_DEFAULTS[type] || {
-        name: 'Neue Quelle',
-        ph: 7.0,
-        ec: 0.2,
-        ca: 0,
-        mg: 0,
-        na: 0,
-        s: 0,
-        fe: 0,
-        mn: 0,
-        zn: 0,
-        cu: 0,
-        b: 0,
-        mo: 0,
-      }),
-      volume: 0,
-    };
-    setWaterSources(prevSources => [...prevSources, newSource]);
-  };
+interface AnalysisTabProps {
+  NUTRIENT_FIELDS: NutrientField[];
+  GROWTH_STAGES: { [key: string]: GrowthStage };
+  WATER_TYPES: { [key: string]: WaterType };
+  fertilizerDatabase: FertilizerDatabase;
+  selectedFertilizers: SelectedFertilizer[];
+  waterVolume: number;
+  growthStage: string;
+  waterType: string;
+  customWaterProfile: CustomWaterProfile;
+  results: Results;
+}
 
-  const removeWaterSource = (id: string) => {
-    setWaterSources(prevSources => prevSources.filter(source => source.id !== id));
-  };
+const AnalysisTab: React.FC<AnalysisTabProps> = ({
+  NUTRIENT_FIELDS,
+  GROWTH_STAGES,
+  WATER_TYPES,
+  fertilizerDatabase,
+  selectedFertilizers,
+  waterVolume,
+  growthStage,
+  waterType,
+  customWaterProfile,
+  results
+}) => {
+  // Determine optimal ranges for the current growth stage
+  const stage = GROWTH_STAGES[growthStage] || {};
 
-  const updateWaterSource = (id: string, field: keyof WaterSource, value: number | string) => {
-    setWaterSources(prevSources =>
-      prevSources.map(source =>
-        source.id === id ? { ...source, [field]: value } : source
-      )
-    );
-  };
+  // Warnings for suboptimal nutrients
+  const warnings = NUTRIENT_FIELDS.filter(field => {
+    const value = results.nutrients?.[field.key];
+    const range = stage[field.key];
+    return value !== undefined && range && (value < range[0] || value > range[1]);
+  });
+
+  // Optimization tips (simple version)
+  const tips: string[] = [];
+  if (warnings.length > 0) {
+    tips.push('Passe die Dosierung deiner Dünger an, um die Nährstoffe in den optimalen Bereich zu bringen.');
+  } else {
+    tips.push('Alle Hauptnährstoffe sind im optimalen Bereich!');
+  }
 
   return (
-    <WaterContext.Provider
-      value={{
-        waterSources,
-        mixedWater,
-        addWaterSource,
-        removeWaterSource,
-        updateWaterSource,
-      }}
-    >
-      {children}
-    </WaterContext.Provider>
+    <div className="max-w-3xl mx-auto p-4 bg-white dark:bg-slate-800 rounded-lg shadow space-y-6">
+      <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">Nährstoff-Analyse</h2>
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-xs">
+          <thead>
+            <tr>
+              <th className="px-2 py-1 text-left">Nährstoff</th>
+              <th className="px-2 py-1 text-left">Wert</th>
+              <th className="px-2 py-1 text-left">Optimalbereich</th>
+              <th className="px-2 py-1 text-left">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {NUTRIENT_FIELDS.map(field => {
+              const value = results.nutrients?.[field.key];
+              const range = stage[field.key];
+              const status = getNutrientStatus(value, range);
+              return (
+                <tr key={field.key} className={getStatusColor(status)}>
+                  <td className="px-2 py-1 font-medium">{field.label}</td>
+                  <td className="px-2 py-1">{value !== undefined ? value : '-'}</td>
+                  <td className="px-2 py-1">{range ? `${range[0]} - ${range[1]}` : '-'}</td>
+                  <td className="px-2 py-1">{status === 'optimal' ? 'Optimal' : status === 'suboptimal' ? 'Achtung' : 'Unbekannt'}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div className="mt-4">
+        <h3 className="font-semibold mb-1">Warnungen</h3>
+        {warnings.length === 0 ? (
+          <div className="text-green-700 dark:text-green-300">Keine Warnungen. Alle Werte sind im optimalen Bereich.</div>
+        ) : (
+          <ul className="list-disc pl-5 text-yellow-700 dark:text-yellow-300">
+            {warnings.map(field => (
+              <li key={field.key}>{field.label}: Wert außerhalb des Optimalbereichs!</li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <div className="mt-4">
+        <h3 className="font-semibold mb-1">Optimierungstipps</h3>
+        <ul className="list-disc pl-5 text-blue-700 dark:text-blue-300">
+          {tips.map((tip, idx) => <li key={idx}>{tip}</li>)}
+        </ul>
+      </div>
+    </div>
   );
 };
 
-export const useWater = (): WaterContextType => {
-  const context = useContext(WaterContext);
-  if (!context) {
-    throw new Error('useWater must be used within a WaterProvider');
-  }
-  return context;
-};
+export default AnalysisTab;
 
