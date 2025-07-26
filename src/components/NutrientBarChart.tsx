@@ -11,7 +11,7 @@ import { getNutrientStatus, getStatusColor, getProgressBarWidth } from '../utils
 const NutrientBarChart = ({ nutrients = {}, stage = {}, fields = [] }) => {
   return (
     <div className="space-y-3">
-      {fields.map(field => {
+      {fields.map((field) => {
         const value = nutrients[field.key] ?? 0;
         const range = stage[field.key];
         const status = getNutrientStatus(value, range);
@@ -19,8 +19,8 @@ const NutrientBarChart = ({ nutrients = {}, stage = {}, fields = [] }) => {
           status === 'optimal'
             ? 'bg-green-500'
             : status === 'suboptimal'
-            ? 'bg-yellow-500'
-            : 'bg-red-500';
+              ? 'bg-yellow-500'
+              : 'bg-red-500';
         const barBg = 'bg-slate-200 dark:bg-slate-700';
         const width = getProgressBarWidth(value, range);
         return (
@@ -31,14 +31,23 @@ const NutrientBarChart = ({ nutrients = {}, stage = {}, fields = [] }) => {
                 {value}
                 {field.unit ? ` ${field.unit}` : ''}
                 {range ? (
-                  <span className="ml-2 text-slate-500 dark:text-slate-400 text-xs">({range[0]}–{range[1]})</span>
+                  <span className="ml-2 text-slate-500 dark:text-slate-400 text-xs">
+                    ({range[0]}–{range[1]})
+                  </span>
                 ) : null}
               </span>
             </div>
-            <div className={`relative w-full h-4 rounded ${barBg}`} aria-label={`${field.label} Wert: ${value}`}> 
+            <div
+              className={`relative w-full h-4 rounded ${barBg}`}
+              aria-label={`${field.label} Wert: ${value}`}
+            >
               <div
                 className={`absolute left-0 top-0 h-4 rounded ${colorClass}`}
-                style={{ width: `${width}%`, minWidth: width > 0 ? '0.5rem' : 0, transition: 'width 0.3s' }}
+                style={{
+                  width: `${width}%`,
+                  minWidth: width > 0 ? '0.5rem' : 0,
+                  transition: 'width 0.3s',
+                }}
                 aria-valuenow={value}
                 aria-valuemin={range ? range[0] : 0}
                 aria-valuemax={range ? range[1] * 1.2 : 100}
@@ -67,4 +76,4 @@ const NutrientBarChart = ({ nutrients = {}, stage = {}, fields = [] }) => {
   );
 };
 
-export default NutrientBarChart; 
+export default NutrientBarChart;

@@ -25,14 +25,22 @@ const ChatBar = ({ apiKey, onSend, isLoading, displayMessage, suggestions = [] }
           <span className="icon-placeholder">AI</span>
         </div>
         <div className="flex-grow text-sm text-slate-700 dark:text-slate-200 min-h-[36px]">
-          {isLoading ? <span className="loader loader-gray !w-4 !h-4 !mr-2"></span> : ''} {displayMessage}
+          {isLoading ? <span className="loader loader-gray !w-4 !h-4 !mr-2"></span> : ''}{' '}
+          {displayMessage}
         </div>
       </div>
       {!isLoading && displayMessage && suggestions.length > 0 && (
         <div className="mt-1.5 text-xs text-slate-500 dark:text-slate-400 pl-8">
           <span>Vorschläge: </span>
           {suggestions.map((s, i) => (
-            <button key={i} onClick={() => suggestionClicked(s)} className="underline hover:text-blue-500 dark:hover:text-blue-400 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label={`Vorschlag: ${s}`}>{s}</button>
+            <button
+              key={i}
+              onClick={() => suggestionClicked(s)}
+              className="underline hover:text-blue-500 dark:hover:text-blue-400 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label={`Vorschlag: ${s}`}
+            >
+              {s}
+            </button>
           ))}
         </div>
       )}
@@ -42,7 +50,7 @@ const ChatBar = ({ apiKey, onSend, isLoading, displayMessage, suggestions = [] }
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          placeholder={!apiKey ? "API Key fehlt" : "Stell deine Frage an die KI..."}
+          placeholder={!apiKey ? 'API Key fehlt' : 'Stell deine Frage an die KI...'}
           className="flex-1 px-3 py-1.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           disabled={isLoading || !apiKey}
           aria-label="KI Frage eingeben"
@@ -53,11 +61,11 @@ const ChatBar = ({ apiKey, onSend, isLoading, displayMessage, suggestions = [] }
           aria-label="Frage senden"
           disabled={isLoading || !inputValue.trim() || !apiKey}
         >
-          {isLoading ? <span className="loader !w-4 !h-4"></span> : "Fragen"}
+          {isLoading ? <span className="loader !w-4 !h-4"></span> : 'Fragen'}
         </Button>
       </form>
     </div>
   );
 };
 
-export default ChatBar; 
+export default ChatBar;

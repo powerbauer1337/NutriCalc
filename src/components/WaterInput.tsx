@@ -1,13 +1,3 @@
-
-
-
-
-
-
-
-
-
-
 import React from 'react';
 import { useWater } from '../contexts/WaterContext';
 import { NUTRIENT_FIELDS } from '../constants';
@@ -33,7 +23,8 @@ interface MixedWater {
 }
 
 const WaterInput: React.FC = () => {
-  const { waterSources, mixedWater, addWaterSource, removeWaterSource, updateWaterSource } = useWater();
+  const { waterSources, mixedWater, addWaterSource, removeWaterSource, updateWaterSource } =
+    useWater();
   const { settings } = useAppSettings();
 
   const handleChange = (id: string, field: string, value: string) => {
@@ -44,7 +35,7 @@ const WaterInput: React.FC = () => {
     <div className="p-4 bg-gray-800 rounded-lg shadow-md">
       <h2 className="text-xl font-bold mb-4 text-white">Wasserqualität & Mischung</h2>
 
-      {waterSources.map(source => (
+      {waterSources.map((source) => (
         <div key={source.id} className="mb-4 p-3 border border-gray-700 rounded-md bg-gray-750">
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-lg font-semibold text-white">{source.name}</h3>
@@ -115,7 +106,9 @@ const WaterInput: React.FC = () => {
                 className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900 mt-1 block"
               />
             </label>
-            {NUTRIENT_FIELDS.filter(field => !['n', 'p', 'k', 'ca', 'mg', 'na'].includes(field.key)).map(field => (
+            {NUTRIENT_FIELDS.filter(
+              (field) => !['n', 'p', 'k', 'ca', 'mg', 'na'].includes(field.key)
+            ).map((field) => (
               <label key={field.key} className="block">
                 <span className="text-gray-300">{field.label.split(' ')[0]}:</span>
                 <input
@@ -128,7 +121,9 @@ const WaterInput: React.FC = () => {
               </label>
             ))}
             <label className="block">
-              <span className="text-gray-300">Volumen ({settings.unit === 'liter' ? 'L' : 'Gal'}):</span>
+              <span className="text-gray-300">
+                Volumen ({settings.unit === 'liter' ? 'L' : 'Gal'}):
+              </span>
               <input
                 type="number"
                 step="1"
@@ -175,36 +170,68 @@ const WaterInput: React.FC = () => {
             <table className="min-w-full divide-y divide-gray-600">
               <thead className="bg-gray-700">
                 <tr>
-                  <th className="py-2 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Quelle</th>
-                  <th className="py-2 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Volumen (L)</th>
-                  <th className="py-2 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">pH</th>
-                  <th className="py-2 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">EC (mS/cm)</th>
-                  {NUTRIENT_FIELDS.map(field => (
-                    <th key={field.key} className="py-2 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  <th className="py-2 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    Quelle
+                  </th>
+                  <th className="py-2 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    Volumen (L)
+                  </th>
+                  <th className="py-2 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    pH
+                  </th>
+                  <th className="py-2 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    EC (mS/cm)
+                  </th>
+                  {NUTRIENT_FIELDS.map((field) => (
+                    <th
+                      key={field.key}
+                      className="py-2 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+                    >
                       {field.label.split(' ')[0]} ({field.key.toUpperCase()})
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody className="bg-gray-800 divide-y divide-gray-700">
-                {waterSources.map(source => (
+                {waterSources.map((source) => (
                   <tr key={source.id}>
-                    <td className="py-2 px-4 whitespace-nowrap text-sm text-gray-200">{source.name}</td>
-                    <td className="py-2 px-4 whitespace-nowrap text-sm text-gray-200">{source.volume.toFixed(1)}</td>
-                    <td className="py-2 px-4 whitespace-nowrap text-sm text-gray-200">{source.ph.toFixed(2)}</td>
-                    <td className="py-2 px-4 whitespace-nowrap text-sm text-gray-200">{source.ec.toFixed(2)}</td>
-                    {NUTRIENT_FIELDS.map(field => (
-                      <td key={field.key} className="py-2 px-4 whitespace-nowrap text-sm text-gray-200">{(source[field.key] || 0).toFixed(1)}</td>
+                    <td className="py-2 px-4 whitespace-nowrap text-sm text-gray-200">
+                      {source.name}
+                    </td>
+                    <td className="py-2 px-4 whitespace-nowrap text-sm text-gray-200">
+                      {source.volume.toFixed(1)}
+                    </td>
+                    <td className="py-2 px-4 whitespace-nowrap text-sm text-gray-200">
+                      {source.ph.toFixed(2)}
+                    </td>
+                    <td className="py-2 px-4 whitespace-nowrap text-sm text-gray-200">
+                      {source.ec.toFixed(2)}
+                    </td>
+                    {NUTRIENT_FIELDS.map((field) => (
+                      <td
+                        key={field.key}
+                        className="py-2 px-4 whitespace-nowrap text-sm text-gray-200"
+                      >
+                        {(source[field.key] || 0).toFixed(1)}
+                      </td>
                     ))}
                   </tr>
                 ))}
                 <tr className="bg-gray-600 font-bold">
                   <td className="py-2 px-4 whitespace-nowrap text-sm text-white">Gemischt</td>
-                  <td className="py-2 px-4 whitespace-nowrap text-sm text-white">{mixedWater.totalVolume.toFixed(1)} {settings.unit === 'liter' ? 'L' : 'Gal'}</td>
-                  <td className="py-2 px-4 whitespace-nowrap text-sm text-white">{mixedWater.ph.toFixed(2)}</td>
-                  <td className="py-2 px-4 whitespace-nowrap text-sm text-white">{mixedWater.ec.toFixed(2)}</td>
-                  {NUTRIENT_FIELDS.map(field => (
-                    <td key={field.key} className="py-2 px-4 whitespace-nowrap text-sm text-white">{(mixedWater[field.key] || 0).toFixed(1)}</td>
+                  <td className="py-2 px-4 whitespace-nowrap text-sm text-white">
+                    {mixedWater.totalVolume.toFixed(1)} {settings.unit === 'liter' ? 'L' : 'Gal'}
+                  </td>
+                  <td className="py-2 px-4 whitespace-nowrap text-sm text-white">
+                    {mixedWater.ph.toFixed(2)}
+                  </td>
+                  <td className="py-2 px-4 whitespace-nowrap text-sm text-white">
+                    {mixedWater.ec.toFixed(2)}
+                  </td>
+                  {NUTRIENT_FIELDS.map((field) => (
+                    <td key={field.key} className="py-2 px-4 whitespace-nowrap text-sm text-white">
+                      {(mixedWater[field.key] || 0).toFixed(1)}
+                    </td>
                   ))}
                 </tr>
               </tbody>
@@ -217,11 +244,3 @@ const WaterInput: React.FC = () => {
 };
 
 export default WaterInput;
-
-
-
-
-
-
-
-

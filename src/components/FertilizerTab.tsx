@@ -1,13 +1,3 @@
-
-
-
-
-
-
-
-
-
-
 import React, { useState, useEffect } from 'react';
 import { LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS } from '../constants';
 import { useToasts } from '../contexts/ToastContext';
@@ -50,7 +40,7 @@ const defaultFertilizer: FertilizerForm = {
   description: '',
 };
 
-const generateCustomFertilizerId = (name: string): string => 
+const generateCustomFertilizerId = (name: string): string =>
   `custom_${name.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}`;
 
 const FertilizerTab: React.FC<FertilizerTabProps> = ({ refreshFertilizerDatabase }) => {
@@ -87,9 +77,11 @@ const FertilizerTab: React.FC<FertilizerTabProps> = ({ refreshFertilizerDatabase
       ),
     };
     if (editingId !== null) {
-      setFertilizers(fertilizers.map(f => 
-        f.id === editingId ? { ...normalizedForm, id: editingId } as CustomFertilizer : f
-      ));
+      setFertilizers(
+        fertilizers.map((f) =>
+          f.id === editingId ? ({ ...normalizedForm, id: editingId } as CustomFertilizer) : f
+        )
+      );
       setEditingId(null);
       addToast('Dünger erfolgreich bearbeitet!', 'success');
     } else {
@@ -101,7 +93,7 @@ const FertilizerTab: React.FC<FertilizerTabProps> = ({ refreshFertilizerDatabase
   };
 
   const handleEdit = (id: string) => {
-    const fert = fertilizers.find(f => f.id === id);
+    const fert = fertilizers.find((f) => f.id === id);
     if (fert) {
       setForm({
         name: fert.name,
@@ -120,7 +112,7 @@ const FertilizerTab: React.FC<FertilizerTabProps> = ({ refreshFertilizerDatabase
   };
 
   const handleDelete = (id: string) => {
-    setFertilizers(fertilizers.filter(f => f.id !== id));
+    setFertilizers(fertilizers.filter((f) => f.id !== id));
     if (editingId === id) {
       setForm(defaultFertilizer);
       setEditingId(null);
@@ -130,7 +122,9 @@ const FertilizerTab: React.FC<FertilizerTabProps> = ({ refreshFertilizerDatabase
 
   return (
     <div className="max-w-xl mx-auto p-4 bg-white dark:bg-slate-800 rounded-lg shadow space-y-6">
-      <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">Dünger verwalten</h2>
+      <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">
+        Dünger verwalten
+      </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex gap-2">
           <input
@@ -214,11 +208,26 @@ const FertilizerTab: React.FC<FertilizerTabProps> = ({ refreshFertilizerDatabase
           placeholder="Beschreibung (optional)"
           className="w-full px-2 py-1 border rounded-md dark:bg-slate-700 dark:text-slate-100"
         />
-        <Button type="submit" variant="primary" aria-label={editingId !== null ? 'Dünger speichern' : 'Dünger hinzufügen'} title={editingId !== null ? 'Dünger speichern' : 'Dünger hinzufügen'}>
+        <Button
+          type="submit"
+          variant="primary"
+          aria-label={editingId !== null ? 'Dünger speichern' : 'Dünger hinzufügen'}
+          title={editingId !== null ? 'Dünger speichern' : 'Dünger hinzufügen'}
+        >
           {editingId !== null ? 'Speichern' : 'Hinzufügen'}
         </Button>
         {editingId !== null && (
-          <Button type="button" onClick={() => { setForm(defaultFertilizer); setEditingId(null); }} variant="secondary" className="ml-2" aria-label="Bearbeitung abbrechen" title="Bearbeitung abbrechen">
+          <Button
+            type="button"
+            onClick={() => {
+              setForm(defaultFertilizer);
+              setEditingId(null);
+            }}
+            variant="secondary"
+            className="ml-2"
+            aria-label="Bearbeitung abbrechen"
+            title="Bearbeitung abbrechen"
+          >
             Abbrechen
           </Button>
         )}
@@ -226,15 +235,41 @@ const FertilizerTab: React.FC<FertilizerTabProps> = ({ refreshFertilizerDatabase
       <div>
         <h3 className="font-semibold mb-2">Eigene Dünger</h3>
         <ul className="space-y-2">
-          {fertilizers.length === 0 && <li className="text-slate-500">Noch keine Dünger hinzugefügt.</li>}
+          {fertilizers.length === 0 && (
+            <li className="text-slate-500">Noch keine Dünger hinzugefügt.</li>
+          )}
           {fertilizers.map((fert) => (
-            <li key={fert.id} className="flex items-center gap-2 p-2 bg-slate-100 dark:bg-slate-700 rounded">
+            <li
+              key={fert.id}
+              className="flex items-center gap-2 p-2 bg-slate-100 dark:bg-slate-700 rounded"
+            >
               <div className="flex-1">
-                <div className="font-medium">{fert.name} <span className="text-xs text-slate-500">({fert.type})</span></div>
-                <div className="text-xs">N: {fert.composition.n}% , P: {fert.composition.p}% , K: {fert.composition.k}% | Konzentration: {fert.concentration}</div>
+                <div className="font-medium">
+                  {fert.name} <span className="text-xs text-slate-500">({fert.type})</span>
+                </div>
+                <div className="text-xs">
+                  N: {fert.composition.n}% , P: {fert.composition.p}% , K: {fert.composition.k}% |
+                  Konzentration: {fert.concentration}
+                </div>
               </div>
-              <Button onClick={() => handleEdit(fert.id)} variant="secondary" aria-label={`Dünger ${fert.name} bearbeiten`} title={`Dünger ${fert.name} bearbeiten`} className="text-xs">Bearbeiten</Button>
-              <Button onClick={() => handleDelete(fert.id)} variant="danger" aria-label={`Dünger ${fert.name} löschen`} title={`Dünger ${fert.name} löschen`} className="text-xs">Löschen</Button>
+              <Button
+                onClick={() => handleEdit(fert.id)}
+                variant="secondary"
+                aria-label={`Dünger ${fert.name} bearbeiten`}
+                title={`Dünger ${fert.name} bearbeiten`}
+                className="text-xs"
+              >
+                Bearbeiten
+              </Button>
+              <Button
+                onClick={() => handleDelete(fert.id)}
+                variant="danger"
+                aria-label={`Dünger ${fert.name} löschen`}
+                title={`Dünger ${fert.name} löschen`}
+                className="text-xs"
+              >
+                Löschen
+              </Button>
             </li>
           ))}
         </ul>
@@ -244,11 +279,3 @@ const FertilizerTab: React.FC<FertilizerTabProps> = ({ refreshFertilizerDatabase
 };
 
 export default FertilizerTab;
-
-
-
-
-
-
-
-

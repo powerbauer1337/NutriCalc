@@ -1,6 +1,3 @@
-
-
-
 import { useState, useEffect } from 'react';
 
 export function useDebounce<T>(value: T, delay: number): T {
@@ -29,16 +26,16 @@ export function useThrottle<T>(value: T, delay: number): T {
       setThrottledValue(value);
       setLastExecuted(now);
     } else {
-      const timer = setTimeout(() => {
-        setThrottledValue(value);
-        setLastExecuted(Date.now());
-      }, delay - (now - lastExecuted));
+      const timer = setTimeout(
+        () => {
+          setThrottledValue(value);
+          setLastExecuted(Date.now());
+        },
+        delay - (now - lastExecuted)
+      );
       return () => clearTimeout(timer);
     }
   }, [value, delay, lastExecuted]);
 
   return throttledValue;
 }
-
-
-

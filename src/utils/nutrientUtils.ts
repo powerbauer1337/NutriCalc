@@ -1,7 +1,8 @@
-
-
 // Helper function to get nutrient status
-export const getNutrientStatus = (value: number, range: [number, number]): 'optimal' | 'suboptimal' | 'unknown' => {
+export const getNutrientStatus = (
+  value: number,
+  range: [number, number]
+): 'optimal' | 'suboptimal' | 'unknown' => {
   if (!range || !Array.isArray(range) || range.length !== 2) return 'unknown';
   if (value >= range[0] && value <= range[1]) return 'optimal';
   return 'suboptimal';
@@ -54,9 +55,9 @@ export const calculateNutrientContributions = (
   const contributions: Record<string, Record<string, number>> = {};
   const nutrients: Record<string, number> = {};
 
-  fertilizers.forEach(fert => {
+  fertilizers.forEach((fert) => {
     if (!fert.active || Number(fert.amount) <= 0) return;
-    
+
     const fertData = fertilizerDatabase[fert.id];
     if (!fertData) return;
 
@@ -91,4 +92,3 @@ export const optimizeNutrients = (
     if (fertilizerDatabase['hesi_bloom']) updateFertilizerAmount('hesi_bloom', '6.0');
   }
 };
-

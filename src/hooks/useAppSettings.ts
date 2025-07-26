@@ -11,14 +11,16 @@ const useAppSettings = () => {
   const [settings, setSettings] = useState<AppSettings>(() => {
     try {
       const storedSettings = localStorage.getItem('appSettings');
-      return storedSettings ? JSON.parse(storedSettings) : {
-        unit: 'liter', // 'liter' or 'gallon'
-        waterAmount: '',
-        growthPhase: '',
-        waterType: '',
-      };
+      return storedSettings
+        ? JSON.parse(storedSettings)
+        : {
+            unit: 'liter', // 'liter' or 'gallon'
+            waterAmount: '',
+            growthPhase: '',
+            waterType: '',
+          };
     } catch (error) {
-      console.error("Error parsing app settings from localStorage:", error);
+      console.error('Error parsing app settings from localStorage:', error);
       return {
         unit: 'liter',
         waterAmount: '',
@@ -32,12 +34,12 @@ const useAppSettings = () => {
     try {
       localStorage.setItem('appSettings', JSON.stringify(settings));
     } catch (error) {
-      console.error("Error saving app settings to localStorage:", error);
+      console.error('Error saving app settings to localStorage:', error);
     }
   }, [settings]);
 
   const updateSetting = (key: string, value: string) => {
-    setSettings(prevSettings => ({
+    setSettings((prevSettings) => ({
       ...prevSettings,
       [key]: value,
     }));
@@ -46,4 +48,4 @@ const useAppSettings = () => {
   return { settings, updateSetting };
 };
 
-export default useAppSettings; 
+export default useAppSettings;

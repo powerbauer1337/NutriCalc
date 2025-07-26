@@ -1,8 +1,3 @@
-
-
-
-
-
 import React, { useEffect, useState } from 'react';
 
 const AccessibilityFeatures = () => {
@@ -12,7 +7,7 @@ const AccessibilityFeatures = () => {
 
   useEffect(() => {
     const root = document.documentElement;
-    
+
     // Apply font size
     switch (fontSize) {
       case 'large':
@@ -47,11 +42,15 @@ const AccessibilityFeatures = () => {
         case '=':
         case '+':
           e.preventDefault();
-          setFontSize(prev => prev === 'normal' ? 'large' : prev === 'large' ? 'extra-large' : 'extra-large');
+          setFontSize((prev) =>
+            prev === 'normal' ? 'large' : prev === 'large' ? 'extra-large' : 'extra-large'
+          );
           break;
         case '-':
           e.preventDefault();
-          setFontSize(prev => prev === 'extra-large' ? 'large' : prev === 'large' ? 'normal' : 'normal');
+          setFontSize((prev) =>
+            prev === 'extra-large' ? 'large' : prev === 'large' ? 'normal' : 'normal'
+          );
           break;
         case '0':
           e.preventDefault();
@@ -70,7 +69,7 @@ const AccessibilityFeatures = () => {
     <div className="fixed bottom-4 right-4 z-50">
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 space-y-3">
         <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Accessibility</h3>
-        
+
         <div className="space-y-2">
           <label className="block text-xs text-slate-600 dark:text-slate-400">
             Font Size
@@ -118,7 +117,3 @@ const AccessibilityFeatures = () => {
 };
 
 export default AccessibilityFeatures;
-
-
-
-

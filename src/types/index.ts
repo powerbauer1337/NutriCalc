@@ -1,8 +1,3 @@
-
-
-
-
-
 // Core types for the NutriCalc application
 
 export interface Fertilizer {
@@ -102,7 +97,3 @@ export interface ApiKey {
 }
 
 export type AppTheme = 'light' | 'dark' | 'system';
-
-
-
-

@@ -1,13 +1,3 @@
-
-
-
-
-
-
-
-
-
-
 import React from 'react';
 
 interface NutrientInfo {
@@ -35,9 +25,7 @@ const micronutrients: NutrientInfo[] = [
   { key: 'mo', label: 'Molybdän (Mo)', optimal: [0.005, 0.02] },
 ];
 
-const secondaryNutrients: NutrientInfo[] = [
-  { key: 's', label: 'Schwefel (S)', optimal: [30, 70] },
-];
+const secondaryNutrients: NutrientInfo[] = [{ key: 's', label: 'Schwefel (S)', optimal: [30, 70] }];
 
 type NutrientStatus = 'low' | 'high' | 'optimal' | 'moderate' | 'neutral';
 
@@ -68,17 +56,24 @@ function getStatusColor(status: NutrientStatus): string {
 const DetailsTab: React.FC<DetailsTabProps> = ({ results }) => (
   <div className="grid lg:grid-cols-2 gap-4">
     <div className="space-y-3">
-      <h2 className="text-md font-semibold text-slate-700 dark:text-slate-200">Mikronährstoffe (ppm)</h2>
+      <h2 className="text-md font-semibold text-slate-700 dark:text-slate-200">
+        Mikronährstoffe (ppm)
+      </h2>
       <div className="space-y-1.5 bg-slate-100 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
-        {micronutrients.map(micro => {
+        {micronutrients.map((micro) => {
           const value = results?.nutrients?.[micro.key] ?? 0;
           const status = getNutrientStatus(value, micro.optimal);
           return (
-            <div key={micro.key} className={`flex justify-between items-center p-1.5 rounded-md text-xs ${getStatusColor(status)}`}>
+            <div
+              key={micro.key}
+              className={`flex justify-between items-center p-1.5 rounded-md text-xs ${getStatusColor(status)}`}
+            >
               <span>{micro.label}:</span>
               <div className="text-right">
                 <span className="font-medium">{value.toFixed(3)} ppm</span>
-                <div className="text-[0.65rem] opacity-70">({micro.optimal[0]}-{micro.optimal[1]})</div>
+                <div className="text-[0.65rem] opacity-70">
+                  ({micro.optimal[0]}-{micro.optimal[1]})
+                </div>
               </div>
             </div>
           );
@@ -86,24 +81,33 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ results }) => (
       </div>
     </div>
     <div className="space-y-3">
-      <h2 className="text-md font-semibold text-slate-700 dark:text-slate-200">Weitere Makro-/Sekundärnährstoffe (ppm)</h2>
+      <h2 className="text-md font-semibold text-slate-700 dark:text-slate-200">
+        Weitere Makro-/Sekundärnährstoffe (ppm)
+      </h2>
       <div className="space-y-1.5 bg-slate-100 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
-        {secondaryNutrients.map(sec => {
+        {secondaryNutrients.map((sec) => {
           const value = results?.nutrients?.[sec.key] ?? 0;
           const status = getNutrientStatus(value, sec.optimal);
           return (
-            <div key={sec.key} className={`flex justify-between items-center p-1.5 rounded-md text-xs ${getStatusColor(status)}`}>
+            <div
+              key={sec.key}
+              className={`flex justify-between items-center p-1.5 rounded-md text-xs ${getStatusColor(status)}`}
+            >
               <span>{sec.label}:</span>
               <div className="text-right">
                 <span className="font-medium">{value.toFixed(1)} ppm</span>
-                <div className="text-[0.65rem] opacity-70">({sec.optimal[0]}-{sec.optimal[1]})</div>
+                <div className="text-[0.65rem] opacity-70">
+                  ({sec.optimal[0]}-{sec.optimal[1]})
+                </div>
               </div>
             </div>
           );
         })}
       </div>
       <div className="bg-yellow-100 dark:bg-yellow-700/30 p-3 rounded-lg border border-yellow-300 dark:border-yellow-600 mt-3">
-        <h3 className="font-medium text-yellow-800 dark:text-yellow-200 mb-1.5 text-sm">Nährstoff-Hinweise</h3>
+        <h3 className="font-medium text-yellow-800 dark:text-yellow-200 mb-1.5 text-sm">
+          Nährstoff-Hinweise
+        </h3>
         <ul className="text-xs text-yellow-700 dark:text-yellow-300 space-y-1 list-disc list-inside">
           <li>Weniger ist oft mehr, besonders bei Mikronährstoffen.</li>
           <li>Bei Mangelerscheinungen zuerst pH-Wert und Wurzelgesundheit prüfen.</li>
@@ -116,11 +120,3 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ results }) => (
 );
 
 export default DetailsTab;
-
-
-
-
-
-
-
-

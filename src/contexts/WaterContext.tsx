@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { WATER_DEFAULTS } from '../constants/waterDefaults';
 import { NUTRIENT_FIELDS } from '../constants';
@@ -58,14 +57,14 @@ export const WaterProvider: React.FC<WaterProviderProps> = ({ children }) => {
 
     let sum_H_plus_volume = 0;
     let sum_volume = 0;
-    
+
     const paramSums: Record<string, number> = {};
-    NUTRIENT_FIELDS.forEach(field => {
-        paramSums[field.key] = 0;
+    NUTRIENT_FIELDS.forEach((field) => {
+      paramSums[field.key] = 0;
     });
     paramSums.ec = 0; // EC is a separate calculated value
 
-    waterSources.forEach(source => {
+    waterSources.forEach((source) => {
       const { ph, ec, volume } = source;
       if (volume > 0) {
         // pH calculation (logarithmic)
@@ -74,8 +73,9 @@ export const WaterProvider: React.FC<WaterProviderProps> = ({ children }) => {
         sum_volume += volume;
 
         // Other parameters (linear average)
-        NUTRIENT_FIELDS.forEach(field => {
-            paramSums[field.key] += (source[field.key as keyof WaterSource] as number || 0) * volume;
+        NUTRIENT_FIELDS.forEach((field) => {
+          paramSums[field.key] +=
+            ((source[field.key as keyof WaterSource] as number) || 0) * volume;
         });
         paramSums.ec += ec * volume;
       }
@@ -92,8 +92,8 @@ export const WaterProvider: React.FC<WaterProviderProps> = ({ children }) => {
 
     // Calculate mixed values for other parameters
     const mixedNutrients: Record<string, number> = {};
-    NUTRIENT_FIELDS.forEach(field => {
-        mixedNutrients[field.key] = paramSums[field.key] / sum_volume;
+    NUTRIENT_FIELDS.forEach((field) => {
+      mixedNutrients[field.key] = paramSums[field.key] / sum_volume;
     });
     const mixedEC = paramSums.ec / sum_volume;
 
@@ -125,18 +125,16 @@ export const WaterProvider: React.FC<WaterProviderProps> = ({ children }) => {
       }),
       volume: 0,
     };
-    setWaterSources(prevSources => [...prevSources, newSource]);
+    setWaterSources((prevSources) => [...prevSources, newSource]);
   };
 
   const removeWaterSource = (id: string) => {
-    setWaterSources(prevSources => prevSources.filter(source => source.id !== id));
+    setWaterSources((prevSources) => prevSources.filter((source) => source.id !== id));
   };
 
   const updateWaterSource = (id: string, field: keyof WaterSource, value: number | string) => {
-    setWaterSources(prevSources =>
-      prevSources.map(source =>
-        source.id === id ? { ...source, [field]: value } : source
-      )
+    setWaterSources((prevSources) =>
+      prevSources.map((source) => (source.id === id ? { ...source, [field]: value } : source))
     );
   };
 

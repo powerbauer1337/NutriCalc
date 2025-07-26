@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect } from 'react';
 
 export function useLocalStorage(key, initialValue) {
@@ -49,4 +47,3 @@ export function useSessionStorage(key, initialValue) {
 
   return [storedValue, setValue];
 }
-

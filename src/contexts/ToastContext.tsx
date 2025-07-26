@@ -8,7 +8,11 @@ interface Toast {
 }
 
 interface ToastContextType {
-  addToast: (message: string, type?: 'info' | 'success' | 'warning' | 'error', duration?: number) => void;
+  addToast: (
+    message: string,
+    type?: 'info' | 'success' | 'warning' | 'error',
+    duration?: number
+  ) => void;
   removeToast: (id: number) => void;
 }
 
@@ -22,13 +26,20 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   }, []);
 
-  const addToast = useCallback((message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info', duration: number = 3000) => {
-    const id = toastIdRef.current++;
-    setToasts((prev) => [...prev, { id, message, type }]);
-    if (duration && duration > 0) {
-      setTimeout(() => removeToast(id), duration);
-    }
-  }, [removeToast]);
+  const addToast = useCallback(
+    (
+      message: string,
+      type: 'info' | 'success' | 'warning' | 'error' = 'info',
+      duration: number = 3000
+    ) => {
+      const id = toastIdRef.current++;
+      setToasts((prev) => [...prev, { id, message, type }]);
+      if (duration && duration > 0) {
+        setTimeout(() => removeToast(id), duration);
+      }
+    },
+    [removeToast]
+  );
 
   return (
     <ToastContext.Provider value={{ addToast, removeToast }}>
@@ -42,4 +53,4 @@ export const useToasts = (): ToastContextType => {
   const context = useContext(ToastContext);
   if (!context) throw new Error('useToasts must be used within a ToastProvider');
   return context;
-}; 
+};

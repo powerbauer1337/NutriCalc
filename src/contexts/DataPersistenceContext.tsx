@@ -1,6 +1,3 @@
-
-
-
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
@@ -96,8 +93,8 @@ export const DataPersistenceProvider: React.FC<DataPersistenceProviderProps> = (
       theme: 'light',
       language: 'de',
       units: 'metric',
-      notifications: true
-    }
+      notifications: true,
+    },
   });
 
   const [currentSetup, setCurrentSetup] = useLocalStorage('nutricalc-current-setup', {
@@ -106,7 +103,7 @@ export const DataPersistenceProvider: React.FC<DataPersistenceProviderProps> = (
     growthStage: 'seedling',
     selectedFertilizers: [],
     customWaterProfile: {},
-    mixedWater: undefined
+    mixedWater: undefined,
   });
 
   const addSetup = (setup) => {
@@ -114,30 +111,28 @@ export const DataPersistenceProvider: React.FC<DataPersistenceProviderProps> = (
       ...setup,
       id: Date.now().toString(),
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
-    setUserData(prev => ({
+    setUserData((prev) => ({
       ...prev,
-      setups: [...prev.setups, newSetup]
+      setups: [...prev.setups, newSetup],
     }));
     return newSetup.id;
   };
 
   const updateSetup = (id, updates) => {
-    setUserData(prev => ({
+    setUserData((prev) => ({
       ...prev,
-      setups: prev.setups.map(setup =>
-        setup.id === id
-          ? { ...setup, ...updates, updatedAt: new Date().toISOString() }
-          : setup
-      )
+      setups: prev.setups.map((setup) =>
+        setup.id === id ? { ...setup, ...updates, updatedAt: new Date().toISOString() } : setup
+      ),
     }));
   };
 
   const deleteSetup = (id) => {
-    setUserData(prev => ({
+    setUserData((prev) => ({
       ...prev,
-      setups: prev.setups.filter(setup => setup.id !== id)
+      setups: prev.setups.filter((setup) => setup.id !== id),
     }));
   };
 
@@ -145,30 +140,30 @@ export const DataPersistenceProvider: React.FC<DataPersistenceProviderProps> = (
     const newFertilizer = {
       ...fertilizer,
       id: Date.now().toString(),
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
-    setUserData(prev => ({
+    setUserData((prev) => ({
       ...prev,
-      customFertilizers: [...prev.customFertilizers, newFertilizer]
+      customFertilizers: [...prev.customFertilizers, newFertilizer],
     }));
     return newFertilizer.id;
   };
 
   const updateCustomFertilizer = (id, updates) => {
-    setUserData(prev => ({
+    setUserData((prev) => ({
       ...prev,
-      customFertilizers: prev.customFertilizers.map(fertilizer =>
+      customFertilizers: prev.customFertilizers.map((fertilizer) =>
         fertilizer.id === id
           ? { ...fertilizer, ...updates, updatedAt: new Date().toISOString() }
           : fertilizer
-      )
+      ),
     }));
   };
 
   const deleteCustomFertilizer = (id) => {
-    setUserData(prev => ({
+    setUserData((prev) => ({
       ...prev,
-      customFertilizers: prev.customFertilizers.filter(fertilizer => fertilizer.id !== id)
+      customFertilizers: prev.customFertilizers.filter((fertilizer) => fertilizer.id !== id),
     }));
   };
 
@@ -176,18 +171,18 @@ export const DataPersistenceProvider: React.FC<DataPersistenceProviderProps> = (
     const newMix = {
       ...mix,
       id: Date.now().toString(),
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
-    setUserData(prev => ({
+    setUserData((prev) => ({
       ...prev,
-      mixingHistory: [newMix, ...prev.mixingHistory].slice(0, 100) // Keep last 100 mixes
+      mixingHistory: [newMix, ...prev.mixingHistory].slice(0, 100), // Keep last 100 mixes
     }));
   };
 
   const updateSettings = (settings) => {
-    setUserData(prev => ({
+    setUserData((prev) => ({
       ...prev,
-      settings: { ...prev.settings, ...settings }
+      settings: { ...prev.settings, ...settings },
     }));
   };
 
@@ -195,7 +190,7 @@ export const DataPersistenceProvider: React.FC<DataPersistenceProviderProps> = (
     const data = {
       ...userData,
       exportDate: new Date().toISOString(),
-      version: '1.0.0'
+      version: '1.0.0',
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -230,7 +225,11 @@ export const DataPersistenceProvider: React.FC<DataPersistenceProviderProps> = (
   };
 
   const clearAllData = () => {
-    if (window.confirm('Are you sure you want to delete all saved data? This action cannot be undone.')) {
+    if (
+      window.confirm(
+        'Are you sure you want to delete all saved data? This action cannot be undone.'
+      )
+    ) {
       setUserData({
         setups: [],
         customFertilizers: [],
@@ -239,8 +238,8 @@ export const DataPersistenceProvider: React.FC<DataPersistenceProviderProps> = (
           theme: 'light',
           language: 'de',
           units: 'metric',
-          notifications: true
-        }
+          notifications: true,
+        },
       });
       setCurrentSetup({
         waterAmount: 10,
@@ -248,7 +247,7 @@ export const DataPersistenceProvider: React.FC<DataPersistenceProviderProps> = (
         growthStage: 'seedling',
         selectedFertilizers: [],
         customWaterProfile: {},
-        mixedWater: undefined
+        mixedWater: undefined,
       });
     }
   };
@@ -267,15 +266,10 @@ export const DataPersistenceProvider: React.FC<DataPersistenceProviderProps> = (
     updateSettings,
     exportData,
     importData,
-    clearAllData
+    clearAllData,
   };
 
   return (
-    <DataPersistenceContext.Provider value={value}>
-      {children}
-    </DataPersistenceContext.Provider>
+    <DataPersistenceContext.Provider value={value}>{children}</DataPersistenceContext.Provider>
   );
 };
-
-
-

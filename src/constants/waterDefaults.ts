@@ -1,7 +1,3 @@
-
-
-
-
 interface WaterProfile {
   name: string;
   ph: number;
@@ -28,9 +24,9 @@ export const WATER_DEFAULTS: WaterDefaults = {
     name: 'Leitungswasser',
     ph: 7.5,
     ec: 0.5, // mS/cm
-    ca: 50,  // mg/L
-    mg: 10,  // mg/L
-    na: 20,  // mg/L
+    ca: 50, // mg/L
+    mg: 10, // mg/L
+    na: 20, // mg/L
     s: 5, // Default for Tap Water
     fe: 0.05, // Default for Tap Water
     mn: 0.02, // Default for Tap Water
@@ -55,6 +51,3 @@ export const WATER_DEFAULTS: WaterDefaults = {
     mo: 0,
   },
 };
-
-
-

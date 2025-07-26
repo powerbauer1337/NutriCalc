@@ -1,7 +1,3 @@
-
-
-
-
 import React, { memo, useMemo } from 'react';
 import { useMemoizedCalculation } from '../utils/memoization';
 
@@ -9,15 +5,15 @@ const OptimizedNutrientBarChart = memo(({ nutrients, stage, fields }) => {
   const processedData = useMemoizedCalculation(() => {
     if (!nutrients || !stage || !fields) return [];
 
-    return fields.map(field => {
+    return fields.map((field) => {
       const value = nutrients[field.key] || 0;
       const min = stage[field.key]?.min || 0;
       const max = stage[field.key]?.max || 0;
       const target = (min + max) / 2;
-      
+
       const percentage = max > 0 ? Math.min((value / max) * 100, 100) : 0;
       const isWithinRange = value >= min && value <= max;
-      
+
       return {
         ...field,
         value,
@@ -26,26 +22,34 @@ const OptimizedNutrientBarChart = memo(({ nutrients, stage, fields }) => {
         target,
         percentage,
         isWithinRange,
-        status: isWithinRange ? 'optimal' : value < min ? 'low' : 'high'
+        status: isWithinRange ? 'optimal' : value < min ? 'low' : 'high',
       };
     });
   }, [nutrients, stage, fields]);
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'optimal': return 'bg-green-500';
-      case 'low': return 'bg-yellow-500';
-      case 'high': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'optimal':
+        return 'bg-green-500';
+      case 'low':
+        return 'bg-yellow-500';
+      case 'high':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-500';
     }
   };
 
   const getStatusTextColor = (status) => {
     switch (status) {
-      case 'optimal': return 'text-green-700 dark:text-green-300';
-      case 'low': return 'text-yellow-700 dark:text-yellow-300';
-      case 'high': return 'text-red-700 dark:text-red-300';
-      default: return 'text-gray-700 dark:text-gray-300';
+      case 'optimal':
+        return 'text-green-700 dark:text-green-300';
+      case 'low':
+        return 'text-yellow-700 dark:text-yellow-300';
+      case 'high':
+        return 'text-red-700 dark:text-red-300';
+      default:
+        return 'text-gray-700 dark:text-gray-300';
     }
   };
 
@@ -70,7 +74,7 @@ const OptimizedNutrientBarChart = memo(({ nutrients, stage, fields }) => {
               )}
             </span>
           </div>
-          
+
           <div className="relative w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
             <div
               className={`h-2 rounded-full transition-all duration-300 ${getStatusColor(item.status)}`}
@@ -92,6 +96,3 @@ const OptimizedNutrientBarChart = memo(({ nutrients, stage, fields }) => {
 OptimizedNutrientBarChart.displayName = 'OptimizedNutrientBarChart';
 
 export default OptimizedNutrientBarChart;
-
-
-

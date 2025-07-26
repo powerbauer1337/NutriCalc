@@ -4,14 +4,24 @@ import { ToastProvider, useToasts } from './contexts/ToastContext';
 import { WaterProvider, useWater } from './contexts/WaterContext';
 import ChatBar from './components/ChatBar';
 import SetupTab from './components/SetupTab';
-import WaterInput from './components/WaterInput';
+
 import FertilizerTab from './components/FertilizerTab';
 import AnalysisTab from './components/AnalysisTab';
-import SettingsTab from './components/SettingsTab';
+
 import DetailsTab from './components/DetailsTab';
 import ReferencesTab from './components/ReferencesTab';
 import Navigation from './components/Navigation';
-import { NUTRIENT_FIELDS, GROWTH_STAGES, WATER_TYPES, BASE_FERTILIZER_DATABASE, LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS, TABS_CONFIG, TAB_MIXING_ASSISTANT, TAB_WATERING_SCHEDULER, TAB_SETTINGS } from './constants';
+import {
+  NUTRIENT_FIELDS,
+  GROWTH_STAGES,
+  WATER_TYPES,
+  BASE_FERTILIZER_DATABASE,
+  LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS,
+  TABS_CONFIG,
+  TAB_MIXING_ASSISTANT,
+  TAB_WATERING_SCHEDULER,
+  TAB_SETTINGS,
+} from './constants';
 import { useApiKey } from './hooks/useApiKey';
 import MixingAssistant from './components/MixingAssistant';
 import WateringScheduler from './components/WateringScheduler';
@@ -26,17 +36,36 @@ const DarkModeToggle = () => {
       title="Toggle Dark Mode"
     >
       {theme === 'light' ? (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m8.66-13.66l-.71.71M4.05 19.07l-.71.71M21 12h-1M4 12H3m16.66 5.66l-.71-.71M4.05 4.93l-.71-.71"/></svg>
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path d="M12 3v1m0 16v1m8.66-13.66l-.71.71M4.05 19.07l-.71.71M21 12h-1M4 12H3m16.66 5.66l-.71-.71M4.05 4.93l-.71-.71" />
+        </svg>
       ) : (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/></svg>
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" />
+        </svg>
       )}
     </button>
   );
 };
 
-function mergeFertilizerDatabases(baseDb: Record<string, Fertilizer>, customList: Fertilizer[]): Record<string, Fertilizer> {
+function mergeFertilizerDatabases(
+  baseDb: Record<string, Fertilizer>,
+  customList: Fertilizer[]
+): Record<string, Fertilizer> {
   const customDb: Record<string, Fertilizer> = {};
-  (customList || []).forEach(fert => {
+  (customList || []).forEach((fert) => {
     const id = fert.id || `custom_${fert.name.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}`;
     const composition: Record<string, number> = {};
     Object.entries(fert.composition || {}).forEach(([k, v]) => {
@@ -60,7 +89,9 @@ const AppLayout = () => {
   const [fertilizerDatabase, setFertilizerDatabase] = useState(() => {
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS);
     let customList = [];
-    try { if (stored) customList = JSON.parse(stored); } catch {}
+    try {
+      if (stored) customList = JSON.parse(stored);
+    } catch {}
     return mergeFertilizerDatabases(BASE_FERTILIZER_DATABASE, customList);
   });
   const [analysisInputs, setAnalysisInputs] = useState<NutrientCalculation>({
@@ -73,24 +104,28 @@ const AppLayout = () => {
     growthStage: Object.keys(GROWTH_STAGES)[0],
     waterType: Object.keys(WATER_TYPES)[0],
     customWaterProfile: {},
-    results: { nutrients: {}, contributions: {}, stage: GROWTH_STAGES[Object.keys(GROWTH_STAGES)[0]] },
+    results: {
+      nutrients: {},
+      contributions: {},
+      stage: GROWTH_STAGES[Object.keys(GROWTH_STAGES)[0]],
+    },
   });
   const { apiKey } = useApiKey();
   const addToast = useToasts();
   const [aiLoading, setAiLoading] = useState(false);
-  const [aiMessage, setAiMessage] = useState("Hallo! Ich bin dein KI-Helfer. Frag mich z.B. 'Wie erstelle ich einen Dünger?' oder 'Ist mein N-Wert ok?' oder 'Was ist EC?'");
+  const [aiMessage, setAiMessage] = useState(
+    "Hallo! Ich bin dein KI-Helfer. Frag mich z.B. 'Wie erstelle ich einen Dünger?' oder 'Ist mein N-Wert ok?' oder 'Was ist EC?'"
+  );
   const { mixedWater } = useWater();
-  const chatSuggestions = [
-    "Wie erstelle ich einen Dünger?",
-    "Ist mein N-Wert ok?",
-    "Was ist EC?"
-  ];
+  const chatSuggestions = ['Wie erstelle ich einen Dünger?', 'Ist mein N-Wert ok?', 'Was ist EC?'];
 
   // Refresh fertilizer database when custom fertilizers change
   const refreshFertilizerDatabase = () => {
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS);
     let customList = [];
-    try { if (stored) customList = JSON.parse(stored); } catch {}
+    try {
+      if (stored) customList = JSON.parse(stored);
+    } catch {}
     setFertilizerDatabase(mergeFertilizerDatabases(BASE_FERTILIZER_DATABASE, customList));
   };
 
@@ -111,20 +146,23 @@ const AppLayout = () => {
     setAiLoading(true);
     setAiMessage('Denke nach...');
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-          generationConfig: { temperature: 0.6, maxOutputTokens: 150 },
-          safetySettings: [
-            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' }
-          ]
-        })
-      });
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+            generationConfig: { temperature: 0.6, maxOutputTokens: 150 },
+            safetySettings: [
+              { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+              { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+              { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+              { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+            ],
+          }),
+        }
+      );
       if (!response.ok) {
         const errorData = await response.json();
         const errorMsg = errorData.error?.message || `API Fehler: ${response.status}`;
@@ -164,12 +202,29 @@ const AppLayout = () => {
           displayMessage={aiMessage}
           suggestions={chatSuggestions}
         />
-        {activeTab === TABS_CONFIG[0].id && <SetupTab NUTRIENT_FIELDS={NUTRIENT_FIELDS} GROWTH_STAGES={GROWTH_STAGES} WATER_TYPES={WATER_TYPES} fertilizerDatabase={fertilizerDatabase} onAnalysisUpdate={setAnalysisInputs} mixedWater={mixedWater} />}
+        {activeTab === TABS_CONFIG[0].id && (
+          <SetupTab
+            NUTRIENT_FIELDS={NUTRIENT_FIELDS}
+            GROWTH_STAGES={GROWTH_STAGES}
+            WATER_TYPES={WATER_TYPES}
+            fertilizerDatabase={fertilizerDatabase}
+            onAnalysisUpdate={setAnalysisInputs}
+            mixedWater={mixedWater}
+          />
+        )}
         {activeTab === TABS_CONFIG[1].id && <DetailsTab results={analysisInputs.results} />}
         {activeTab === TABS_CONFIG[2].id && <AnalysisTab {...analysisInputs} />}
-        {activeTab === TABS_CONFIG[3].id && <FertilizerTab refreshFertilizerDatabase={refreshFertilizerDatabase} />}
+        {activeTab === TABS_CONFIG[3].id && (
+          <FertilizerTab refreshFertilizerDatabase={refreshFertilizerDatabase} />
+        )}
         {activeTab === TAB_SETTINGS && <SettingsPage />}
-        {activeTab === TAB_MIXING_ASSISTANT && <MixingAssistant fertilizerDatabase={fertilizerDatabase} GROWTH_STAGES={GROWTH_STAGES} WATER_TYPES={WATER_TYPES} />}
+        {activeTab === TAB_MIXING_ASSISTANT && (
+          <MixingAssistant
+            fertilizerDatabase={fertilizerDatabase}
+            GROWTH_STAGES={GROWTH_STAGES}
+            WATER_TYPES={WATER_TYPES}
+          />
+        )}
         {activeTab === TAB_WATERING_SCHEDULER && <WateringScheduler />}
         {activeTab === TABS_CONFIG[TABS_CONFIG.length - 1].id && <ReferencesTab />}
       </main>
@@ -187,4 +242,4 @@ const App = () => (
   </ThemeProvider>
 );
 
-export default App; 
+export default App;

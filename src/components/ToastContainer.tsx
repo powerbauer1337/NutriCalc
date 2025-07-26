@@ -1,7 +1,3 @@
-
-
-
-
 import React from 'react';
 import ToastMessage from './ToastMessage';
 
@@ -26,6 +22,3 @@ const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, removeToast }) 
 );
 
 export default ToastContainer;
-
-
-

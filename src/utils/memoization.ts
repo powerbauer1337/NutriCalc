@@ -1,5 +1,3 @@
-
-
 import { useMemo, useCallback } from 'react';
 
 type AnyFunction = (...args: any[]) => any;
@@ -39,15 +37,14 @@ export const createMemoizedSelector = <T extends AnyFunction, U extends AnyFunct
   let lastResult: ReturnType<U> | null = null;
 
   return (...args: Parameters<T>): ReturnType<U> => {
-    const currentArgs = selectors.map(selector => selector(...args));
-    
+    const currentArgs = selectors.map((selector) => selector(...args));
+
     if (lastArgs && currentArgs.every((arg, index) => arg === lastArgs[index])) {
       return lastResult!;
     }
-    
+
     lastArgs = currentArgs;
     lastResult = compute(...currentArgs);
     return lastResult;
   };
 };
-

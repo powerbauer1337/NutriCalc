@@ -24,6 +24,6 @@ export const useApiKey = () => {
   return {
     apiKey,
     updateApiKey,
-    removeApiKey
+    removeApiKey,
   };
-}; 
+};

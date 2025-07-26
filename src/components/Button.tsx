@@ -1,9 +1,3 @@
-
-
-
-
-
-
 import React from 'react';
 
 interface ButtonProps {
@@ -19,7 +13,8 @@ interface ButtonProps {
 
 const VARIANTS = {
   primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-  secondary: 'bg-slate-100 hover:bg-slate-200 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100',
+  secondary:
+    'bg-slate-100 hover:bg-slate-200 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100',
   danger: 'bg-red-600 hover:bg-red-700 text-white',
 };
 
@@ -40,15 +35,9 @@ const Button: React.FC<ButtonProps> = ({
     aria-busy={loading}
     {...rest}
   >
-    {loading && (
-      <span className="loader loader-gray mr-2" aria-hidden="true" />
-    )}
+    {loading && <span className="loader loader-gray mr-2" aria-hidden="true" />}
     {children}
   </button>
 );
 
 export default Button;
-
-
-
-
