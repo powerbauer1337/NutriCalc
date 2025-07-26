@@ -9,6 +9,8 @@ interface ButtonProps {
   className?: string;
   type?: 'button' | 'submit' | 'reset';
   onClick?: () => void;
+  'aria-label'?: string;
+  title?: string;
 }
 
 const VARIANTS = {
