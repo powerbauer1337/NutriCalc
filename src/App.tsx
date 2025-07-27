@@ -11,6 +11,8 @@ import ReferencesTab from './components/ReferencesTab';
 import SettingsPage from './components/SettingsPage';
 import Navigation from './components/Navigation';
 import ErrorBoundary from './components/ErrorBoundary';
+import AIAssistantIntegration, { AIAssistantTab } from './components/AIAssistant';
+import { trackCustomEvent } from './utils/performance';
 import {
   NUTRIENT_FIELDS,
   GROWTH_STAGES,
@@ -21,6 +23,7 @@ import {
   TAB_MIXING_ASSISTANT,
   TAB_WATERING_SCHEDULER,
   TAB_SETTINGS,
+  TAB_AI_ASSISTANT,
 } from './constants';
 import { useApiKey } from './hooks/useApiKey';
 import MixingAssistant from './components/MixingAssistant';
@@ -86,6 +89,12 @@ function mergeFertilizerDatabases(
 
 const AppLayout = () => {
   const [activeTab, setActiveTab] = useState(TABS_CONFIG[0].id);
+
+  // Enhanced tab switching with performance tracking
+  const handleTabChange = (tabId: string) => {
+    trackCustomEvent('tab_switch', { from: activeTab, to: tabId });
+    setActiveTab(tabId);
+  };
   const [fertilizerDatabase, setFertilizerDatabase] = useState(() => {
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS);
     let customList = [];
@@ -124,6 +133,34 @@ const AppLayout = () => {
   // Stabilize the onAnalysisUpdate callback to prevent hot reload loops
   const handleAnalysisUpdate = React.useCallback((data: Record<string, unknown>) => {
     setAnalysisInputs(data);
+  }, []);
+
+  // Handle AI-recommended nutrient adjustments
+  const handleNutrientAdjustment = React.useCallback((adjustments: Record<string, number>) => {
+    setAnalysisInputs(prev => ({
+      ...prev,
+      results: {
+        ...prev.results,
+        nutrients: {
+          ...prev.results.nutrients,
+          ...adjustments
+        }
+      }
+    }));
+
+    addToast('AI-Empfehlungen angewendet', 'success');
+    trackCustomEvent('ai_recommendation_applied', { adjustments });
+  }, [addToast]);
+
+  // Handle AI recommendation applications
+  const handleRecommendationApplied = React.useCallback((recommendation: {
+    type: string;
+    priority: string;
+  }) => {
+    trackCustomEvent('ai_recommendation_applied', {
+      type: recommendation.type,
+      priority: recommendation.priority
+    });
   }, []);
 
   // Refresh fertilizer database when custom fertilizers change
@@ -251,7 +288,7 @@ const AppLayout = () => {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-stone-50 transition-colors duration-300">
-        <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+        <Navigation activeTab={activeTab} setActiveTab={handleTabChange} />
 
         {/* Header with AI Chat */}
         <header className="md:ml-64 bg-white/80 backdrop-blur-sm border-b border-stone-200 sticky top-0 z-40">
@@ -298,6 +335,23 @@ const AppLayout = () => {
             {activeTab === TABS_CONFIG[3].id && (
               <FertilizerTab refreshFertilizerDatabase={refreshFertilizerDatabase} />
             )}
+            {activeTab === TAB_AI_ASSISTANT && (
+              <AIAssistantTab
+                context={{
+                  nutrients: analysisInputs.results.nutrients || {},
+                  growthStage: analysisInputs.growthStage,
+                  waterType: analysisInputs.waterType,
+                  waterVolume: analysisInputs.waterVolume,
+                  selectedFertilizers: analysisInputs.selectedFertilizers,
+                  userLevel: 'intermediate',
+                  language: 'de',
+                  environmentalData: {
+                    ph: analysisInputs.results.nutrients?.ph,
+                    ec: analysisInputs.results.nutrients?.ec,
+                  }
+                }}
+              />
+            )}
             {activeTab === TAB_SETTINGS && <SettingsPage />}
             {activeTab === TAB_MIXING_ASSISTANT && (
               <MixingAssistant
@@ -311,6 +365,27 @@ const AppLayout = () => {
             </ErrorBoundary>
           </div>
         </main>
+
+        {/* AI Assistant Integration - Show floating widget on all tabs except settings */}
+        {activeTab !== TAB_SETTINGS && (
+          <AIAssistantIntegration
+            nutrients={analysisInputs.results.nutrients || {}}
+            growthStage={analysisInputs.growthStage}
+            waterType={analysisInputs.waterType}
+            waterVolume={analysisInputs.waterVolume}
+            selectedFertilizers={analysisInputs.selectedFertilizers}
+            userLevel="intermediate"
+            language="de"
+            environmentalData={{
+              ph: analysisInputs.results.nutrients?.ph,
+              ec: analysisInputs.results.nutrients?.ec,
+            }}
+            showFloatingWidget={true}
+            enableProactiveAlerts={true}
+            onNutrientAdjustment={handleNutrientAdjustment}
+            onRecommendationApplied={handleRecommendationApplied}
+          />
+        )}
       </div>
     </ErrorBoundary>
   );

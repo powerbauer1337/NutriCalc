@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/NutriCalc/',
+  base: process.env.NODE_ENV === 'production' ? '/NutriCalc/' : '/',
   plugins: [],
   esbuild: {
     jsx: 'automatic'
@@ -13,6 +13,18 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          utils: ['clsx', 'class-variance-authority']
+        }
+      }
+    }
+  },
+  preview: {
+    port: 3003,
+    host: '0.0.0.0'
   }
 });

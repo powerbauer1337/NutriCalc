@@ -4,6 +4,7 @@ import useAppSettings from '../hooks/useAppSettings';
 import { GROWTH_STAGES, WATER_TYPES } from '../constants/index.js';
 import { useTheme } from '../contexts/ThemeContext';
 import Button from './Button';
+import AISettings from './AIAssistant/AISettings';
 
 const SettingsPage = () => {
   const { apiKey, updateApiKey, removeApiKey } = useApiKey();
@@ -157,6 +158,19 @@ const SettingsPage = () => {
         <span className="text-xs text-slate-500">
           Aktuell: {theme === 'dark' ? 'Dunkel' : 'Hell'}
         </span>
+      </div>
+
+      {/* AI Assistant Settings */}
+      <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
+        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4">
+          AI-Assistent
+        </h3>
+        <AISettings
+          language="de"
+          onSettingsChange={(_settings) => {
+            // AI settings updated - could be used for analytics
+          }}
+        />
       </div>
     </div>
   );
