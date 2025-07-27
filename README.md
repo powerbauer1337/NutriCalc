@@ -30,11 +30,16 @@ Ein fortschrittlicher Nährstoffrechner für Pflanzen (insbesondere Cannabis), e
     *   Verwalten Sie Ihren Google Gemini API Key, passen Sie Maßeinheiten an (z.B. Liter vs. Gallonen) und konfigurieren Sie Standardwerte für Wassermenge, Wachstumsphase und Wassertyp.
 *   **Referenzen:**
     *   Ein dedizierter Tab mit häufig gestellten Fragen (FAQ), Links zu wissenschaftlichen Studien und Erklärungen relevanter Fachbegriffe rund um Pflanzennährstoffe und Düngung.
-*   **KI-Helfer (Chatbar):**
-    *   Eine Chatleiste oberhalb der Tabs bietet direkten Zugriff auf einen KI-Assistenten (Google Gemini 1.5 Flash).
-    *   Der KI-Helfer kann Fragen zur Bedienung des Rechners, zu Nährstoffen, Pflanzenproblemen etc. beantworten.
-    *   **Kontextbezogene Antworten:** Der KI werden die aktuellen Rechnerdaten (Wassermenge, Phase, ausgewählte Dünger, Ergebnisse etc.) mit jeder Anfrage übermittelt, um relevantere Antworten zu ermöglichen.
-    *   Bietet Vorschläge für häufige Fragen.
+*   **🤖 AI-Powered Cultivation Assistant:**
+    *   **Intelligenter Anbau-Assistent:** Umfassende KI-gestützte Beratung für Cannabis-Anbau mit Unterstützung für Google Gemini, OpenAI GPT-4 und Anthropic Claude.
+    *   **Kontextbezogene Analyse:** Analysiert aktuelle Nährstoffwerte, Wachstumsphase und Umgebungsbedingungen für präzise Empfehlungen.
+    *   **Floating Chat Widget:** Immer verfügbarer Chat-Button mit Statusanzeigen für Warnungen und neue Nachrichten.
+    *   **Dedizierter AI-Tab:** Vollständige Assistenten-Oberfläche mit kategorisierter Beratung und häufigen Fragen.
+    *   **Proaktive Warnungen:** Automatische Benachrichtigungen bei kritischen Problemen oder Optimierungsmöglichkeiten.
+    *   **Problemdiagnose:** KI-gestützte Fehlerbehebung für Nährstoffmängel, pH-Probleme und Umgebungsstress.
+    *   **Mehrsprachig:** Vollständige Unterstützung für Deutsch und Englisch.
+    *   **Datenschutz:** Alle Daten werden lokal gespeichert, DSGVO-konform mit vollständiger Benutzerkontrolle.
+    *   **Mobile-optimiert:** Responsive Design für alle Geräte mit Touch-optimierten Bedienelementen.
 *   **Import/Export von Rezepten:**
     *   Speichern und Laden kompletter Düngerezepte (inkl. Einstellungen, ausgewählter Dünger und eigener Düngerdefinitionen) im JSON-Format.
 *   **Dark Mode:**
@@ -43,6 +48,11 @@ Ein fortschrittlicher Nährstoffrechner für Pflanzen (insbesondere Cannabis), e
     *   Angepasst für die Nutzung auf verschiedenen Bildschirmgrößen.
 *   **Benachrichtigungssystem:**
     *   Toast-Benachrichtigungen für wichtige Aktionen (Speichern, Fehler etc.).
+
+## 📚 Dokumentation
+
+*   **[AI Assistant Vollständige Anleitung](README_AI_ASSISTANT.md)** - Detaillierte Dokumentation für den AI-Anbau-Assistenten
+*   **[AI Assistant Integration Guide](docs/AI_ASSISTANT_INTEGRATION.md)** - Technische Dokumentation für Entwickler
 
 ## Technologie-Stack
 

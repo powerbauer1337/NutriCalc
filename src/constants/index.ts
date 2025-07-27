@@ -8,6 +8,7 @@ export const TAB_BASIC = 'basic';
 export const TAB_ADVANCED = 'advanced';
 export const TAB_ANALYSIS = 'analysis';
 export const TAB_CUSTOM_FERTILIZER = 'customFertilizer';
+export const TAB_AI_ASSISTANT = 'ai-assistant';
 export const TAB_SETTINGS = 'settings';
 export const TAB_REFERENCES = 'references';
 export const TAB_MIXING_ASSISTANT = 'mixingassistant';
@@ -19,6 +20,7 @@ export const TABS_CONFIG = [
   { id: TAB_ADVANCED, label: 'Details' },
   { id: TAB_ANALYSIS, label: 'Analyse' },
   { id: TAB_CUSTOM_FERTILIZER, label: 'Dünger' },
+  { id: TAB_AI_ASSISTANT, label: 'AI-Assistent' },
   { id: TAB_SETTINGS, label: 'Einstellungen' },
   { id: TAB_MIXING_ASSISTANT, label: 'Misch-Assistent' },
   { id: TAB_WATERING_SCHEDULER, label: 'Gießplaner' },
