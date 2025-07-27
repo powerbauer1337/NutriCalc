@@ -6,6 +6,7 @@ export function useLocalStorage(key: string, initialValue: unknown) {
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
+      console.warn('Failed to read from localStorage:', error);
       // Silently fall back to initial value on localStorage error
       return initialValue;
     }
@@ -17,6 +18,7 @@ export function useLocalStorage(key: string, initialValue: unknown) {
       setStoredValue(valueToStore);
       window.localStorage.setItem(key, JSON.stringify(valueToStore));
     } catch (error) {
+      console.warn('Failed to save to localStorage:', error);
       // Silently handle localStorage save errors
     }
   };
@@ -30,6 +32,7 @@ export function useSessionStorage(key: string, initialValue: unknown) {
       const item = window.sessionStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
+      console.warn('Failed to read from sessionStorage:', error);
       // Silently fall back to initial value on sessionStorage error
       return initialValue;
     }
@@ -41,6 +44,7 @@ export function useSessionStorage(key: string, initialValue: unknown) {
       setStoredValue(valueToStore);
       window.sessionStorage.setItem(key, JSON.stringify(valueToStore));
     } catch (error) {
+      console.warn('Failed to save to sessionStorage:', error);
       // Silently handle sessionStorage save errors
     }
   };

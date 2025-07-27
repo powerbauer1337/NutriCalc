@@ -7,9 +7,9 @@ interface Setup {
   waterAmount: number;
   waterType: string;
   growthStage: string;
-  selectedFertilizers: any[];
-  customWaterProfile: any;
-  mixedWater?: any;
+  selectedFertilizers: Array<{ id: string; amount: number; active: boolean }>;
+  customWaterProfile: Record<string, number>;
+  mixedWater?: Record<string, number>;
   createdAt: string;
   updatedAt: string;
 }
@@ -18,7 +18,7 @@ interface CustomFertilizer {
   id: string;
   name: string;
   npk: { n: number; p: number; k: number };
-  elements: any;
+  elements: Record<string, number>;
   createdAt: string;
   updatedAt?: string;
 }
@@ -27,8 +27,8 @@ interface MixingHistory {
   id: string;
   name: string;
   waterAmount: number;
-  fertilizers: any[];
-  result: any;
+  fertilizers: Array<{ id: string; amount: number; active: boolean }>;
+  result: Record<string, unknown>;
   createdAt: string;
 }
 
@@ -48,9 +48,9 @@ interface CurrentSetup {
   waterAmount: number;
   waterType: string;
   growthStage: string;
-  selectedFertilizers: any[];
-  customWaterProfile: any;
-  mixedWater?: any;
+  selectedFertilizers: Array<{ id: string; amount: number; active: boolean }>;
+  customWaterProfile: Record<string, number>;
+  mixedWater?: Record<string, number>;
 }
 
 interface DataPersistenceContextType {

@@ -8,7 +8,7 @@ interface NutrientField {
 
 interface GrowthStage {
   name: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface WaterType {
@@ -16,15 +16,15 @@ interface WaterType {
 }
 
 interface FertilizerDatabase {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface SelectedFertilizer {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface CustomWaterProfile {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface Results {
@@ -49,13 +49,13 @@ interface AnalysisTabProps {
 const AnalysisTab: React.FC<AnalysisTabProps> = ({
   NUTRIENT_FIELDS,
   GROWTH_STAGES,
-  WATER_TYPES,
-  fertilizerDatabase,
-  selectedFertilizers,
-  waterVolume,
+  _WATER_TYPES,
+  _fertilizerDatabase,
+  _selectedFertilizers,
+  _waterVolume,
   growthStage,
-  waterType,
-  customWaterProfile,
+  _waterType,
+  _customWaterProfile,
   results,
 }) => {
   // Determine optimal ranges for the current growth stage

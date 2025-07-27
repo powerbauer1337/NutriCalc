@@ -22,7 +22,9 @@ const WateringScheduler = () => {
     if (stored) {
       try {
         setEvents(JSON.parse(stored));
-      } catch {}
+      } catch (error) {
+        console.warn('Failed to parse watering events from localStorage:', error);
+      }
     }
   }, []);
 

@@ -34,6 +34,13 @@ export default [
         HTMLInputElement: 'readonly',
         HTMLSelectElement: 'readonly',
         React: 'readonly',
+        AbortController: 'readonly',
+        process: 'readonly',
+        btoa: 'readonly',
+        atob: 'readonly',
+        NodeJS: 'readonly',
+        vi: 'readonly',
+        global: 'readonly',
       },
     },
     plugins: {

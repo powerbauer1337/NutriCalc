@@ -20,6 +20,7 @@ const useAppSettings = () => {
             waterType: '',
           };
     } catch (error) {
+      console.warn('Failed to parse app settings from localStorage:', error);
       // Silently fall back to defaults if localStorage parsing fails
       return {
         unit: 'liter',
@@ -34,6 +35,7 @@ const useAppSettings = () => {
     try {
       localStorage.setItem('appSettings', JSON.stringify(settings));
     } catch (error) {
+      console.warn('Failed to save app settings to localStorage:', error);
       // Silently handle localStorage save errors
     }
   }, [settings]);

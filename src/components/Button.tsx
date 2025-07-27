@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 interface ButtonProps {
   children: React.ReactNode;
@@ -19,7 +19,7 @@ const VARIANTS = {
   danger: 'btn-danger',
 };
 
-const Button: React.FC<ButtonProps> = ({
+const Button: React.FC<ButtonProps> = memo(({
   children,
   variant = 'primary',
   fullWidth = false,
@@ -40,5 +40,6 @@ const Button: React.FC<ButtonProps> = ({
     {children}
   </button>
 );
+});
 
 export default Button;

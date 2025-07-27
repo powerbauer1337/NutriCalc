@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { calculateNutrientResults } from '../utils/calculateNutrients';
-import { useToasts } from '../contexts/ToastContext';
 import FertilizerManager from './FertilizerManager';
 import WaterInput from './WaterInput';
+import BasicSetupControls from './BasicSetupControls';
+import NutrientResults from './NutrientResults';
+import ImportExportControls from './ImportExportControls';
 import { GROWTH_STAGES, WATER_TYPES, NUTRIENT_FIELDS } from '../constants';
 import useAppSettings from '../hooks/useAppSettings';
-import { useDebounce } from '../hooks/useDebounce';
-import Button from './Button';
-import { Fertilizer, GrowthStage, WaterType, NutrientCalculation } from '../types';
+import { Fertilizer } from '../types';
 
 const initialCustomWaterProfile = {
   ca: 0,
@@ -25,20 +25,54 @@ const defaultFertilizerSelection = [
   // Example: { id: 'hesi_tnt', amount: 3.0, active: true },
 ];
 
+// Memoized to prevent unnecessary re-renders
 const mainNutrients = [
   { key: 'n', label: 'N (Stickstoff)', unit: 'ppm' },
   { key: 'p', label: 'P (Phosphor)', unit: 'ppm' },
   { key: 'k', label: 'K (Kalium)', unit: 'ppm' },
   { key: 'ec', label: 'EC', unit: 'mS/cm' },
-];
+] as const;
+
+interface AnalysisData {
+  NUTRIENT_FIELDS: typeof NUTRIENT_FIELDS;
+  GROWTH_STAGES: typeof GROWTH_STAGES;
+  WATER_TYPES: typeof WATER_TYPES;
+  fertilizerDatabase: Record<string, Fertilizer>;
+  selectedFertilizers: Array<{ id: string; amount: number; active: boolean }>;
+  waterVolume: number;
+  growthStage: string;
+  waterType: string;
+  customWaterProfile: Record<string, number>;
+  results: {
+    nutrients: Record<string, number>;
+    contributions: Record<string, unknown>;
+    stage: unknown;
+  };
+  mixedWater?: Record<string, number>;
+}
+
+interface MixedWater {
+  totalVolume: number;
+  ph: number;
+  ec: number;
+  ca: number;
+  mg: number;
+  s: number;
+  fe: number;
+  mn: number;
+  zn: number;
+  cu: number;
+  b: number;
+  mo: number;
+}
 
 interface SetupTabProps {
   NUTRIENT_FIELDS: typeof NUTRIENT_FIELDS;
   GROWTH_STAGES: typeof GROWTH_STAGES;
   WATER_TYPES: typeof WATER_TYPES;
   fertilizerDatabase: Record<string, Fertilizer>;
-  onAnalysisUpdate?: (data: any) => void;
-  mixedWater?: any;
+  onAnalysisUpdate?: (data: AnalysisData) => void;
+  mixedWater?: MixedWater;
 }
 
 export const SetupTab: React.FC<SetupTabProps> = ({
@@ -66,10 +100,13 @@ export const SetupTab: React.FC<SetupTabProps> = ({
     Array<{ id: string; amount: number; active: boolean }>
   >(defaultFertilizerSelection);
 
-  const initialNutrientResults = {};
-  mainNutrients.forEach((field) => {
-    initialNutrientResults[field.key] = 0;
-  });
+  const initialNutrientResults = useMemo(() => {
+    const results: Record<string, number> = {};
+    mainNutrients.forEach((field) => {
+      results[field.key] = 0;
+    });
+    return results;
+  }, []);
 
   const [results, setResults] = useState({
     nutrients: initialNutrientResults,
@@ -130,96 +167,44 @@ export const SetupTab: React.FC<SetupTabProps> = ({
   }, [fertilizerDatabase]);
 
   // Fertilizer handlers
-  const addFertilizer = (id) => {
+  const addFertilizer = useCallback((id: string) => {
     if (!id || selectedFertilizers.find((f) => f.id === id)) return;
     const fert = fertilizerDatabase[id];
     setSelectedFertilizers((prev) => [
       ...prev,
       { id, amount: fert?.type === 'powder' ? 0.1 : 1.0, active: true },
     ]);
-  };
-  const removeFertilizer = (id) => {
+  }, [selectedFertilizers, fertilizerDatabase]);
+  const removeFertilizer = useCallback((id: string) => {
     setSelectedFertilizers((prev) => prev.filter((f) => f.id !== id));
-  };
-  const updateFertilizerAmount = (id, value) => {
+  }, []);
+  const updateFertilizerAmount = useCallback((id: string, value: string) => {
     const amount = parseFloat(value);
     setSelectedFertilizers((prev) =>
       prev.map((f) =>
         f.id === id ? { ...f, amount: isNaN(amount) || amount < 0 ? 0 : amount } : f
       )
     );
-  };
-  const toggleFertilizer = (id) => {
+  }, []);
+  const toggleFertilizer = useCallback((id: string) => {
     setSelectedFertilizers((prev) =>
       prev.map((f) => (f.id === id ? { ...f, active: !f.active } : f))
     );
-  };
+  }, []);
 
-  // Export/Import logic
-  const handleExport = () => {
-    try {
-      const customFertilizers = JSON.parse(
-        localStorage.getItem('nutricalc_custom_fertilizers') || '[]'
-      );
-      const data = {
-        selectedFertilizers,
-        waterVolume,
-        growthStage,
-        waterType,
-        customWaterProfile,
-        customFertilizers,
-      };
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'nutricalc-setup.json';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      addToast('Setup exportiert!', 'success');
-    } catch (e) {
-      addToast('Fehler beim Export!', 'error');
-    }
-  };
-
-  const handleImport = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      try {
-        const data = JSON.parse(evt.target.result);
-        if (!data || typeof data !== 'object') throw new Error();
-        setSelectedFertilizers(
-          Array.isArray(data.selectedFertilizers) ? data.selectedFertilizers : []
-        );
-        setWaterVolume(Number(data.waterVolume) || 10);
-        setGrowthStage(data.growthStage || Object.keys(GROWTH_STAGES)[0]);
-        setWaterType(data.waterType || Object.keys(WATER_TYPES)[0]);
-        setCustomWaterProfile(
-          typeof data.customWaterProfile === 'object'
-            ? data.customWaterProfile
-            : initialCustomWaterProfile
-        );
-        if (Array.isArray(data.customFertilizers)) {
-          localStorage.setItem(
-            'nutricalc_custom_fertilizers',
-            JSON.stringify(data.customFertilizers)
-          );
-          if (window.dispatchEvent) {
-            window.dispatchEvent(
-              new StorageEvent('storage', { key: 'nutricalc_custom_fertilizers' })
-            );
-          }
-        }
-        addToast('Setup importiert!', 'success');
-      } catch (e) {
-        addToast('Ungültige Datei!', 'error');
-      }
-    };
-    reader.readAsText(file);
+  // Import handler for the new component
+  const handleImportData = (importedData: {
+    waterVolume: number;
+    growthStage: string;
+    waterType: string;
+    selectedFertilizers: Array<{ id: string; amount: number; active: boolean }>;
+    customWaterProfile: Record<string, number>;
+  }) => {
+    setWaterVolume(importedData.waterVolume);
+    setGrowthStage(importedData.growthStage);
+    setWaterType(importedData.waterType);
+    setSelectedFertilizers(importedData.selectedFertilizers);
+    setCustomWaterProfile(importedData.customWaterProfile);
   };
 
   // Auto-Optimize logic
@@ -265,89 +250,29 @@ export const SetupTab: React.FC<SetupTabProps> = ({
       <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">Setup</h2>
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="waterVolume">
-              Wassermenge ({settings.unit === 'liter' ? 'Liter' : 'Gallonen'})
-            </label>
-            <input
-              id="waterVolume"
-              type="number"
-              min="0.1"
-              step="0.1"
-              value={waterVolume}
-              onChange={(e) => setWaterVolume(Math.max(0.1, Number(e.target.value)))}
-              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900"
-              placeholder="z.B. 10"
-              aria-label="Wassermenge"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="growthStage">
-              Wachstumsphase
-            </label>
-            <select
-              id="growthStage"
-              value={growthStage}
-              onChange={(e) => setGrowthStage(e.target.value)}
-              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900"
-              aria-label="Wachstumsphase"
-            >
-              {Object.entries(GROWTH_STAGES).map(([key, stage]) => (
-                <option key={key} value={key}>
-                  {stage.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="waterType">
-              Wassertyp
-            </label>
-            <select
-              id="waterType"
-              value={waterType}
-              onChange={(e) => setWaterType(e.target.value)}
-              className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900"
-              aria-label="Wassertyp"
-            >
-              {Object.entries(WATER_TYPES).map(([key, type]) => (
-                <option key={key} value={key}>
-                  {type.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          {waterType === 'custom' && (
-            <div className="mt-3">
-              <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
-                Eigenes Wasserprofil
-              </h3>
-              <div className="grid grid-cols-2 gap-2">
-                {Object.keys(initialCustomWaterProfile).map((key) => (
-                  <div key={key}>
-                    <label className="block text-xs font-medium mb-0.5" htmlFor={key}>
-                      {key.toUpperCase()}
-                    </label>
-                    <input
-                      type="number"
-                      name={key}
-                      value={customWaterProfile[key]}
-                      onChange={(e) =>
-                        setCustomWaterProfile((prev) => ({
-                          ...prev,
-                          [key]: parseFloat(e.target.value) || 0,
-                        }))
-                      }
-                      className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 bg-white text-gray-900 text-xs"
-                      min="0"
-                      step="0.01"
-                      aria-label={key.toUpperCase()}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          <BasicSetupControls
+            waterVolume={waterVolume}
+            growthStage={growthStage}
+            waterType={waterType}
+            customWaterProfile={customWaterProfile}
+            GROWTH_STAGES={GROWTH_STAGES}
+            WATER_TYPES={WATER_TYPES}
+            onWaterVolumeChange={setWaterVolume}
+            onGrowthStageChange={setGrowthStage}
+            onWaterTypeChange={setWaterType}
+            onCustomWaterProfileChange={setCustomWaterProfile}
+          />
+
+          <ImportExportControls
+            data={{
+              waterVolume,
+              growthStage,
+              waterType,
+              selectedFertilizers,
+              customWaterProfile,
+            }}
+            onImport={handleImportData}
+          />
         </div>
         <div>
           <WaterInput />
@@ -376,44 +301,8 @@ export const SetupTab: React.FC<SetupTabProps> = ({
           />
         </div>
       </div>
-      <div className="mt-6 p-4 bg-slate-100 dark:bg-slate-900 rounded-lg">
-        <h3 className="font-semibold mb-2 text-slate-800 dark:text-slate-100">
-          Berechnete Hauptwerte
-        </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {results &&
-            results.nutrients &&
-            mainNutrients.map((nutrient) => (
-              <div
-                key={nutrient.key}
-                className="flex flex-col items-center p-2 bg-white dark:bg-slate-800 rounded shadow text-center"
-              >
-                <span className="text-xs text-slate-500 dark:text-slate-400">{nutrient.label}</span>
-                <span className="text-lg font-bold text-blue-700 dark:text-blue-300">
-                  {results?.nutrients?.[nutrient.key] !== undefined &&
-                  results.nutrients?.[nutrient.key] !== null &&
-                  !isNaN(results.nutrients?.[nutrient.key])
-                    ? results.nutrients[nutrient.key].toFixed(2)
-                    : '0.00'}
-                  {''} {nutrient.unit}
-                </span>
-              </div>
-            ))}
-        </div>
-      </div>
+      <NutrientResults results={results} nutrientFields={mainNutrients} />
       <div className="flex gap-2 mb-4">
-        <Button
-          onClick={handleExport}
-          variant="primary"
-          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
-          aria-label="Exportieren"
-        >
-          Exportieren
-        </Button>
-        <label className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 focus-within:ring-2 focus-within:ring-green-500 text-xs cursor-pointer inline-flex items-center justify-center font-semibold transition-all duration-200">
-          Importieren
-          <input type="file" accept="application/json" onChange={handleImport} className="hidden" />
-        </label>
         <Button
           onClick={autoOptimize}
           variant="secondary"

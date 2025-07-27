@@ -29,12 +29,12 @@ export function useDebounce<T>(value: T, delay: number): T {
  * @param deps - Dependencies array for the callback
  * @returns The debounced callback function
  */
-export function useDebounceCallback<T extends (...args: any[]) => any>(
+export function useDebounceCallback<T extends (...args: unknown[]) => unknown>(
   callback: T,
   delay: number,
-  deps: React.DependencyList = []
+  _deps: React.DependencyList = []
 ): T {
-  const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
+  const [debounceTimer, setDebounceTimer] = useState<number | null>(null);
 
   const debouncedCallback = ((...args: Parameters<T>) => {
     if (debounceTimer) {
