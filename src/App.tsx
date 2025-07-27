@@ -11,6 +11,7 @@ import ReferencesTab from './components/ReferencesTab';
 import SettingsPage from './components/SettingsPage';
 import Navigation from './components/Navigation';
 import ErrorBoundary from './components/ErrorBoundary';
+import { performanceMonitor, trackCustomEvent } from './utils/performance';
 import {
   NUTRIENT_FIELDS,
   GROWTH_STAGES,
@@ -86,6 +87,12 @@ function mergeFertilizerDatabases(
 
 const AppLayout = () => {
   const [activeTab, setActiveTab] = useState(TABS_CONFIG[0].id);
+
+  // Enhanced tab switching with performance tracking
+  const handleTabChange = (tabId: string) => {
+    trackCustomEvent('tab_switch', { from: activeTab, to: tabId });
+    setActiveTab(tabId);
+  };
   const [fertilizerDatabase, setFertilizerDatabase] = useState(() => {
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY_CUSTOM_FERTILIZERS);
     let customList = [];
@@ -251,7 +258,7 @@ const AppLayout = () => {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-stone-50 transition-colors duration-300">
-        <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+        <Navigation activeTab={activeTab} setActiveTab={handleTabChange} />
 
         {/* Header with AI Chat */}
         <header className="md:ml-64 bg-white/80 backdrop-blur-sm border-b border-stone-200 sticky top-0 z-40">
