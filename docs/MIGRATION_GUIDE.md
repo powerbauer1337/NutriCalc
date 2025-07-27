@@ -1,354 +1,262 @@
-# Migration Guide: NutriCalc UI Redesign
+# NutriCalc Design System Migration Guide
 
 ## Overview
 
-This guide helps developers migrate from the old NutriCalc UI to the new modern design system. It covers breaking changes, new patterns, and step-by-step migration instructions.
+This document provides guidance for migrating existing components to the new design system standards. The migration is organized in phases to ensure backward compatibility and smooth transition.
 
-## Breaking Changes
+For a complete implementation plan, see [DESIGN_SYSTEM_PLAN.md](./DESIGN_SYSTEM_PLAN.md).
 
-### Button Component
+## Migration Phases
 
-#### Before (Old)
+See [Integration Strategy Diagram](./integration-strategy-diagram.md) for a visual representation of the migration phases.
+
+### Phase 1: Foundation Alignment
+
+#### Design Token Standardization
+1. Replace hardcoded color values with design system tokens
+2. Replace hardcoded spacing values with design system tokens
+3. Replace hardcoded typography values with design system tokens
+
+#### Component API Refactoring
+1. Update Button component to use CVA for variants
+2. Update Card component to use composition pattern
+3. Ensure all components follow consistent prop naming
+
+### Phase 2: Accessibility Improvements
+
+#### Focus Management
+1. Add focus trapping to modal components
+2. Implement consistent focus indicators
+3. Add keyboard navigation support to all interactive components
+
+#### Screen Reader Support
+1. Add ARIA attributes to all components
+2. Implement proper heading structure
+3. Add accessible labels for form elements
+
+### Phase 3: New Component Implementation
+
+#### Form Components
+1. Implement standardized form controls with validation
+2. Create error messaging components
+3. Add form layout components
+
+#### Feedback Components
+1. Implement modal/dialog components
+2. Add alert/notification components
+3. Create loading indicator variants
+
+### Phase 4: Responsive Design
+
+#### Component Responsiveness
+1. Ensure all components are mobile-friendly
+2. Implement responsive layout patterns
+3. Add touch-friendly interaction targets
+
+## Component-Specific Migration Guides
+
+### Button Component Migration
+
+#### Current Implementation
 ```tsx
-// Old button usage
-<button className="btn-primary">Click me</button>
-<button className="btn-secondary btn-sm">Small button</button>
+// Old Button usage
+<button className="px-4 py-2 bg-emerald-600 text-white rounded-lg">
+  Click me
+</button>
 ```
 
-#### After (New)
+#### New Implementation
 ```tsx
-// New button usage
-<Button variant="primary">Click me</Button>
-<Button variant="secondary" size="sm">Small button</Button>
+// New Button usage
+import Button from './components/Button';
+
+<Button variant="primary" size="md">
+  Click me
+</Button>
 ```
 
 #### Migration Steps
-1. Replace `<button>` elements with `<Button>` component
-2. Convert CSS classes to props:
-   - `btn-primary` → `variant="primary"`
-   - `btn-secondary` → `variant="secondary"`
-   - `btn-danger` → `variant="danger"`
-   - `btn-sm` → `size="sm"`
-   - `btn-lg` → `size="lg"`
+1. Replace direct className usage with variant props
+2. Add loading state support
+3. Add icon support
+4. Ensure proper accessibility attributes
 
-### Card Components
+### Card Component Migration
 
-#### Before (Old)
+#### Current Implementation
 ```tsx
-// Old card structure
-<div className="card">
-  <div className="card-header">
-    <h3>Title</h3>
-  </div>
-  <div className="card-body">
-    Content
-  </div>
+// Old Card usage
+<div className="bg-white rounded-lg shadow p-6">
+  <h3 className="text-lg font-semibold">Card Title</h3>
+  <p>Card content</p>
 </div>
 ```
 
-#### After (New)
+#### New Implementation
 ```tsx
-// New card structure
+// New Card usage
+import { Card, CardHeader, CardTitle, CardContent } from './components/Card';
+
 <Card variant="elevated">
   <CardHeader>
-    <CardTitle>Title</CardTitle>
+    <CardTitle>Card Title</CardTitle>
   </CardHeader>
   <CardContent>
-    Content
+    <p>Card content</p>
   </CardContent>
 </Card>
 ```
 
 #### Migration Steps
-1. Import card components: `import { Card, CardHeader, CardTitle, CardContent } from './components/Card'`
-2. Replace div elements with semantic card components
-3. Use `CardTitle` for headings instead of raw `<h3>` elements
+1. Break single card component into composition pattern
+2. Add variant support
+3. Add padding options
+4. Ensure proper semantic HTML structure
 
-### Navigation Component
+### Navigation Component Migration
 
-#### Before (Old)
+#### Current Implementation
 ```tsx
-// Old navigation
-<nav className="bg-white border-b">
-  <button className={activeTab === 'setup' ? 'active' : ''}>
-    Setup
-  </button>
+// Old Navigation usage
+<nav>
+  <button className="nav-item">Tab 1</button>
+  <button className="nav-item">Tab 2</button>
 </nav>
 ```
 
-#### After (New)
+#### New Implementation
 ```tsx
-// New navigation (handled internally)
-<Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+// New Navigation usage
+import Navigation from './components/Navigation';
+
+<Navigation 
+  activeTab={activeTab} 
+  setActiveTab={setActiveTab} 
+/>
 ```
 
 #### Migration Steps
-1. Remove custom navigation markup
-2. Use the new `Navigation` component
-3. Navigation automatically handles responsive behavior
+1. Add proper ARIA roles and attributes
+2. Implement keyboard navigation support
+3. Add responsive design patterns
+4. Ensure proper focus management
 
-### Color System
+### Toast Component Migration
 
-#### Before (Old)
-```css
-/* Old colors */
-.text-blue-600 { color: #2563eb; }
-.bg-gray-100 { background: #f3f4f6; }
+#### Current Implementation
+```tsx
+// Old Toast usage
+<div className="toast-success">
+  <span>Success message</span>
+  <button>×</button>
+</div>
 ```
 
-#### After (New)
-```css
-/* New colors */
-.text-emerald-600 { color: rgb(5 150 105); }
-.bg-stone-100 { background: rgb(245 245 244); }
+#### New Implementation
+```tsx
+// New Toast usage
+import { useToast } from './contexts/ToastContext';
+
+const { addToast } = useToast();
+addToast({ message: "Success message", type: "success" });
 ```
 
 #### Migration Steps
-1. Replace blue primary colors with emerald
-2. Replace gray neutrals with stone
-3. Use design system color tokens
+1. Consolidate toast components under unified API
+2. Add proper ARIA attributes
+3. Implement auto-dismissal with user control
+4. Ensure proper positioning
 
-## New Patterns
+## Backward Compatibility
 
-### Component Variants
+### Deprecation Strategy
+1. Maintain old component APIs with deprecation warnings
+2. Provide codemods for automated migration
+3. Document breaking changes
 
-#### Using Class Variance Authority
-```tsx
-// Define component variants
-const buttonVariants = cva(
-  'base-classes',
-  {
-    variants: {
-      variant: {
-        primary: 'primary-classes',
-        secondary: 'secondary-classes',
-      },
-      size: {
-        sm: 'small-classes',
-        lg: 'large-classes',
-      },
-    },
-  }
-);
+### Gradual Migration
+1. Allow both old and new components to coexist
+2. Provide migration guides for each component
+3. Update documentation to reference new components
 
-// Use in component
-<button className={cn(buttonVariants({ variant, size }))}>
-  Button
-</button>
-```
+## Testing During Migration
 
-### Class Name Utility
+### Unit Testing
+1. Ensure existing tests pass with new components
+2. Add tests for new component APIs
+3. Add accessibility tests
 
-#### Using cn() Function
-```tsx
-import { cn } from '../utils/cn';
+### Integration Testing
+1. Test component composition
+2. Test form integration
+3. Test state management
 
-// Merge classes with conflict resolution
-const className = cn(
-  'base-classes',
-  condition && 'conditional-classes',
-  props.className
-);
-```
+### Visual Regression Testing
+1. Create new snapshots for updated components
+2. Test responsive behavior
+3. Test dark mode compatibility
 
-### TypeScript Integration
+## Performance Considerations
 
-#### Proper Component Types
-```tsx
-// Component with proper TypeScript
-interface ComponentProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'elevated';
-  children: React.ReactNode;
-}
+### Bundle Size
+1. Monitor component bundle size impact
+2. Test tree-shaking effectiveness
+3. Optimize dependencies
 
-const Component = React.forwardRef<HTMLDivElement, ComponentProps>(
-  ({ variant = 'default', children, className, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn(componentVariants({ variant }), className)}
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  }
-);
-```
+### Rendering Performance
+1. Test component render times
+2. Test performance with large datasets
+3. Test memoization and optimization
 
-## Step-by-Step Migration
+## Common Migration Issues
 
-### 1. Install Dependencies
-```bash
-npm install clsx tailwind-merge class-variance-authority
-```
+### CSS Conflicts
+1. Resolve conflicts between old and new styling
+2. Update global CSS to support new components
+3. Remove deprecated CSS classes
 
-### 2. Update Imports
-```tsx
-// Old imports
-import './old-styles.css';
+### State Management
+1. Update state handling in components
+2. Ensure proper prop drilling or context usage
+3. Handle async state changes
 
-// New imports
-import { Button } from './components/Button';
-import { Card, CardHeader, CardTitle, CardContent } from './components/Card';
-import { cn } from './utils/cn';
-```
+### Event Handling
+1. Update event handler signatures
+2. Ensure proper event propagation
+3. Add new event handlers for enhanced functionality
 
-### 3. Update Component Usage
-
-#### Buttons
-```tsx
-// Before
-<button className="btn btn-primary">Save</button>
-<button className="btn btn-secondary btn-sm">Cancel</button>
-
-// After
-<Button variant="primary">Save</Button>
-<Button variant="secondary" size="sm">Cancel</Button>
-```
-
-#### Forms
-```tsx
-// Before
-<input className="input" />
-<select className="select" />
-
-// After
-<input className="w-full px-4 py-2.5 bg-white border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500" />
-<select className="w-full px-4 py-2.5 bg-white border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500" />
-```
-
-#### Layout
-```tsx
-// Before
-<div className="container">
-  <div className="card">
-    Content
-  </div>
-</div>
-
-// After
-<div className="max-w-6xl mx-auto px-6">
-  <Card variant="elevated">
-    <CardContent>
-      Content
-    </CardContent>
-  </Card>
-</div>
-```
-
-### 4. Update Styling
-
-#### Replace Old Classes
-```tsx
-// Before
-className="bg-blue-600 text-white hover:bg-blue-700"
-
-// After
-className="bg-emerald-600 text-white hover:bg-emerald-700"
-```
-
-#### Use Design Tokens
-```tsx
-// Before
-className="p-4 rounded-md shadow-md"
-
-// After
-className="p-6 rounded-lg shadow-sm"
-```
-
-### 5. Update Tests
-
-#### Button Tests
-```tsx
-// Before
-expect(button).toHaveClass('btn-primary');
-
-// After
-expect(button).toHaveClass('bg-emerald-600', 'text-white');
-```
-
-#### Component Tests
-```tsx
-// Before
-render(<Button className="custom-class">Test</Button>);
-
-// After
-render(<Button variant="primary" className="custom-class">Test</Button>);
-```
-
-## Common Issues & Solutions
-
-### Issue: Missing Styles
-**Problem**: Components don't have expected styling
-**Solution**: Ensure design-system.css is imported in your main CSS file
-
-### Issue: TypeScript Errors
-**Problem**: Type errors with new component props
-**Solution**: Update component prop types and imports
-
-### Issue: Class Conflicts
-**Problem**: Tailwind classes not applying correctly
-**Solution**: Use `cn()` utility for proper class merging
-
-### Issue: Responsive Behavior
-**Problem**: Components don't respond correctly on mobile
-**Solution**: Use new responsive navigation and layout patterns
-
-## Testing Migration
-
-### 1. Visual Testing
-- Compare before/after screenshots
-- Test all component variants
-- Verify responsive behavior
-
-### 2. Functional Testing
-- Ensure all interactions work
-- Test keyboard navigation
-- Verify accessibility features
-
-### 3. Performance Testing
-- Check bundle size impact
-- Measure loading performance
-- Test on various devices
-
-## Rollback Plan
-
-### If Issues Arise
-1. **Partial Rollback**: Revert specific components
-2. **Full Rollback**: Use git to revert to previous version
-3. **Gradual Migration**: Migrate components one at a time
-
-### Backup Strategy
-```bash
-# Create backup branch before migration
-git checkout -b backup-before-ui-redesign
-git push origin backup-before-ui-redesign
-
-# Continue with migration on main branch
-git checkout main
-```
-
-## Support & Resources
+## Support and Resources
 
 ### Documentation
-- [Design System](./DESIGN_SYSTEM.md)
-- [Component Library](./COMPONENTS.md)
-- [UI Redesign Overview](./UI_REDESIGN.md)
-
-### Code Examples
-- Check `src/components/` for implementation examples
-- Review test files for usage patterns
-- See `src/styles/design-system.css` for available tokens
+1. [DESIGN_SYSTEM_PLAN.md](./DESIGN_SYSTEM_PLAN.md) - Complete implementation plan
+2. [Component Structure Diagram](./component-structure-diagram.md) - Visual component organization
+3. [Component Hierarchy Diagram](./component-hierarchy-diagram.md) - Component hierarchy visualization
+4. [Integration Strategy Diagram](./integration-strategy-diagram.md) - Migration phases visualization
 
 ### Getting Help
-1. Check existing documentation
-2. Review component source code
-3. Look at test files for examples
-4. Create GitHub issue for specific problems
+1. Review existing component implementations
+2. Check TypeScript interfaces for API guidance
+3. Refer to component documentation
+4. Consult with the design team for UX questions
 
-## Conclusion
+## Timeline and Rollout
 
-The migration to the new UI system provides significant benefits in terms of maintainability, consistency, and user experience. While there are breaking changes, the migration process is straightforward and well-documented.
+### Phase 1: Foundation Alignment (2 weeks)
+- Design token standardization
+- Component API refactoring
 
-Take time to understand the new patterns and gradually migrate components to ensure a smooth transition.
+### Phase 2: Accessibility Improvements (2 weeks)
+- Focus management
+- Screen reader support
+
+### Phase 3: New Component Implementation (3 weeks)
+- Form components
+- Feedback components
+
+### Phase 4: Responsive Design (2 weeks)
+- Component responsiveness
+- Touch-friendly interactions
+
+### Total Estimated Time: 9 weeks
+
+This timeline allows for thorough testing and gradual rollout while maintaining backward compatibility.

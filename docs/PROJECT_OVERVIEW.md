@@ -22,6 +22,8 @@ NutriCalc is an advanced nutrient calculator for plants, especially designed for
 - **Accessibility**: WCAG 2.1 AA compliant with full keyboard navigation and screen reader support
 - **Component System**: Consistent, reusable UI components built with TypeScript and Tailwind CSS
 
+For detailed information about the component system, see [DESIGN_SYSTEM_SUMMARY.md](./DESIGN_SYSTEM_SUMMARY.md).
+
 ### AI Integration
 - **Gemini AI Assistant**: Intelligent recommendations and contextual help using Google's Gemini AI
 - **Smart Suggestions**: Interactive suggestion chips for common questions
@@ -54,6 +56,8 @@ The application follows a modular component-based architecture with:
 - **Feature Components**: SetupTab, AnalysisTab, FertilizerTab, MixingAssistant, WateringScheduler
 - **Context Providers**: Theme, Toast, Water, and Data Persistence contexts
 - **Custom Hooks**: useApiKey, useAppSettings, useLocalStorage, useDebounce
+
+For detailed information about the component architecture, see [COMPONENTS.md](./COMPONENTS.md).
 
 ### State Management
 - **React Context API**: For global state management (theme, toast messages, water data)
@@ -88,6 +92,8 @@ The application follows a modular component-based architecture with:
 - **Cards**: 4 variants (default, elevated, outlined, ghost)
 - **Navigation**: Responsive sidebar (desktop) and bottom navigation (mobile)
 
+For detailed information about the design system, see [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md).
+
 ## Quality Assurance
 
 ### Code Quality
@@ -101,11 +107,15 @@ The application follows a modular component-based architecture with:
 - **Integration Tests**: Testing component interactions
 - **End-to-End Tests**: Playwright tests for critical user flows
 
+For detailed information about testing strategies, see [DESIGN_SYSTEM_PLAN.md](./DESIGN_SYSTEM_PLAN.md).
+
 ### Accessibility
 - **WCAG 2.1 AA Compliance**: Proper color contrast and semantic HTML
 - **Keyboard Navigation**: Full keyboard accessibility for all controls
 - **Screen Reader Support**: Proper ARIA attributes and labels
 - **Focus Management**: Visible focus indicators for interactive elements
+
+For detailed accessibility considerations, see [DESIGN_SYSTEM_PLAN.md](./DESIGN_SYSTEM_PLAN.md).
 
 ## Performance Considerations
 
@@ -158,3 +168,5 @@ The application follows a modular component-based architecture with:
 2. Further bundle size optimizations
 3. Performance monitoring and analytics
 4. Additional accessibility improvements
+
+For detailed information about the implementation plan for future enhancements, see [DESIGN_SYSTEM_PLAN.md](./DESIGN_SYSTEM_PLAN.md).

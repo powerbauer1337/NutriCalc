@@ -4,9 +4,39 @@
 
 This document provides comprehensive documentation for all components in the NutriCalc design system. Each component is built with TypeScript, follows accessibility best practices, and uses the design system tokens.
 
-## Button Component
+For a detailed implementation plan and comprehensive component documentation, see [DESIGN_SYSTEM_PLAN.md](./DESIGN_SYSTEM_PLAN.md).
 
-### Usage
+## Component Categories
+
+The component library is organized into the following categories:
+
+1. **Foundational Components**
+2. **Layout Components**
+3. **Input Components**
+4. **Data Display Components**
+5. **Feedback Components**
+6. **Navigation Components**
+7. **Form Components**
+
+For a visual representation of the component structure, see [Component Structure Diagram](./component-structure-diagram.md).
+
+## Component Hierarchy
+
+Components are organized in a hierarchy from simple to complex:
+
+1. **Atomic Components** - Basic building blocks
+2. **Molecular Components** - Simple combinations
+3. **Organismic Components** - Complex components
+4. **Template Components** - Page-level compositions
+5. **Page Components** - Specific implementations
+
+For a visual representation of the component hierarchy, see [Component Hierarchy Diagram](./component-hierarchy-diagram.md).
+
+## Currently Implemented Components
+
+### Button Component
+
+#### Usage
 ```tsx
 import Button from './components/Button';
 
@@ -27,7 +57,7 @@ import Button from './components/Button';
 <Button loading>Loading...</Button>
 ```
 
-### Props
+#### Props
 ```tsx
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'ghost' | 'outline';
@@ -38,7 +68,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 ```
 
-### Variants
+#### Variants
 - **primary**: Main action button (emerald background)
 - **secondary**: Secondary action (white background, border)
 - **success**: Positive actions (green background)
@@ -47,15 +77,15 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 - **ghost**: Minimal styling (transparent background)
 - **outline**: Outlined button (transparent background, border)
 
-### Accessibility
+#### Accessibility
 - Proper focus indicators
 - Loading state with disabled interaction
 - ARIA attributes for screen readers
 - Keyboard navigation support
 
-## Card Component
+### Card Component
 
-### Usage
+#### Usage
 ```tsx
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './components/Card';
 
@@ -73,7 +103,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './componen
 </Card>
 ```
 
-### Card Props
+#### Card Props
 ```tsx
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'elevated' | 'outlined' | 'ghost';
@@ -81,28 +111,28 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 ```
 
-### Variants
+#### Variants
 - **default**: Standard card with subtle shadow
 - **elevated**: Enhanced shadow for prominence
 - **outlined**: Border-only styling
 - **ghost**: No background or border
 
-### Sub-components
+#### Sub-components
 - **CardHeader**: Top section with background
 - **CardTitle**: Main heading (h3)
 - **CardDescription**: Subtitle text
 - **CardContent**: Main content area
 - **CardFooter**: Bottom section with background
 
-## Navigation Component
+### Navigation Component
 
-### Features
+#### Features
 - **Responsive Design**: Sidebar on desktop, bottom nav on mobile
 - **Keyboard Navigation**: Arrow keys, Home, End support
 - **Accessibility**: Proper ARIA roles and labels
 - **Modern Styling**: Backdrop blur, smooth transitions
 
-### Usage
+#### Usage
 ```tsx
 import Navigation from './components/Navigation';
 
@@ -112,21 +142,21 @@ import Navigation from './components/Navigation';
 />
 ```
 
-### Styling
+#### Styling
 - Desktop: Fixed sidebar with 64 width units
 - Mobile: Fixed bottom navigation
 - Active states with emerald accent colors
 - Smooth hover and focus transitions
 
-## ChatBar Component
+### ChatBar Component
 
-### Features
+#### Features
 - **AI Integration**: Beautiful AI avatar and responses
 - **Loading States**: Animated spinner during processing
 - **Suggestions**: Interactive suggestion chips
 - **Modern Input**: Rounded input with emerald focus
 
-### Usage
+#### Usage
 ```tsx
 import ChatBar from './components/ChatBar';
 
@@ -139,7 +169,7 @@ import ChatBar from './components/ChatBar';
 />
 ```
 
-### Props
+#### Props
 ```tsx
 interface ChatBarProps {
   apiKey: boolean;
@@ -189,6 +219,8 @@ const className = cn(
 
 ## Migration Guide
 
+For detailed migration guides for each component, see [DESIGN_SYSTEM_PLAN.md](./DESIGN_SYSTEM_PLAN.md).
+
 ### From Old Components
 1. **Update Imports**: Change to new component paths
 2. **Props Changes**: Update prop names and types
@@ -214,3 +246,5 @@ const className = cn(
 - Card: ~1.5KB gzipped
 - Navigation: ~3KB gzipped
 - Total component library: ~15KB gzipped
+
+For detailed performance considerations and testing strategies, see [DESIGN_SYSTEM_PLAN.md](./DESIGN_SYSTEM_PLAN.md).

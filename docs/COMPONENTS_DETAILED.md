@@ -1,8 +1,30 @@
+
 # NutriCalc Component Library - Detailed Documentation
 
 ## Overview
 
 This document provides comprehensive documentation for all components in the NutriCalc design system. Each component is built with TypeScript, follows accessibility best practices, and uses the design system tokens.
+
+For a detailed implementation plan and comprehensive component documentation, see [DESIGN_SYSTEM_PLAN.md](./DESIGN_SYSTEM_PLAN.md).
+
+Component Categories:
+1. **Foundational Components**
+2. **Layout Components**
+3. **Input Components**
+4. **Data Display Components**
+5. **Feedback Components**
+6. **Navigation Components**
+7. **Form Components**
+
+Component Hierarchy:
+1. **Atomic Components** - Basic building blocks
+2. **Molecular Components** - Simple combinations
+3. **Organismic Components** - Complex components
+4. **Template Components** - Page-level compositions
+5. **Page Components** - Specific implementations
+
+For a visual representation of the component structure, see [Component Structure Diagram](./component-structure-diagram.md).
+For a visual representation of the component hierarchy, see [Component Hierarchy Diagram](./component-hierarchy-diagram.md).
 
 ## 1. Button Component
 

@@ -1,10 +1,10 @@
 import { useMemo, useCallback } from 'react';
 
-type AnyFunction = (...args: unknown[]) => unknown;
+type GenericFunction<Args extends unknown[], Return> = (...args: Args) => Return;
 
-export const memoize = <T extends AnyFunction>(fn: T): T => {
-  const cache = new Map<string, ReturnType<T>>();
-  return ((...args: Parameters<T>): ReturnType<T> => {
+export const memoize = <Args extends unknown[], Return>(fn: GenericFunction<Args, Return>): GenericFunction<Args, Return> => {
+  const cache = new Map<string, Return>();
+  return ((...args: Args): Return => {
     const key = JSON.stringify(args);
     if (cache.has(key)) {
       return cache.get(key)!;
@@ -12,7 +12,7 @@ export const memoize = <T extends AnyFunction>(fn: T): T => {
     const result = fn(...args);
     cache.set(key, result);
     return result;
-  }) as T;
+  });
 };
 
 export const useMemoizedCalculation = <T>(
@@ -22,24 +22,24 @@ export const useMemoizedCalculation = <T>(
   return useMemo(() => calculationFunction(), dependencies);
 };
 
-export const useMemoizedCallback = <T extends AnyFunction>(
-  callback: T,
+export const useMemoizedCallback = <Args extends unknown[], Return>(
+  callback: GenericFunction<Args, Return>,
   dependencies: React.DependencyList
-): T => {
-  return useCallback(callback, dependencies) as T;
+): GenericFunction<Args, Return> => {
+  return useCallback(callback, dependencies);
 };
 
-export const createMemoizedSelector = <T extends AnyFunction, U extends AnyFunction>(
-  selectors: T[],
-  compute: U
-): ((...args: Parameters<T>) => ReturnType<U>) => {
-  let lastArgs: ReturnType<T>[] | null = null;
-  let lastResult: ReturnType<U> | null = null;
+export const createMemoizedSelector = <T extends unknown[], U, V>(
+  selectors: GenericFunction<T, U>[],
+  compute: GenericFunction<U[], V>
+): GenericFunction<T, V> => {
+  let lastArgs: U[] = [];
+  let lastResult: V | null = null;
 
-  return (...args: Parameters<T>): ReturnType<U> => {
+  return (...args: T): V => {
     const currentArgs = selectors.map((selector) => selector(...args));
 
-    if (lastArgs && currentArgs.every((arg, index) => arg === lastArgs[index])) {
+    if (lastArgs !== null && currentArgs.every((arg, index) => arg === lastArgs[index])) {
       return lastResult!;
     }
 

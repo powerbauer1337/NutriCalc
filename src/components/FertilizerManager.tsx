@@ -7,13 +7,7 @@ interface SelectedFertilizer {
   active: boolean;
 }
 
-interface FertilizerData {
-  name: string;
-  type: 'liquid' | 'powder';
-  unit: string;
-  composition: Record<string, number>;
-  description?: string;
-}
+import { FertilizerData } from '../types';
 
 interface FertilizerManagerProps {
   selectedFertilizers: SelectedFertilizer[];

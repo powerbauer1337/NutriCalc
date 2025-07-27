@@ -21,7 +21,7 @@ const initialCustomWaterProfile = {
   baseEC: 0.0,
 };
 
-const defaultFertilizerSelection = [
+const defaultFertilizerSelection: Array<{ id: string; amount: number; active: boolean }> = [
   // Example: { id: 'hesi_tnt', amount: 3.0, active: true },
 ];
 
@@ -37,7 +37,23 @@ interface SetupTabProps {
   GROWTH_STAGES: typeof GROWTH_STAGES;
   WATER_TYPES: typeof WATER_TYPES;
   fertilizerDatabase: Record<string, Fertilizer>;
-  onAnalysisUpdate?: (data: Record<string, unknown>) => void;
+  onAnalysisUpdate?: (data: {
+    NUTRIENT_FIELDS: typeof NUTRIENT_FIELDS;
+    GROWTH_STAGES: typeof GROWTH_STAGES;
+    WATER_TYPES: typeof WATER_TYPES;
+    fertilizerDatabase: Record<string, Fertilizer>;
+    selectedFertilizers: Array<{ id: string; amount: number; active: boolean }>;
+    waterVolume: number;
+    growthStage: string;
+    waterType: string;
+    customWaterProfile: Record<string, number>;
+    results: {
+      nutrients: Record<string, number>;
+      contributions: Record<string, Record<string, number>>;
+      stage: any;
+    };
+    mixedWater?: Record<string, number>;
+  }) => void;
   mixedWater?: Record<string, number>;
 }
 
@@ -66,14 +82,14 @@ export const SetupTab: React.FC<SetupTabProps> = ({
     Array<{ id: string; amount: number; active: boolean }>
   >(defaultFertilizerSelection);
 
-  const initialNutrientResults = {};
+  const initialNutrientResults: Record<string, number> = {};
   mainNutrients.forEach((field) => {
     initialNutrientResults[field.key] = 0;
   });
 
   const [results, setResults] = useState({
     nutrients: initialNutrientResults,
-    contributions: {},
+    contributions: {} as Record<string, Record<string, number>>,
     stage: GROWTH_STAGES[growthStage],
   });
 
@@ -130,7 +146,7 @@ export const SetupTab: React.FC<SetupTabProps> = ({
   }, [fertilizerDatabase]);
 
   // Fertilizer handlers
-  const addFertilizer = (id) => {
+  const addFertilizer = (id: string) => {
     if (!id || selectedFertilizers.find((f) => f.id === id)) return;
     const fert = fertilizerDatabase[id];
     setSelectedFertilizers((prev) => [
@@ -138,10 +154,10 @@ export const SetupTab: React.FC<SetupTabProps> = ({
       { id, amount: fert?.type === 'powder' ? 0.1 : 1.0, active: true },
     ]);
   };
-  const removeFertilizer = (id) => {
+  const removeFertilizer = (id: string) => {
     setSelectedFertilizers((prev) => prev.filter((f) => f.id !== id));
   };
-  const updateFertilizerAmount = (id, value) => {
+  const updateFertilizerAmount = (id: string, value: string) => {
     const amount = parseFloat(value);
     setSelectedFertilizers((prev) =>
       prev.map((f) =>
@@ -149,7 +165,7 @@ export const SetupTab: React.FC<SetupTabProps> = ({
       )
     );
   };
-  const toggleFertilizer = (id) => {
+  const toggleFertilizer = (id: string) => {
     setSelectedFertilizers((prev) =>
       prev.map((f) => (f.id === id ? { ...f, active: !f.active } : f))
     );
@@ -184,13 +200,15 @@ export const SetupTab: React.FC<SetupTabProps> = ({
     }
   };
 
-  const handleImport = (e) => {
-    const file = e.target.files[0];
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (evt) => {
       try {
-        const data = JSON.parse(evt.target.result);
+        const result = evt.target?.result;
+        if (typeof result !== 'string') throw new Error();
+        const data = JSON.parse(result);
         if (!data || typeof data !== 'object') throw new Error();
         setSelectedFertilizers(
           Array.isArray(data.selectedFertilizers) ? data.selectedFertilizers : []
@@ -438,7 +456,7 @@ export const SetupTab: React.FC<SetupTabProps> = ({
             <CardHeader>
               <CardTitle>Dünger & Dosierung</CardTitle>
             </CardHeader>
-            <CardContent padding="none">
+            <CardContent>
               <FertilizerManager
                 selectedFertilizers={selectedFertilizers}
                 fertilizerDatabase={fertilizerDatabase}

@@ -15,15 +15,23 @@ export interface Fertilizer {
   composition?: Record<string, number>;
 }
 
+// Updated FertilizerData to be compatible with Fertilizer
 export interface FertilizerData {
+  id?: string; // Optional id to make it compatible with Fertilizer
   name: string;
   type: 'powder' | 'liquid';
   unit: string;
-  composition: Record<string, number>;
+  n: number; // Explicit NPK values for compatibility
+  p: number;
+  k: number;
+  ec: number;
+  ph: number;
   description?: string;
   category?: string;
+  composition?: Record<string, number>;
 }
 
+// Keep existing FertilizerDatabase interface
 export interface FertilizerDatabase {
   [key: string]: FertilizerData;
 }
@@ -145,8 +153,8 @@ export interface ChatBarProps {
 
 export interface AnalysisTabProps {
   NUTRIENT_FIELDS: NutrientField[];
-  GROWTH_STAGES: GrowthStageConfig[];
-  WATER_TYPES: WaterTypeConfig[];
+  GROWTH_STAGES: Record<string, GrowthStageConfig>;
+  WATER_TYPES: Record<string, WaterTypeConfig>;
   fertilizerDatabase: Record<string, Fertilizer>;
   selectedFertilizers: SelectedFertilizer[];
   waterVolume: number;
@@ -165,24 +173,16 @@ export interface NutrientField {
   optimal: number;
 }
 
-export interface GrowthStageConfig {
+// Updated GrowthStageConfig to include all properties from GrowthStage
+export interface GrowthStageConfig extends GrowthStage {
   value: string;
   label: string;
-  n: { min: number; max: number };
-  p: { min: number; max: number };
-  k: { min: number; max: number };
-  ec: { min: number; max: number };
-  ph: { min: number; max: number };
 }
 
-export interface WaterTypeConfig {
+// Updated WaterTypeConfig to include all properties from WaterType
+export interface WaterTypeConfig extends WaterType {
   value: string;
   label: string;
-  ec: number;
-  ph: number;
-  n: number;
-  p: number;
-  k: number;
 }
 
 export interface ToastContextType {
@@ -191,7 +191,7 @@ export interface ToastContextType {
 }
 
 export interface Toast {
-  id: string;
+  id: string; // Changed from number to string for consistency
   message: string;
   type: 'success' | 'error' | 'warning' | 'info';
   duration?: number;

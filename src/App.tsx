@@ -25,7 +25,7 @@ import {
 import { useApiKey } from './hooks/useApiKey';
 import MixingAssistant from './components/MixingAssistant';
 import WateringScheduler from './components/WateringScheduler';
-import { Fertilizer } from './types';
+import { Fertilizer, SelectedFertilizer, NutrientCalculation } from './types';
 
 const DarkModeToggle = () => {
   const { theme, toggleTheme } = useTheme();
@@ -60,8 +60,17 @@ const DarkModeToggle = () => {
   );
 };
 
+// Define the FertilizerData type as it's used in constants
+interface LocalFertilizerData {
+  name: string;
+  type: 'powder' | 'liquid';
+  unit: string;
+  description?: string;
+  composition: any; // Use 'any' to match the FertilizerComposition type from constants
+}
+
 function mergeFertilizerDatabases(
-  baseDb: Record<string, Fertilizer>,
+  baseDb: Record<string, LocalFertilizerData>,
   customList: Fertilizer[]
 ): Record<string, Fertilizer> {
   const customDb: Record<string, Fertilizer> = {};
@@ -81,7 +90,31 @@ function mergeFertilizerDatabases(
       description: fert.description || 'Benutzerdefinierter Dünger',
     };
   });
-  return { ...baseDb, ...customDb };
+  
+  // Convert baseDb to Record<string, Fertilizer>
+  const convertedBaseDb: Record<string, Fertilizer> = {};
+  Object.entries(baseDb).forEach(([key, value]) => {
+    const composition: Record<string, number> = {};
+    Object.entries(value.composition || {}).forEach(([k, v]) => {
+      composition[k.toLowerCase()] = Number(v) || 0;
+    });
+    
+    convertedBaseDb[key] = {
+      id: key,
+      name: value.name,
+      type: value.type,
+      unit: value.unit,
+      n: value.composition['n'] || 0,
+      p: value.composition['p'] || 0,
+      k: value.composition['k'] || 0,
+      ec: 0, // Default values since they're not in FertilizerComposition
+      ph: 0,
+      composition,
+      description: value.description,
+    };
+  });
+  
+  return { ...convertedBaseDb, ...customDb };
 }
 
 const AppLayout = () => {
@@ -96,7 +129,18 @@ const AppLayout = () => {
     }
     return mergeFertilizerDatabases(BASE_FERTILIZER_DATABASE, customList);
   });
-  const [analysisInputs, setAnalysisInputs] = useState({
+  const [analysisInputs, setAnalysisInputs] = useState<{
+    NUTRIENT_FIELDS: typeof NUTRIENT_FIELDS;
+    GROWTH_STAGES: typeof GROWTH_STAGES;
+    WATER_TYPES: typeof WATER_TYPES;
+    fertilizerDatabase: Record<string, Fertilizer>;
+    selectedFertilizers: SelectedFertilizer[];
+    waterVolume: number;
+    growthStage: string;
+    waterType: string;
+    customWaterProfile: Record<string, number>;
+    results: NutrientCalculation;
+  }>({
     NUTRIENT_FIELDS,
     GROWTH_STAGES,
     WATER_TYPES,
@@ -107,7 +151,7 @@ const AppLayout = () => {
     waterType: Object.keys(WATER_TYPES)[0],
     customWaterProfile: {},
     results: {
-      nutrients: {},
+      nutrients: { n: 0, p: 0, k: 0, ec: 0, ph: 0 },
       contributions: {},
       stage: GROWTH_STAGES[Object.keys(GROWTH_STAGES)[0]],
     },
@@ -122,7 +166,7 @@ const AppLayout = () => {
   const chatSuggestions: string[] = ['Wie erstelle ich einen Dünger?', 'Ist mein N-Wert ok?', 'Was ist EC?'];
 
   // Stabilize the onAnalysisUpdate callback to prevent hot reload loops
-  const handleAnalysisUpdate = React.useCallback((data: Record<string, unknown>) => {
+  const handleAnalysisUpdate = React.useCallback((data: typeof analysisInputs) => {
     setAnalysisInputs(data);
   }, []);
 

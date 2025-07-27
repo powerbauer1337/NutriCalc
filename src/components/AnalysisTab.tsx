@@ -1,71 +1,39 @@
 import React from 'react';
 import { getNutrientStatus, getStatusColor } from '../utils/nutrientUtils';
-
-interface NutrientField {
-  key: string;
-  label: string;
-}
-
-interface GrowthStage {
-  name: string;
-  [key: string]: string | number | { min: number; max: number };
-}
-
-interface WaterType {
-  name: string;
-}
-
-interface FertilizerDatabase {
-  [key: string]: Record<string, unknown>;
-}
-
-interface SelectedFertilizer {
-  [key: string]: string | number | boolean;
-}
-
-interface CustomWaterProfile {
-  [key: string]: number;
-}
-
-interface Results {
-  nutrients?: {
-    [key: string]: number;
-  };
-}
+import { NutrientField, GrowthStageConfig, WaterTypeConfig, Fertilizer, SelectedFertilizer, NutrientCalculation } from '../types';
 
 interface AnalysisTabProps {
   NUTRIENT_FIELDS: NutrientField[];
-  GROWTH_STAGES: { [key: string]: GrowthStage };
-  WATER_TYPES: { [key: string]: WaterType };
-  fertilizerDatabase: FertilizerDatabase;
+  GROWTH_STAGES: Record<string, GrowthStageConfig>;
+  WATER_TYPES: Record<string, WaterTypeConfig>;
+  fertilizerDatabase: Record<string, Fertilizer>;
   selectedFertilizers: SelectedFertilizer[];
   waterVolume: number;
   growthStage: string;
   waterType: string;
-  customWaterProfile: CustomWaterProfile;
-  results: Results;
+  customWaterProfile: Record<string, number>;
+  results: NutrientCalculation;
 }
 
 const AnalysisTab: React.FC<AnalysisTabProps> = ({
   NUTRIENT_FIELDS,
   GROWTH_STAGES,
-  _WATER_TYPES,
-  _fertilizerDatabase,
-  _selectedFertilizers,
-  _waterVolume,
+  fertilizerDatabase: _fertilizerDatabase,
+  selectedFertilizers: _selectedFertilizers,
+  waterVolume: _waterVolume,
   growthStage,
-  _waterType,
-  _customWaterProfile,
+  waterType: _waterType,
+  customWaterProfile: _customWaterProfile,
   results,
 }) => {
   // Determine optimal ranges for the current growth stage
-  const stage = GROWTH_STAGES[growthStage] || {};
+  const stage = GROWTH_STAGES[growthStage] || {} as any;
 
   // Warnings for suboptimal nutrients
   const warnings = NUTRIENT_FIELDS.filter((field) => {
-    const value = results.nutrients?.[field.key];
-    const range = stage[field.key];
-    return value !== undefined && range && (value < range[0] || value > range[1]);
+    const value = results.nutrients?.[field.key as keyof typeof results.nutrients];
+    const range = stage[field.key as keyof typeof stage];
+    return value !== undefined && range && Array.isArray(range) && (value < range[0] || value > range[1]);
   });
 
   // Optimization tips (simple version)
@@ -95,9 +63,15 @@ const AnalysisTab: React.FC<AnalysisTabProps> = ({
           </thead>
           <tbody>
             {NUTRIENT_FIELDS.map((field) => {
-              const value = results.nutrients?.[field.key];
-              const range = stage[field.key];
-              const status = getNutrientStatus(value, range);
+              const value = results.nutrients?.[field.key as keyof typeof results.nutrients];
+              const rangeObj = stage[field.key as keyof typeof stage];
+              let range: [number, number] | undefined;
+              
+              if (rangeObj && typeof rangeObj === 'object' && 'min' in rangeObj && 'max' in rangeObj) {
+                range = [rangeObj.min, rangeObj.max];
+              }
+              
+              const status = range ? getNutrientStatus(Number(value), range) : 'unknown';
               return (
                 <tr key={field.key} className={getStatusColor(status)}>
                   <td className="px-2 py-1 font-medium">{field.label}</td>

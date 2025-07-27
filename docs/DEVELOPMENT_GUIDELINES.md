@@ -69,6 +69,28 @@ import { calculateEC, NutrientData } from './utils/nutrientUtils'
 4. **Controlled vs Uncontrolled**: Use controlled components when state needs to be managed externally
 5. **Accessibility**: Build accessibility in from the start
 
+### Component Library Structure
+The component library is organized into the following categories:
+1. **Foundational Components**
+2. **Layout Components**
+3. **Input Components**
+4. **Data Display Components**
+5. **Feedback Components**
+6. **Navigation Components**
+7. **Form Components
+
+For detailed information about the component library structure, see [Component Structure Diagram](./component-structure-diagram.md).
+
+### Component Hierarchy
+Components are organized in a hierarchy from simple to complex:
+1. **Atomic Components** - Basic building blocks
+2. **Molecular Components** - Simple combinations
+3. **Organismic Components** - Complex components
+4. **Template Components** - Page-level compositions
+5. **Page Components** - Specific implementations
+
+For detailed information about the component hierarchy, see [Component Hierarchy Diagram](./component-hierarchy-diagram.md).
+
 ### TypeScript Interfaces
 All components must have properly defined TypeScript interfaces:
 
@@ -133,6 +155,9 @@ export default Component
 - **Default Props**: Use defaultVariants with CVA instead of defaultProps
 - **Prop Validation**: Comprehensive TypeScript interfaces instead of PropTypes
 - **Error Boundaries**: Wrap components that might fail in ErrorBoundary
+
+### Component Status
+For information about the current status of components and implementation priorities, see [COMPONENT_STATUS.md](./COMPONENT_STATUS.md).
 
 ## State Management
 
@@ -225,11 +250,16 @@ const buttonVariants = cva(
 ```
 
 ### Design System Implementation
+For detailed information about the design system, see [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md).
+
 - **Tokens**: Use CSS custom properties for design tokens
 - **Consistency**: Maintain consistent styling across components
 - **Accessibility**: Ensure proper color contrast ratios
 - **Responsive**: Implement mobile-first responsive design
 - **Theming**: Support light and dark themes
+
+### Component API Standardization
+For detailed information about component API standardization guidelines, see [DESIGN_SYSTEM_PLAN.md](./DESIGN_SYSTEM_PLAN.md).
 
 ## Performance Optimization
 
@@ -311,6 +341,9 @@ describe('Button', () => {
 - **Accessibility**: Include accessibility tests
 - **Snapshot Testing**: Use sparingly for UI structure verification
 
+### Testing Strategies
+For detailed information about testing strategies for new components, see [DESIGN_SYSTEM_PLAN.md](./DESIGN_SYSTEM_PLAN.md).
+
 ### End-to-End Testing with Playwright
 ```typescript
 import { test, expect } from '@playwright/test'
@@ -363,6 +396,9 @@ test('should calculate nutrients correctly', async ({ page }) => {
 - **Focus Indicators**: Visible focus states
 - **Keyboard Shortcuts**: Application-specific shortcuts
 - **Trap Focus**: Contain focus within modals/dialogs
+
+### Accessibility Considerations
+For detailed accessibility considerations for each component category, see [DESIGN_SYSTEM_PLAN.md](./DESIGN_SYSTEM_PLAN.md).
 
 ## Security Practices
 
@@ -455,6 +491,8 @@ const Button: React.FC<ButtonProps> = ({ /* ... */ }) => {
 4. **Best Practices**: Recommended usage patterns
 5. **Accessibility**: Accessibility considerations
 6. **Related Components**: Links to related functionality
+
+For comprehensive documentation about the component library, see [COMPONENTS.md](./COMPONENTS.md).
 
 ## Deployment and Release Process
 

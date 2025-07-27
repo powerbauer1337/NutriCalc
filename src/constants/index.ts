@@ -27,10 +27,11 @@ export const TABS_CONFIG = [
 
 interface GrowthStageConfig {
   name: string;
-  n: [number, number];
-  p: [number, number];
-  k: [number, number];
-  ec: [number, number];
+  n: { min: number; max: number };
+  p: { min: number; max: number };
+  k: { min: number; max: number };
+  ec: { min: number; max: number };
+  ph: { min: number; max: number };
 }
 
 interface GrowthStages {
@@ -45,6 +46,7 @@ export const GROWTH_STAGES: GrowthStages = {
     p: [30, 50],
     k: [100, 150],
     ec: [0.8, 1.2],
+    ph: [5.5, 6.5],
   },
   late_veg: {
     name: 'Späte Vegetation',
@@ -52,6 +54,7 @@ export const GROWTH_STAGES: GrowthStages = {
     p: [50, 70],
     k: [150, 200],
     ec: [1.2, 1.6],
+    ph: [5.5, 6.5],
   },
   early_flower: {
     name: 'Frühe Blüte',
@@ -59,6 +62,7 @@ export const GROWTH_STAGES: GrowthStages = {
     p: [70, 90],
     k: [200, 250],
     ec: [1.4, 1.8],
+    ph: [5.5, 6.5],
   },
   mid_flower: {
     name: 'Mittlere Blüte',
@@ -66,6 +70,7 @@ export const GROWTH_STAGES: GrowthStages = {
     p: [90, 110],
     k: [250, 300],
     ec: [1.6, 2.0],
+    ph: [5.5, 6.5],
   },
   late_flower: {
     name: 'Späte Blüte',
@@ -73,6 +78,7 @@ export const GROWTH_STAGES: GrowthStages = {
     p: [110, 130],
     k: [300, 350],
     ec: [1.8, 2.2],
+    ph: [5.5, 6.5],
   },
 };
 
